@@ -6,9 +6,9 @@ Technical Demonstration Video -
 
 Showcase Video - 
 
-Reflection
+Reflection -
 
-Project Schedule - 
+Project Schedule - [ProjectSchedule_GADS_P2_v1.xlsx](https://github.com/user-attachments/files/27166062/ProjectSchedule_GADS_P2_v1.xlsx)
 
 Scheduled Feedback Sessions
 
