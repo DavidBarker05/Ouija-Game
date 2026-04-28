@@ -1,13 +1,23 @@
 Part 2
 -------------------------------------------------------------------------------------------------------------------------------------------------------
-High Concept Document -
+High Concept Document - 
+
 Technical Demonstration Video - 
+
 Showcase Video - 
+
+Reflection
+
 Project Schedule - 
+
 Scheduled Feedback Sessions
+
 setup.md -
+
 readme.md - 
+
 ollama-plan.md - 
+
 refinements-changes.md - 
 
 
