@@ -31,20 +31,17 @@ namespace OurAssets.Scripts.Chat
         [SerializeField] private int unloadRequestTimeoutSeconds = 10;
 
         private readonly Dictionary<string, DateTime> _lastModelResponseUtc = new Dictionary<string, DateTime>();
-        private readonly SemaphoreSlim _startupLock = new SemaphoreSlim(1, 1);
 
         private OllamaClient _ollamaClient;
-        private OllamaProcessManager _processManager;
         private OuijaConversationState _conversationState;
         private string _latestStoryContext;
-        private bool _startupValidated;
         private bool _isUnloadingModels;
+        private bool _isQuitting;
 
         public OuijaConversationState ConversationState => _conversationState;
 
         private void Awake()
         {
-            _processManager = new OllamaProcessManager();
             _ollamaClient = new OllamaClient(ollamaBaseUrl);
             _conversationState = new OuijaConversationState();
             RebuildConstants();
@@ -52,6 +49,11 @@ namespace OurAssets.Scripts.Chat
 
         private void OnApplicationPause(bool pauseStatus)
         {
+            if (_isQuitting)
+            {
+                return;
+            }
+
             if (pauseStatus)
             {
                 TriggerModelUnload("application paused");
@@ -60,6 +62,11 @@ namespace OurAssets.Scripts.Chat
 
         private void OnApplicationFocus(bool hasFocus)
         {
+            if (_isQuitting)
+            {
+                return;
+            }
+
             if (!hasFocus)
             {
                 TriggerModelUnload("application minimized/unfocused");
@@ -68,7 +75,16 @@ namespace OurAssets.Scripts.Chat
 
         private void OnApplicationQuit()
         {
-            TriggerModelUnload("application quit");
+            _isQuitting = true;
+            bool stoppedOwnedServer = ShutdownOwnedOllamaServer();
+            if (!stoppedOwnedServer)
+            {
+                TriggerModelUnload("application quit");
+            }
+            else
+            {
+                _lastModelResponseUtc.Clear();
+            }
         }
 
         [ContextMenu("Generate Story Context")]
@@ -158,44 +174,20 @@ namespace OurAssets.Scripts.Chat
 
         private async Task EnsureOllamaReadyAsync(CancellationToken cancellationToken)
         {
-            if (_startupValidated)
+            OllamaProcessManager.StartupResult result = await _ollamaClient.EnsureServerReadyAsync(
+                ollamaStartupTimeoutSeconds,
+                ollamaProbeIntervalSeconds,
+                cancellationToken);
+
+            if (!result.IsAvailable)
             {
-                return;
+                throw new InvalidOperationException(
+                    $"Ollama is unavailable. {result.ErrorMessage}");
             }
 
-            await _startupLock.WaitAsync(cancellationToken);
-            try
+            if (result.DidStartProcess)
             {
-                if (_startupValidated)
-                {
-                    return;
-                }
-
-                OllamaProcessManager.StartupResult result = await _processManager.EnsureServerRunningAsync(
-                    ollamaStartupTimeoutSeconds,
-                    ollamaProbeIntervalSeconds,
-                    cancellationToken);
-
-                if (!result.IsAvailable)
-                {
-                    throw new InvalidOperationException(
-                        $"Ollama is unavailable. {result.ErrorMessage}");
-                }
-
-                if (result.DidStartProcess)
-                {
-                    Debug.Log("Ollama server was not running and has been started.");
-                }
-                else
-                {
-                    Debug.Log("Ollama server is already running.");
-                }
-
-                _startupValidated = true;
-            }
-            finally
-            {
-                _startupLock.Release();
+                Debug.Log("Ollama server was not running and has been started.");
             }
         }
 
@@ -231,6 +223,28 @@ namespace OurAssets.Scripts.Chat
             {
                 _isUnloadingModels = false;
             }
+        }
+
+        private bool ShutdownOwnedOllamaServer()
+        {
+            if (_ollamaClient == null)
+            {
+                return false;
+            }
+
+            bool stopped = _ollamaClient.ShutdownOwnedServer(out string errorMessage);
+            if (stopped)
+            {
+                Debug.Log("Stopped Ollama server because this game session started it.");
+                return true;
+            }
+
+            if (!string.IsNullOrWhiteSpace(errorMessage))
+            {
+                Debug.LogWarning(errorMessage);
+            }
+
+            return false;
         }
 
         private void RebuildConstants()

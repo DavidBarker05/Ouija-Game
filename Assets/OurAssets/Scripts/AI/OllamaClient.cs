@@ -19,10 +19,52 @@ namespace OurAssets.Scripts.AI
         }
 
         private readonly string _baseUrl;
+        private readonly OllamaProcessManager _processManager;
+        private readonly SemaphoreSlim _startupLock = new SemaphoreSlim(1, 1);
+        private bool _startupValidated;
+        private bool _serverOwnedByThisSession;
 
         public OllamaClient(string baseUrl = "http://127.0.0.1:11434")
         {
             _baseUrl = baseUrl.TrimEnd('/');
+            _processManager = new OllamaProcessManager();
+        }
+
+        public async Task<OllamaProcessManager.StartupResult> EnsureServerReadyAsync(
+            int startupTimeoutSeconds,
+            float probeIntervalSeconds,
+            CancellationToken cancellationToken = default)
+        {
+            if (_startupValidated)
+            {
+                return new OllamaProcessManager.StartupResult { IsAvailable = true, DidStartProcess = false };
+            }
+
+            await _startupLock.WaitAsync(cancellationToken);
+            try
+            {
+                if (_startupValidated)
+                {
+                    return new OllamaProcessManager.StartupResult { IsAvailable = true, DidStartProcess = false };
+                }
+
+                OllamaProcessManager.StartupResult result = await _processManager.EnsureServerRunningAsync(
+                    startupTimeoutSeconds,
+                    probeIntervalSeconds,
+                    cancellationToken);
+
+                if (result.IsAvailable)
+                {
+                    _startupValidated = true;
+                    _serverOwnedByThisSession = result.DidStartProcess;
+                }
+
+                return result;
+            }
+            finally
+            {
+                _startupLock.Release();
+            }
         }
 
         public async Task<OllamaChatResponse> SendChatAsync(
@@ -108,6 +150,24 @@ namespace OurAssets.Scripts.AI
                 throw new InvalidOperationException(
                     $"Ollama unload failed for {modelName} ({request.responseCode}): {request.error}. Body: {request.downloadHandler.text}");
             }
+        }
+
+        public bool ShutdownOwnedServer(out string errorMessage)
+        {
+            errorMessage = string.Empty;
+            if (!_serverOwnedByThisSession)
+            {
+                return false;
+            }
+
+            bool stopped = _processManager.StopOwnedServer(out errorMessage);
+            if (stopped)
+            {
+                _serverOwnedByThisSession = false;
+                _startupValidated = false;
+            }
+
+            return stopped;
         }
     }
 }
