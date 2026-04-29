@@ -523,11 +523,12 @@ MonoBehaviour:
   ollamaProbeIntervalSeconds: 0.5
   storyModelName: llama3.2
   ouijaModelName: llama3.2
-  ouijaSystemPrompt: 
-  storyPromptInput: 
+  ouijaSystemPrompt: Say hello
+  storyPromptInput: Say hello
   keepAliveSeconds: 120
   warmRequestTimeoutSeconds: 20
   coldStartTimeoutSeconds: 90
+  unloadRequestTimeoutSeconds: 10
 --- !u!4 &1273263448
 Transform:
   m_ObjectHideFlags: 0
