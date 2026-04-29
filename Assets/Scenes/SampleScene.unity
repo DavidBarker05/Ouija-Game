@@ -489,6 +489,60 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7b98b76203bc8a9468efc6b646f8d9f1, type: 3}
+--- !u!1 &1273263446
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1273263448}
+  - component: {fileID: 1273263447}
+  m_Layer: 0
+  m_Name: OuijaTest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1273263447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1273263446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 867d92cbeee76b149967e1771cf7e72d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OurAssets.Scripts.Chat.OuijaAiOrchestrator
+  ollamaBaseUrl: http://127.0.0.1:11434
+  ollamaStartupTimeoutSeconds: 20
+  ollamaProbeIntervalSeconds: 0.5
+  storyModelName: llama3.2
+  ouijaModelName: llama3.2
+  ouijaSystemPrompt: 
+  storyPromptInput: 
+  keepAliveSeconds: 120
+  warmRequestTimeoutSeconds: 20
+  coldStartTimeoutSeconds: 90
+--- !u!4 &1273263448
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1273263446}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -497,3 +551,4 @@ SceneRoots:
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 1027894526}
+  - {fileID: 1273263448}
