@@ -10,6 +10,7 @@ namespace OurAssets.Scripts.AI
     {
         private const string DefaultBaseUrl = "http://127.0.0.1:11434";
         private static readonly HttpClient HttpClient = new HttpClient();
+        private Process _ownedServerProcess;
 
         public sealed class StartupResult
         {
@@ -74,7 +75,33 @@ namespace OurAssets.Scripts.AI
             }
         }
 
-        private static bool TryStartOllamaServe(out string errorMessage)
+        public bool StopOwnedServer(out string errorMessage)
+        {
+            errorMessage = string.Empty;
+            if (_ownedServerProcess == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                if (_ownedServerProcess.HasExited)
+                {
+                    return false;
+                }
+
+                _ownedServerProcess.Kill();
+                _ownedServerProcess.WaitForExit(2000);
+                return true;
+            }
+            catch (Exception exception)
+            {
+                errorMessage = $"Failed to stop owned ollama serve process: {exception.Message}";
+                return false;
+            }
+        }
+
+        private bool TryStartOllamaServe(out string errorMessage)
         {
             try
             {
@@ -88,7 +115,12 @@ namespace OurAssets.Scripts.AI
                     RedirectStandardError = false
                 };
 
-                Process.Start(startInfo);
+                _ownedServerProcess = Process.Start(startInfo);
+                if (_ownedServerProcess == null)
+                {
+                    errorMessage = "Process.Start returned null for ollama serve.";
+                    return false;
+                }
                 errorMessage = string.Empty;
                 return true;
             }

@@ -44,3 +44,25 @@ This file tracks the Unity + Ollama integration work completed so far.
   - Added explicit model unload calls to Ollama (`/api/generate` with `keep_alive: "0s"`).
   - Triggers unload when app is paused, loses focus/minimized, or quits.
   - Clears warm-state timestamps immediately so the next model request uses cold-start timeout behavior.
+
+- Updated `Assets/OurAssets/Scripts/AI/OllamaClient.cs` and `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs`
+  - AI assisted: yes.
+  - Moved Ollama server readiness/startup responsibility into `OllamaClient`.
+  - `OuijaAiOrchestrator` now delegates server readiness checks to client layer.
+
+- Updated `Assets/OurAssets/Scripts/AI/OllamaProcessManager.cs`, `Assets/OurAssets/Scripts/AI/OllamaClient.cs`, and `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs`
+  - AI assisted: yes.
+  - Tracks whether the current game session started `ollama serve`.
+  - On game quit, only stops Ollama if this session started it.
+  - If Ollama was already running before launch, game quit leaves it running.
+
+- Updated `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs`
+  - AI assisted: yes.
+  - On quit, attempts to stop owned Ollama server first.
+  - If owned server is stopped, skip model unload on quit.
+  - If server is not stopped (pre-existing server), still unload models on quit.
+
+- Updated `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs`
+  - AI assisted: yes.
+  - Added quit guard for Unity lifecycle ordering (`_isQuitting`).
+  - Prevents `OnApplicationPause` / `OnApplicationFocus` from triggering unload logic during quit.
