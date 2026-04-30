@@ -11,6 +11,8 @@ public class PostBuildCopy : IPostprocessBuildWithReport
 	{
 		string projectPath = Application.dataPath.Substring(0, Application.dataPath.LastIndexOf('/')).Replace('/', '\\');
 		string buildPath = Path.GetDirectoryName(report.summary.outputPath);
+		CopyFile("StoryModel.txt", projectPath, buildPath);
+		CopyFile("OuijaModel.txt", projectPath, buildPath);
 		CopyFile("Windows_Ollama_Setup.exe", projectPath, buildPath);
 		CopyFile("Linux_Ollama_Setup", projectPath, buildPath);
 		//CopyFile("Apple_Ollama_Setup.app", applicationPath, buildPath); // Left out because don't own a Mac and don't feel like illegally using a VM for MacOS
