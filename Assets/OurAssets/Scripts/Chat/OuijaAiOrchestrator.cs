@@ -15,10 +15,10 @@ namespace OurAssets.Scripts.Chat
         [SerializeField] private float ollamaProbeIntervalSeconds = 0.5f;
 
         [Header("Models")]
-        [SerializeField] private string storyModelName = "llama3.2";
-        [SerializeField] private string ouijaModelName = "llama3.2";
+		[SerializeField] private string fallbackStoryModelName = "llama3.2";
+		[SerializeField] private string fallbackOuijaModelName = "llama3.2";
 
-        [Header("Prompts")]
+		[Header("Prompts")]
         [TextArea(2, 6)]
         [SerializeField] private string ouijaSystemPrompt;
         [TextArea(2, 6)]
@@ -32,18 +32,24 @@ namespace OurAssets.Scripts.Chat
 
         private readonly Dictionary<string, DateTime> _lastModelResponseUtc = new Dictionary<string, DateTime>();
 
-        private OllamaClient _ollamaClient;
+		private string storyModelName;
+		private string ouijaModelName;
+
+		private OllamaClient _ollamaClient;
         private OuijaConversationState _conversationState;
         private string _latestStoryContext;
         private bool _isUnloadingModels;
         private bool _isQuitting;
 
-        public OuijaConversationState ConversationState => _conversationState;
+		string ApplicationPath => Application.dataPath.Substring(0, Application.dataPath.LastIndexOf('/')); // David - The path of the application, this is where the executable is for the build or in the project is for the editor
+
+		public OuijaConversationState ConversationState => _conversationState;
 
         private void Awake()
         {
             _ollamaClient = new OllamaClient(ollamaBaseUrl);
             _conversationState = new OuijaConversationState();
+            GetAIModels();
             RebuildConstants();
         }
 
@@ -87,7 +93,45 @@ namespace OurAssets.Scripts.Chat
             }
         }
 
-        [ContextMenu("Generate Story Context")]
+        void GetAIModels() // David - Get the AI model names from their folders
+        {
+            string path = ApplicationPath;
+            if (!path.EndsWith('/')) path += '/';
+            string storyFile = path + "StoryModel.txt";
+            if (System.IO.File.Exists(storyFile))
+            {
+                string storyContents = System.IO.File.ReadAllText(storyFile);
+				if (string.IsNullOrWhiteSpace(storyContents))
+                {
+					System.IO.File.WriteAllText(storyFile, fallbackStoryModelName);
+					storyModelName = fallbackStoryModelName;
+				}
+                else storyModelName = storyContents.Split(' ')[0];
+            }
+            else
+            {
+				System.IO.File.WriteAllText(storyFile, fallbackStoryModelName);
+                storyModelName = fallbackStoryModelName;
+			}
+            string ouijaFile = path + "OuijaModel.txt";
+			if (System.IO.File.Exists(ouijaFile))
+			{
+				string ouijaContents = System.IO.File.ReadAllText(ouijaFile);
+				if (string.IsNullOrWhiteSpace(ouijaContents))
+				{
+					System.IO.File.WriteAllText(ouijaFile, fallbackOuijaModelName);
+					ouijaModelName = fallbackStoryModelName;
+				}
+				else ouijaModelName = ouijaContents.Split(' ')[0];
+			}
+			else
+			{
+				System.IO.File.WriteAllText(ouijaFile, fallbackOuijaModelName);
+				ouijaModelName = fallbackOuijaModelName;
+			}
+		}
+
+		[ContextMenu("Generate Story Context")]
         public async void GenerateStoryContextFromInspector()
         {
             try
