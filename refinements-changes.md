@@ -111,6 +111,16 @@ This file tracks the Unity + Ollama integration work completed so far.
   - AI assissted: no (David).
   - Copies the Ollama setup files from the project folder to the executable folder on build
 
+- Forked [Jinja2.NET](https://github.com/AlexNek/Jinja2.NET) to create my own package that works with Unity called [Jinja2.NET.Unity](https://github.com/DavidBarker05/Jinja2.NET.Unity)
+  - Date: 07/05/2026
+  - AI assisted: no (David).
+  - Used to read prompts stored in Jinja2 files in Unity C# without python
+
+- Added `Jinja2.NET.Unity` as a package
+  - Date: 07/05/2026
+  - AI assisted: no (David)
+  - See above
+
 - Updated `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs` and added prompt assets in `Assets/Resources/Prompts/`
   - Date: 07/05/2026
   - AI assisted: yes.
