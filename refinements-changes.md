@@ -110,3 +110,14 @@ This file tracks the Unity + Ollama integration work completed so far.
   - Date: 30/04/2026
   - AI assissted: no (David).
   - Copies the Ollama setup files from the project folder to the executable folder on build
+
+- Updated `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs` and added prompt assets in `Assets/Resources/Prompts/`
+  - Date: 07/05/2026
+  - AI assisted: yes.
+  - Replaced serialized string prompt fields with serialized `TextAsset` prompt templates.
+  - Added prompt rendering via `Jinja2.NET.Template` before sending requests to Ollama.
+  - Added fallback loading from Unity `Resources` paths:
+    - `Prompts/OuijaSystemPrompt`
+    - `Prompts/StoryPrompt`
+  - Story context generation now renders the story template file first, then sends the rendered text to the story model.
+  - Ouija system constants now render from the system template file before being added to conversation context.

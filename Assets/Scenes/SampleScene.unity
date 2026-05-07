@@ -521,10 +521,10 @@ MonoBehaviour:
   ollamaBaseUrl: http://127.0.0.1:11434
   ollamaStartupTimeoutSeconds: 20
   ollamaProbeIntervalSeconds: 0.5
-  storyModelName: llama3.2
-  ouijaModelName: llama3.2
-  ouijaSystemPrompt: Say hello
-  storyPromptInput: Say hello
+  fallbackStoryModelName: llama3.2
+  fallbackOuijaModelName: llama3.2
+  ouijaSystemPromptTemplate: {fileID: 4900000, guid: ebc3dd28acc661444a16cd382a7c578e, type: 3}
+  storyPromptTemplate: {fileID: 4900000, guid: 83d840422d1bff847b34d58147ecd5c7, type: 3}
   keepAliveSeconds: 120
   warmRequestTimeoutSeconds: 20
   coldStartTimeoutSeconds: 90
