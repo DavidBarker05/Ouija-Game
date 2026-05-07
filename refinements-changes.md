@@ -136,3 +136,10 @@ This file tracks the Unity + Ollama integration work completed so far.
   - Date: 07/05/2026
   - AI assisted: no (David)
   - Now .j2 files are read as TextAssets by Unity which makes them easier to work with
+
+- Updated `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs`
+  - Date: 07/05/2026
+  - AI assisted: yes.
+  - Added inspector toggle `enableRegularDebugLogs` to control non-critical `Debug.Log` output.
+  - Wrapped regular logs with inline `if` checks to preserve original callsite stack traces.
+  - Kept `Debug.LogError` and `Debug.LogWarning` always-on for troubleshooting.
