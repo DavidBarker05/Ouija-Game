@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Jinja2.NET;
 using OurAssets.Scripts.AI;
 using UnityEngine;
 
@@ -19,10 +20,8 @@ namespace OurAssets.Scripts.Chat
 		[SerializeField] private string fallbackOuijaModelName = "llama3.2";
 
 		[Header("Prompts")]
-        [TextArea(2, 6)]
-        [SerializeField] private string ouijaSystemPrompt;
-        [TextArea(2, 6)]
-        [SerializeField] private string storyPromptInput;
+        [SerializeField] private TextAsset ouijaSystemPromptTemplate;
+        [SerializeField] private TextAsset storyPromptTemplate;
 
         [Header("Timing")]
         [SerializeField] private int keepAliveSeconds = 120;
@@ -44,6 +43,9 @@ namespace OurAssets.Scripts.Chat
 		string ApplicationPath => Application.dataPath.Substring(0, Application.dataPath.LastIndexOf('/')); // David - The path of the application, this is where the executable is for the build or in the project is for the editor
 
 		public OuijaConversationState ConversationState => _conversationState;
+
+        private const string OuijaSystemPromptResourcePath = "Prompts/OuijaSystemPrompt";
+        private const string StoryPromptResourcePath = "Prompts/StoryPrompt";
 
         private void Awake()
         {
@@ -136,7 +138,8 @@ namespace OurAssets.Scripts.Chat
         {
             try
             {
-                string story = await GenerateStoryContextAsync(storyPromptInput, CancellationToken.None);
+                string storyPrompt = RenderPromptTemplate(storyPromptTemplate, StoryPromptResourcePath);
+                string story = await GenerateStoryContextAsync(storyPrompt, CancellationToken.None);
                 Debug.Log(story); // David - Added for debugging
                 Debug.Log($"Story context updated. Characters: {story.Length}");
             }
@@ -294,9 +297,10 @@ namespace OurAssets.Scripts.Chat
         private void RebuildConstants()
         {
             List<string> constants = new List<string>();
-            if (!string.IsNullOrWhiteSpace(ouijaSystemPrompt))
+            string systemPrompt = RenderPromptTemplate(ouijaSystemPromptTemplate, OuijaSystemPromptResourcePath);
+            if (!string.IsNullOrWhiteSpace(systemPrompt))
             {
-                constants.Add(ouijaSystemPrompt.Trim());
+                constants.Add(systemPrompt.Trim());
             }
 
             if (!string.IsNullOrWhiteSpace(_latestStoryContext))
@@ -305,6 +309,22 @@ namespace OurAssets.Scripts.Chat
             }
 
             _conversationState.SetConstants(constants);
+        }
+
+        private static string RenderPromptTemplate(TextAsset serializedTemplate, string resourcePath)
+        {
+            TextAsset templateAsset = serializedTemplate != null
+                ? serializedTemplate
+                : Resources.Load<TextAsset>(resourcePath);
+
+            if (templateAsset == null || string.IsNullOrWhiteSpace(templateAsset.text))
+            {
+                return string.Empty;
+            }
+
+            Template template = new Template(templateAsset.text);
+            string rendered = template.Render(new Dictionary<string, object>());
+            return rendered ?? string.Empty;
         }
 
         private int ResolveTimeoutSeconds(string modelName)
