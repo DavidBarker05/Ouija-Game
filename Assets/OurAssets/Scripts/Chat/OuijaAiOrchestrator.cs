@@ -29,6 +29,9 @@ namespace OurAssets.Scripts.Chat
         [SerializeField] private int coldStartTimeoutSeconds = 90;
         [SerializeField] private int unloadRequestTimeoutSeconds = 10;
 
+        [Header("Debug")]
+        [SerializeField] private bool enableRegularDebugLogs = true;
+
         private readonly Dictionary<string, DateTime> _lastModelResponseUtc = new Dictionary<string, DateTime>();
 
 		private string storyModelName;
@@ -140,8 +143,8 @@ namespace OurAssets.Scripts.Chat
             {
                 string storyPrompt = RenderPromptTemplate(storyPromptTemplate, StoryPromptResourcePath);
                 string story = await GenerateStoryContextAsync(storyPrompt, CancellationToken.None);
-                Debug.Log(story); // David - Added for debugging
-                Debug.Log($"Story context updated. Characters: {story.Length}");
+                if (enableRegularDebugLogs) Debug.Log(story); // David - Added for debugging
+                if (enableRegularDebugLogs) Debug.Log($"Story context updated. Characters: {story.Length}");
             }
             catch (Exception exception)
             {
@@ -204,7 +207,7 @@ namespace OurAssets.Scripts.Chat
             };
 
             int timeout = ResolveTimeoutSeconds(ouijaModelName);
-            Debug.Log($"Ouija request timeout selected: {timeout}s");
+            if (enableRegularDebugLogs) Debug.Log($"Ouija request timeout selected: {timeout}s");
 
             OllamaChatResponse response = await _ollamaClient.SendChatAsync(request, timeout, cancellationToken);
             string aiText = response?.message?.content?.Trim() ?? string.Empty;
@@ -234,7 +237,7 @@ namespace OurAssets.Scripts.Chat
 
             if (result.DidStartProcess)
             {
-                Debug.Log("Ollama server was not running and has been started.");
+                if (enableRegularDebugLogs) Debug.Log("Ollama server was not running and has been started.");
             }
         }
 
@@ -252,7 +255,7 @@ namespace OurAssets.Scripts.Chat
         {
             _isUnloadingModels = true;
             _lastModelResponseUtc.Clear();
-            Debug.Log($"Forcing models cold due to {reason}.");
+            if (enableRegularDebugLogs) Debug.Log($"Forcing models cold due to {reason}.");
 
             try
             {
@@ -260,7 +263,7 @@ namespace OurAssets.Scripts.Chat
 
                 await _ollamaClient.UnloadModelAsync(storyModelName, unloadRequestTimeoutSeconds, CancellationToken.None);
                 await _ollamaClient.UnloadModelAsync(ouijaModelName, unloadRequestTimeoutSeconds, CancellationToken.None);
-                Debug.Log("Requested Ollama to unload story and ouija models from memory.");
+                if (enableRegularDebugLogs) Debug.Log("Requested Ollama to unload story and ouija models from memory.");
             }
             catch (Exception exception)
             {
@@ -282,7 +285,7 @@ namespace OurAssets.Scripts.Chat
             bool stopped = _ollamaClient.ShutdownOwnedServer(out string errorMessage);
             if (stopped)
             {
-                Debug.Log("Stopped Ollama server because this game session started it.");
+                if (enableRegularDebugLogs) Debug.Log("Stopped Ollama server because this game session started it.");
                 return true;
             }
 
