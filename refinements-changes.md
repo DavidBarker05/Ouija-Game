@@ -131,3 +131,8 @@ This file tracks the Unity + Ollama integration work completed so far.
     - `Prompts/StoryPrompt`
   - Story context generation now renders the story template file first, then sends the rendered text to the story model.
   - Ouija system constants now render from the system template file before being added to conversation context.
+
+- Updated `Jinja2.NET.Unity`
+  - Date: 07/05/2026
+  - AI assisted: no (David)
+  - Now .j2 files are read as TextAssets by Unity which makes them easier to work with
