@@ -523,8 +523,8 @@ MonoBehaviour:
   ollamaProbeIntervalSeconds: 0.5
   fallbackStoryModelName: llama3.2
   fallbackOuijaModelName: llama3.2
-  ouijaSystemPromptTemplate: {fileID: 4900000, guid: ebc3dd28acc661444a16cd382a7c578e, type: 3}
-  storyPromptTemplate: {fileID: 4900000, guid: 83d840422d1bff847b34d58147ecd5c7, type: 3}
+  ouijaSystemPromptTemplate: {fileID: 9027929339269108002, guid: 2cdf065acae534248aa04d9cf169eef6, type: 3}
+  storyPromptTemplate: {fileID: 9027929339269108002, guid: ba84b4778fb4b1047a60f712222c3d0c, type: 3}
   keepAliveSeconds: 120
   warmRequestTimeoutSeconds: 20
   coldStartTimeoutSeconds: 90
