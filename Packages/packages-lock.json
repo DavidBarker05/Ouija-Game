@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.jinja2net.unity": {
+      "version": "https://github.com/DavidBarker05/Jinja2.NET.Unity.git?path=/unity-package/com.jinja2net.unity",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "fef44fe5489081f46dc90a1176d3320e3fc474e8"
+    },
     "com.unity.ai.navigation": {
       "version": "2.0.11",
       "depth": 0,
