@@ -529,6 +529,7 @@ MonoBehaviour:
   warmRequestTimeoutSeconds: 20
   coldStartTimeoutSeconds: 90
   unloadRequestTimeoutSeconds: 10
+  enableRegularDebugLogs: 1
 --- !u!4 &1273263448
 Transform:
   m_ObjectHideFlags: 0
