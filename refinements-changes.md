@@ -143,3 +143,46 @@ This file tracks the Unity + Ollama integration work completed so far.
   - Added inspector toggle `enableRegularDebugLogs` to control non-critical `Debug.Log` output.
   - Wrapped regular logs with inline `if` checks to preserve original callsite stack traces.
   - Kept `Debug.LogError` and `Debug.LogWarning` always-on for troubleshooting.
+
+- Added `whisper.unity` package (`com.whisper.unity`) to `Packages/manifest.json`
+  - Date: 09/05/2026
+  - AI assisted: no (David).
+  - Provides on-device speech-to-text via whisper.cpp bindings.
+  - Used to transcribe player voice input into the Ouija message box.
+
+- Added `Assets/OurAssets/Scripts/Chat/OuijaPlayerInputController.cs`
+  - Date: 09/05/2026
+  - AI assisted: yes.
+  - Drives the on-screen Ouija chat input UI.
+  - Text input path:
+    - Serialized `TMP_InputField` whose `characterLimit` is set from a serialized `maxMessageCharacters` (default 200) so typing/transcription is capped.
+    - Send button (also triggers on `onSubmit` / Enter) calls `OuijaAiOrchestrator.SendPlayerMessageToOuijaAsync`.
+    - Send button auto-disables while empty, transcribing, recording, or sending.
+    - Optional `clearInputAfterSend` toggle.
+  - Voice input path:
+    - Toggle button starts/stops recording via `MicrophoneRecord` from whisper.unity.
+    - Serialized `maxRecordingSeconds` (default 30) is pushed into `MicrophoneRecord.maxLengthSec` and additionally enforced in `Update()` so the cap is authoritative.
+    - On record stop, audio is sent to `WhisperManager.GetTextAsync`; the transcription overwrites the input field text (clamped to the character limit) so the player can edit before sending.
+    - Optional UI hooks for record-button label swap, indicator color, status label, and recording-time countdown label.
+  - Robustness:
+    - `CancellationTokenSource` cancels any in-flight send on disable / re-send.
+    - Stops the microphone in `OnDisable` so scene unload / quit doesn't leak the input device.
+    - Public events `AiResponseReceived(string)` and `SendFailed(Exception)` for downstream UI to subscribe to.
+
+- Added `Assets/StreamingAssets/Whisper/ggml-tiny.bin` (whisper model weights)
+  - Date: 09/05/2026
+  - AI assisted: no (David).
+  - Shipped under `StreamingAssets` so `WhisperManager` can resolve it via `Application.streamingAssetsPath` in editor and builds.
+  - Tracked through Git LFS (see `.gitattributes` change below).
+
+- Updated `.gitattributes`
+  - Date: 09/05/2026
+  - AI assisted: yes.
+  - Added Git LFS tracking for AI/ML model weights: `*.bin`, `*.gguf`, `*.onnx`, `*.safetensors`.
+  - Ensures whisper / future ML model files are not committed as plain blobs.
+
+- Updated `Assets/Scenes/SampleScene.unity`
+  - Date: 09/05/2026
+  - AI assisted: no (David).
+  - Added a Canvas with the Ouija chat UI (input field, send button, record button, status / countdown labels).
+  - Added GameObjects hosting `WhisperManager`, `MicrophoneRecord`, and `OuijaPlayerInputController`, with serialized references wired up.
