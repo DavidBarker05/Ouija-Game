@@ -57,9 +57,10 @@ public class OuijaBoard : MonoBehaviour
 		{ BoardResponse.Num6,   null }, { BoardResponse.Num7,   null }, { BoardResponse.Num8,       null },
 		{ BoardResponse.Num9,   null }, { BoardResponse.Num0,   null }, { BoardResponse.Goodbye,    null }
 	};
+    
+    public bool DisplayingResponse { get; private set; } = false; // David added
 
     string m_CurrentText = string.Empty; // David added
-    bool m_bDisplay = false; // David added
     float m_CurrentTime = 0f; // David added
     bool m_bWait = false; // David added
     Vector3 m_PlanchetteStartingPosition = Vector3.zero; // David added
@@ -88,7 +89,7 @@ public class OuijaBoard : MonoBehaviour
 
     void Update()
     {
-        if (!m_bDisplay) return;
+        if (!DisplayingResponse) return;
         if (!m_BoardResponsePositions[m_CurrentResponse])
         {
             Debug.LogError($"No Transform for {m_CurrentResponse}");
@@ -112,8 +113,8 @@ public class OuijaBoard : MonoBehaviour
 			};
 			m_CurrentCharacter += charsToDisplay;
             if (m_ResponseDisplayText) m_ResponseDisplayText.maxVisibleCharacters = m_CurrentCharacter;
-            m_bDisplay = m_CurrentCharacter < m_CurrentText.Length;
-            if (m_bDisplay) m_CurrentResponse = CharacterToResponse(m_CurrentText[m_CurrentCharacter]);
+            DisplayingResponse = m_CurrentCharacter < m_CurrentText.Length;
+            if (DisplayingResponse) m_CurrentResponse = CharacterToResponse(m_CurrentText[m_CurrentCharacter]);
         }
         else if (m_CurrentTime >= m_PlancehtteWaitTime) // David - Waiting and wait time finished
         {
@@ -140,7 +141,7 @@ public class OuijaBoard : MonoBehaviour
     {
         m_CurrentText = response.Trim().ToUpper();
         if (string.IsNullOrEmpty(m_CurrentText)) return;
-        m_bDisplay = true;
+        DisplayingResponse = true;
         m_bWait = false;
         m_PlanchetteStartingPosition = m_BoardResponsePositions[BoardResponse.Goodbye]?.position ?? Vector3.zero;
         m_Planchette.transform.position = m_PlanchetteStartingPosition;
