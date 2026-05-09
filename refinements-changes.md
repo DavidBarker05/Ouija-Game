@@ -186,3 +186,8 @@ This file tracks the Unity + Ollama integration work completed so far.
   - AI assisted: no (David).
   - Added a Canvas with the Ouija chat UI (input field, send button, record button, status / countdown labels).
   - Added GameObjects hosting `WhisperManager`, `MicrophoneRecord`, and `OuijaPlayerInputController`, with serialized references wired up.
+
+- Added `Assets/OurAssets/Scripts/OuijaBoard.cs`
+  - Date: 09/05/2026
+  - AI assisted: no (David).
+  - Basic logic for the Ouija Board that moves a planchette and displays characters to the screen based on the response from the AI
