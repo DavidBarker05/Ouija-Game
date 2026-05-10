@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d84336b9708b310409709e1053a5d8dc, type: 3}
+  m_Name: PlayerCameraSettings
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCameraSettings
+  <MouseHorizontalSensitivity>k__BackingField: 0.2
+  <MouseVerticalSensitivity>k__BackingField: 0.225
+  <ControllerHorizontalSensitivity>k__BackingField: 180
+  <ControllerVerticalSensitivity>k__BackingField: 202.5
+  <MinVerticalAngle>k__BackingField: -80
+  <MaxVerticalAngle>k__BackingField: 80
