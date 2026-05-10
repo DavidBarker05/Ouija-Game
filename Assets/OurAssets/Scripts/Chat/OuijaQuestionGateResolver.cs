@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -22,6 +23,14 @@ namespace OurAssets.Scripts.Chat
             public float confidence;
         }
 
+        /// <summary>Many models return camelCase JSON; Unity JsonUtility does not map snake_case fields to these.</summary>
+        [Serializable]
+        private sealed class ClassifierEnvelopeCamel
+        {
+            public string matchedId;
+            public float confidence;
+        }
+
         public struct ResolveResult
         {
             public bool MatchedGate;
@@ -32,11 +41,15 @@ namespace OurAssets.Scripts.Chat
         private const string DefaultClassifierPreamble =
             "You classify whether the player's line is asking essentially the SAME intent as ONE of the listed gate questions.\n" +
             "Rules:\n" +
-            "- Use only semantic match; wording may differ wildly.\n" +
-            "- If none fit, matched_id MUST be \"\" (empty).\n" +
-            "- Confidence is 0-1 meaning how certain you are that the player asked that gate question.\n" +
-            "- Output VALID JSON ONLY, one object, exactly these keys:\n" +
-            "  {\"matched_id\":\"gate_id_here_or_empty\",\"confidence\":0.0}\n";
+            "- Use only semantic match; wording may differ wildly (e.g. asking for a spirit's name matches a name gate).\n" +
+            "- If none fit, matched_id MUST be \"\" (empty string).\n" +
+            "- confidence MUST be a decimal from 0.0 to 1.0 meaning how sure you are (e.g. 0.85 = 85 percent sure). " +
+            "It is NOT a candidate index, NOT a row number, and NOT a percentage integer like 85 — use 0.85.\n" +
+            "- matched_id MUST be copied EXACTLY from the line \"id=...\" in the candidate list (e.g. id=spirit_name -> \"spirit_name\"). " +
+            "Do NOT use \"1\" or \"2\" to mean first or second row — use the literal id string.\n" +
+            "- Be consistent: the same player line (same words and intent) must map to the same matched_id every time.\n" +
+            "- Output VALID JSON ONLY, one object. Keys (snake_case):\n" +
+            "  {\"matched_id\":\"<exact id from list or empty>\",\"confidence\":0.0}\n";
 
         private readonly float _fuzzyStrongThreshold;
         private readonly float _fuzzyMinAiCandidateScore;
@@ -46,6 +59,8 @@ namespace OurAssets.Scripts.Chat
         private readonly Func<string, int> _resolveClassifierTimeoutSeconds;
         private readonly string _keepAliveString;
         private readonly bool _debugLogs;
+        private readonly bool _skipFuzzyInstantResolve;
+        private readonly OllamaChatInferenceOptions _classifierInferenceOptions;
 
         public OuijaQuestionGateResolver(
             float fuzzyStrongThreshold,
@@ -55,7 +70,9 @@ namespace OurAssets.Scripts.Chat
             int classifierTimeoutSeconds,
             Func<string, int> resolveClassifierTimeoutSeconds,
             string keepAliveString,
-            bool debugLogs)
+            bool debugLogs,
+            bool skipFuzzyInstantResolve,
+            OllamaChatInferenceOptions classifierInferenceOptions)
         {
             _fuzzyStrongThreshold = Mathf.Clamp01(fuzzyStrongThreshold);
             _fuzzyMinAiCandidateScore = Mathf.Clamp01(fuzzyMinAiCandidateScore);
@@ -65,6 +82,19 @@ namespace OurAssets.Scripts.Chat
             _resolveClassifierTimeoutSeconds = resolveClassifierTimeoutSeconds ?? (_ => classifierTimeoutSeconds);
             _keepAliveString = keepAliveString ?? "120s";
             _debugLogs = debugLogs;
+            _skipFuzzyInstantResolve = skipFuzzyInstantResolve;
+            _classifierInferenceOptions = classifierInferenceOptions ?? CreateDefaultClassifierInferenceOptions();
+        }
+
+        private static OllamaChatInferenceOptions CreateDefaultClassifierInferenceOptions()
+        {
+            return new OllamaChatInferenceOptions
+            {
+                temperature = 0f,
+                top_p = 0.1f,
+                top_k = 1,
+                seed = 42,
+            };
         }
 
         /// <returns>Matched gate preset answer or not matched.</returns>
@@ -95,15 +125,33 @@ namespace OurAssets.Scripts.Chat
             }
 
             ScoredGate best = rankings[0];
-            if (best.Score >= _fuzzyStrongThreshold)
+            bool allowFuzzyInstant = !_skipFuzzyInstantResolve && best.Score >= _fuzzyStrongThreshold;
+            if (allowFuzzyInstant)
             {
                 if (_debugLogs)
                 {
-                    Debug.Log($"Gate auto-resolve '{best.Entry.QuestionId}' score={best.Score:F2}");
+                    Debug.Log(
+                        $"[OuijaGate] Fuzzy-only gate match (semantic classifier skipped): id={best.Entry.QuestionId} " +
+                        $"fuzzy={best.Score:F3} ≥ instant-threshold={_fuzzyStrongThreshold:F3}");
                 }
 
                 string replyLocal = ComposeReply(best.Entry, evaluator);
                 return new ResolveResult { MatchedGate = true, Reply = replyLocal, InvokedClassifier = false };
+            }
+
+            if (_debugLogs)
+            {
+                if (_skipFuzzyInstantResolve)
+                {
+                    Debug.Log(
+                        "[OuijaGate] Inspector forces semantic classifier when candidate pool is non-empty " +
+                        $"(fuzzy instant match disabled). Best fuzzy={best.Score:F3}.");
+                }
+                else if (best.Score < _fuzzyStrongThreshold)
+                {
+                    Debug.Log(
+                        $"[OuijaGate] Best fuzzy {best.Score:F3} below instant threshold {_fuzzyStrongThreshold:F3} — will try semantic classifier.");
+                }
             }
 
             List<ScoredGate> aiPool = rankings
@@ -127,6 +175,7 @@ namespace OurAssets.Scripts.Chat
                     ", ",
                     aiPool.Select(p => $"{p.Entry.QuestionId}={p.Score:F3}"));
                 Debug.Log($"[OuijaGate] Classifier candidate pool ({aiPool.Count}): {poolSummary}");
+                Debug.Log("[OuijaGate] Calling Ollama for gate semantic classification…");
             }
 
             string classifiedId = await ClassifyAmongCandidatesAsync(
@@ -137,11 +186,18 @@ namespace OurAssets.Scripts.Chat
                     string.IsNullOrWhiteSpace(optionalClassifierInstructions)
                         ? DefaultClassifierPreamble
                         : optionalClassifierInstructions.Trim() + "\n\n" + DefaultClassifierPreamble,
-                    cancellationToken)
-                .ConfigureAwait(false);
+                    cancellationToken);
 
             if (string.IsNullOrWhiteSpace(classifiedId))
             {
+                if (_debugLogs)
+                {
+                    Debug.Log(
+                        "[OuijaGate] Semantic classifier (gate-matching model) returned no accepted gate id " +
+                        "(empty / low confidence / parse error — see earlier warnings). " +
+                        "Next: main Ouija conversation model.");
+                }
+
                 return new ResolveResult { MatchedGate = false, Reply = string.Empty, InvokedClassifier = true };
             }
 
@@ -150,12 +206,18 @@ namespace OurAssets.Scripts.Chat
 
             if (chosen == null)
             {
+                if (_debugLogs)
+                {
+                    Debug.LogWarning(
+                        $"[OuijaGate] Semantic classifier returned id \"{classifiedId}\" not present in configured gates — check spelling vs QuestionId.");
+                }
+
                 return new ResolveResult { MatchedGate = false, Reply = string.Empty, InvokedClassifier = true };
             }
 
             if (_debugLogs)
             {
-                Debug.Log($"Gate classifier picked '{chosen.QuestionId}'");
+                Debug.Log($"[OuijaGate] Semantic classifier matched gate id '{chosen.QuestionId}' — using preset reply (main Ouija model will not run for this message).");
             }
 
             return new ResolveResult { MatchedGate = true, Reply = ComposeReply(chosen, evaluator), InvokedClassifier = true };
@@ -212,10 +274,14 @@ namespace OurAssets.Scripts.Chat
             sb.Append("  Player normalized: \"").Append(normalizedPlayer).Append("\"\n");
             sb.AppendFormat(
                 CultureInvariant(),
-                "  Thresholds — auto-resolve if best ≥ {0:F3}; classifier considers top gates with score ≥ {1:F3} (max {2} gates).\n",
+                "  Thresholds — fuzzy-only instant match if best ≥ {0:F3} (unless forced classifier is on); pool floor ≥ {1:F3}; top {2} gates for classifier.\n",
                 _fuzzyStrongThreshold,
                 _fuzzyMinAiCandidateScore,
                 _maxAiCandidates);
+            if (_skipFuzzyInstantResolve)
+            {
+                sb.Append("  Forced semantic classifier: fuzzy never decides a gate alone.\n");
+            }
 
             List<(GatedQuestionEntrySnap gate, float bestScore)> rankedForLog = CollectGateScoresForLog(normalizedPlayer, allGates);
             rankedForLog.Sort((a, b) => b.bestScore.CompareTo(a.bestScore));
@@ -506,9 +572,10 @@ namespace OurAssets.Scripts.Chat
             string userPrompt =
                 "Player said:\n" +
                 '\"' + trimmedPlayerUtterance.Replace("\"", "'") + "\"\n\n" +
-                "Candidate gate questions:\n" +
+                "Candidate gate questions (each line shows the gate id you must copy verbatim into matched_id):\n" +
                 candBlock +
-                "\nReturn JSON {\"matched_id\":\"...\",\"confidence\":0.0}";
+                "\nReturn JSON only: {\"matched_id\":\"<exact id= value or empty>\",\"confidence\":0.0} " +
+                "where confidence is a float 0.0..1.0 (probability), not an index.\n";
 
             List<OllamaMessage> msgs = new List<OllamaMessage>
             {
@@ -522,11 +589,11 @@ namespace OurAssets.Scripts.Chat
                 messages = msgs,
                 stream = false,
                 keep_alive = _keepAliveString,
+                options = _classifierInferenceOptions,
             };
 
             int timeoutSeconds = Mathf.Max(_classifierTimeoutSeconds, _resolveClassifierTimeoutSeconds.Invoke(classifierModelName));
-            OllamaChatResponse response = await ollama.SendChatAsync(requestPayload, timeoutSeconds, cancellationToken)
-                .ConfigureAwait(false);
+            OllamaChatResponse response = await ollama.SendChatAsync(requestPayload, timeoutSeconds, cancellationToken);
 
             string rawContent = response?.message?.content?.Trim() ?? string.Empty;
             if (string.IsNullOrEmpty(rawContent))
@@ -534,11 +601,13 @@ namespace OurAssets.Scripts.Chat
                 return string.Empty;
             }
 
-            if (!TryParseClassifierJson(rawContent, out ClassifierEnvelope env))
+            if (!TryParseClassifierResponse(rawContent, out ClassifierEnvelope env, out string parseDetail))
             {
                 if (_debugLogs)
                 {
-                    Debug.LogWarning($"Gate classifier parse failed on: {rawContent}");
+                    Debug.LogWarning(
+                        "[OuijaGate] Gate classifier JSON could not be parsed (model may use different keys than matched_id). " +
+                        $"Detail: {parseDetail}\nRaw (truncated): {TruncateForLog(rawContent, 600)}");
                 }
 
                 return string.Empty;
@@ -546,32 +615,176 @@ namespace OurAssets.Scripts.Chat
 
             if (string.IsNullOrWhiteSpace(env.matched_id))
             {
+                if (_debugLogs)
+                {
+                    Debug.Log("[OuijaGate] Semantic classifier returned empty matched_id (no gate) — expected for unrelated questions.");
+                }
+
                 return string.Empty;
             }
 
-            if (!candidateGates.Any(g => string.Equals(g.QuestionId.Trim(), env.matched_id.Trim(), StringComparison.Ordinal)))
+            string normalizedId = NormalizeClassifierMatchedId(env.matched_id);
+            if (normalizedId != env.matched_id.Trim() && _debugLogs)
             {
+                Debug.Log(
+                    $"[OuijaGate] Normalized classifier matched_id from \"{env.matched_id.Trim()}\" to \"{normalizedId}\".");
+            }
+
+            if (!TryResolveClassifierGateSelection(
+                    normalizedId,
+                    candidateGates,
+                    out string resolvedGateId,
+                    out bool usedNumericIndex,
+                    out string resolveFailReason))
+            {
+                if (_debugLogs)
+                {
+                    Debug.LogWarning(
+                        $"[OuijaGate] Classifier output \"{normalizedId}\" (raw \"{env.matched_id.Trim()}\") could not be mapped to a gate id. {resolveFailReason} " +
+                        "Reminder: use the exact text after id=, not the row number (1,2,…).");
+                }
+
                 return string.Empty;
+            }
+
+            if (usedNumericIndex && _debugLogs)
+            {
+                Debug.Log(
+                    $"[OuijaGate] Classifier returned \"{normalizedId}\" — interpreted as list index, mapped to gate id \"{resolvedGateId}\".");
+            }
+
+            env.matched_id = resolvedGateId;
+
+            if (Mathf.Approximately(env.confidence, 0f) && !string.IsNullOrWhiteSpace(env.matched_id))
+            {
+                env.confidence = _classifierMinConfidence;
+                if (_debugLogs)
+                {
+                    Debug.Log(
+                        "[OuijaGate] Classifier reported confidence 0.0; models often misuse 0 or omit a 0-1 probability. " +
+                        $"Using floor={env.confidence:F2} so a matching gate id can still count when intent is right.");
+                }
             }
 
             if (env.confidence < _classifierMinConfidence)
             {
                 if (_debugLogs)
                 {
-                    Debug.Log($"Gate classifier low confidence '{env.confidence:F2}' for '{env.matched_id}'.");
+                    Debug.Log(
+                        $"[OuijaGate] Semantic classifier low confidence ({env.confidence:F2} < {_classifierMinConfidence:F2}) for id '{env.matched_id}' — treating as no gate match.");
                 }
 
                 return string.Empty;
             }
 
+            if (_debugLogs)
+            {
+                Debug.Log(
+                    $"[OuijaGate] Semantic classifier accepted id \"{env.matched_id.Trim()}\" (confidence {env.confidence:F2}).");
+            }
+
             return env.matched_id.Trim();
         }
 
-        private static bool TryParseClassifierJson(string raw, out ClassifierEnvelope envelope)
+        /// <summary>
+        /// Models often paste the prompt line into JSON, e.g. matched_id "id=spirit_name" instead of "spirit_name".
+        /// </summary>
+        private static string NormalizeClassifierMatchedId(string raw)
         {
-            envelope = null;
             if (string.IsNullOrWhiteSpace(raw))
             {
+                return string.Empty;
+            }
+
+            string t = raw.Trim().Trim('"', '\'');
+
+            // Strip leading "1. " list numbering if copied from the candidate block
+            t = Regex.Replace(t, @"^\d+\.\s*", string.Empty);
+
+            // Repeatedly strip id= prefix (handles "id = x" variants)
+            for (int guard = 0; guard < 3; guard++)
+            {
+                if (t.StartsWith("id=", StringComparison.OrdinalIgnoreCase))
+                {
+                    t = t.Substring(3).Trim();
+                    continue;
+                }
+
+                if (t.StartsWith("id =", StringComparison.OrdinalIgnoreCase))
+                {
+                    t = t.Substring(4).Trim();
+                    continue;
+                }
+
+                break;
+            }
+
+            return t.Trim().Trim('"', '\'');
+        }
+
+        /// <summary>
+        /// Maps model output to a configured QuestionId: exact string first, then 1-based row index, then 0-based index.
+        /// </summary>
+        private static bool TryResolveClassifierGateSelection(
+            string rawMatchedFromModel,
+            IReadOnlyList<GatedQuestionEntrySnap> candidateGates,
+            out string resolvedGateId,
+            out bool usedNumericIndexMapping,
+            out string failReason)
+        {
+            resolvedGateId = string.Empty;
+            usedNumericIndexMapping = false;
+            failReason = string.Empty;
+
+            if (candidateGates == null || candidateGates.Count == 0)
+            {
+                failReason = "no candidates.";
+                return false;
+            }
+
+            string t = NormalizeClassifierMatchedId(rawMatchedFromModel);
+
+            foreach (GatedQuestionEntrySnap g in candidateGates)
+            {
+                if (string.Equals(g.QuestionId.Trim(), t, StringComparison.Ordinal))
+                {
+                    resolvedGateId = g.QuestionId.Trim();
+                    return true;
+                }
+            }
+
+            if (int.TryParse(t, NumberStyles.Integer, CultureInfo.InvariantCulture, out int asIndex))
+            {
+                if (asIndex >= 1 && asIndex <= candidateGates.Count)
+                {
+                    resolvedGateId = candidateGates[asIndex - 1].QuestionId.Trim();
+                    usedNumericIndexMapping = true;
+                    return true;
+                }
+
+                if (asIndex >= 0 && asIndex < candidateGates.Count)
+                {
+                    resolvedGateId = candidateGates[asIndex].QuestionId.Trim();
+                    usedNumericIndexMapping = true;
+                    return true;
+                }
+            }
+
+            failReason = "Not equal to any QuestionId and not a valid row index for this candidate list.";
+            return false;
+        }
+
+        /// <summary>
+        /// JsonUtility only binds identical field names; models often emit camelCase or extra text.
+        /// </summary>
+        private static bool TryParseClassifierResponse(string raw, out ClassifierEnvelope envelope, out string detail)
+        {
+            envelope = new ClassifierEnvelope();
+            detail = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                detail = "empty model content";
                 return false;
             }
 
@@ -579,19 +792,150 @@ namespace OurAssets.Scripts.Chat
             Match m = Regex.Match(stripped, @"\{[\s\S]*\}");
             if (!m.Success)
             {
+                detail = "no JSON object found in model output";
                 return false;
             }
 
             string jsonBlob = m.Value;
+
+            ClassifierEnvelope snake = null;
             try
             {
-                envelope = JsonUtility.FromJson<ClassifierEnvelope>(jsonBlob);
-                return envelope != null;
+                snake = JsonUtility.FromJson<ClassifierEnvelope>(jsonBlob);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                envelope = null;
+                detail = $"JsonUtility snake: {e.Message}";
+            }
+
+            ClassifierEnvelopeCamel camel = null;
+            try
+            {
+                camel = JsonUtility.FromJson<ClassifierEnvelopeCamel>(jsonBlob);
+            }
+            catch
+            {
+                // ignored
+            }
+
+            bool snakeHadId = snake != null && !string.IsNullOrWhiteSpace(snake.matched_id);
+            bool camelHadId = camel != null && !string.IsNullOrWhiteSpace(camel?.matchedId);
+
+            if (snakeHadId)
+            {
+                envelope.matched_id = snake.matched_id.Trim();
+                envelope.confidence = snake.confidence;
+                detail = "parsed matched_id + confidence (snake_case JSON)";
+                return true;
+            }
+
+            if (camelHadId)
+            {
+                envelope.matched_id = camel.matchedId.Trim();
+                envelope.confidence = camel.confidence;
+                detail = "parsed matchedId + confidence (camelCase JSON)";
+                return true;
+            }
+
+            ExtractClassifierFieldsWithRegex(stripped, envelope, out bool regexNonEmptyId);
+            if (regexNonEmptyId)
+            {
+                detail = "parsed matched id / confidence via regex fallback (model JSON shape not Unity-friendly)";
+                return true;
+            }
+
+            if (TryExtractNumericMatchedId(stripped, envelope))
+            {
+                detail = "parsed numeric matched_id / matchedId (unquoted number in JSON)";
+                return true;
+            }
+
+            if (HasExplicitEmptyMatchedIdInJson(stripped))
+            {
+                envelope.matched_id = string.Empty;
+                envelope.confidence = snake?.confidence ?? camel?.confidence ?? 0f;
+                TryFillConfidenceFromRegex(stripped, envelope);
+                detail = "explicit empty matched id (model says no gate)";
+                return true;
+            }
+
+            detail = string.IsNullOrEmpty(detail) ? "could not read matched_id, matchedId, or parseable JSON" : detail;
+            return false;
+        }
+
+        private static bool HasExplicitEmptyMatchedIdInJson(string text)
+        {
+            return Regex.IsMatch(text, @"""(?:matched_id|matchedId)""\s*:\s*""""", RegexOptions.IgnoreCase);
+        }
+
+        private static bool TryExtractNumericMatchedId(string source, ClassifierEnvelope target)
+        {
+            Match mm = Regex.Match(source, @"""(?:matched_id|matchedId)""\s*:\s*(\d+)", RegexOptions.IgnoreCase);
+            if (!mm.Success)
+            {
                 return false;
+            }
+
+            target.matched_id = mm.Groups[1].Value.Trim();
+            TryFillConfidenceFromRegex(source, target);
+            if (target.confidence <= 0f)
+            {
+                target.confidence = 1f;
+            }
+
+            return true;
+        }
+
+        private static void TryFillConfidenceFromRegex(string source, ClassifierEnvelope target)
+        {
+            Match confMatch = Regex.Match(
+                source,
+                @"""confidence""\s*:\s*([0-9]+\.?[0-9]*(?:[eE][-+]?[0-9]+)?)",
+                RegexOptions.IgnoreCase);
+            if (confMatch.Success &&
+                float.TryParse(
+                    confMatch.Groups[1].Value,
+                    System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out float c))
+            {
+                target.confidence = c;
+            }
+        }
+
+        private static void ExtractClassifierFieldsWithRegex(
+            string fullText,
+            ClassifierEnvelope target,
+            out bool foundNonEmptyId)
+        {
+            foundNonEmptyId = false;
+            target.matched_id = string.Empty;
+            target.confidence = 0f;
+
+            string source = fullText;
+            string[] patterns =
+            {
+                @"""matched_id""\s*:\s*""([^""]*)""",
+                @"""matchedId""\s*:\s*""([^""]*)""",
+                @"""matched_id""\s*:\s*'([^']*)'",
+                @"'matched_id'\s*:\s*""([^""]*)""",
+            };
+
+            foreach (string pattern in patterns)
+            {
+                Match mm = Regex.Match(source, pattern, RegexOptions.IgnoreCase);
+                if (mm.Success)
+                {
+                    target.matched_id = mm.Groups[1].Value.Trim();
+                    foundNonEmptyId = !string.IsNullOrWhiteSpace(target.matched_id);
+                    break;
+                }
+            }
+
+            TryFillConfidenceFromRegex(source, target);
+            if (foundNonEmptyId && target.confidence <= 0f)
+            {
+                target.confidence = 1f;
             }
         }
 
