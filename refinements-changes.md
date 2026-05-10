@@ -192,52 +192,29 @@ This file tracks the Unity + Ollama integration work completed so far.
   - AI assisted: no (David).
   - Basic logic for the Ouija Board that moves a planchette and displays characters to the screen based on the response from the AI
 
-- Added `Assets/OurAssets/Player/PlayerCharacter.cs`
+- Added scripted **gated Ouija questions** (preset answers + optional progression conditions, no conversation-history pollution)
   - Date: 10/05/2026
-  - AI assisted: no (David).
-  - Base class that all minigame characters can use to be modular
-  - Also IPlayerCharacterInitData and IPlayerCharacterUpdateData are interfaces that each character has their own class that defines what these need as input which allows modularity
+  - AI assisted: yes.
 
-- Added `Assets/OurAssets/Player/PlayerCamera.cs`
-  - Date: 10/05/2026
-  - AI assisted: no (David).
-  - Allows player to control camera
+- Added `Assets/OurAssets/Scripts/Chat/IOuijaGateConditionEvaluator.cs`
+  - Interface: `bool IsConditionMet(string conditionId)` for minigames, flags, inventory, door state, etc.
+  - Wired from `OuijaAiOrchestrator` via a serialized `Component` reference that implements this interface.
 
-- Added `Assets/OurAssets/Player/Player.cs`
-  - Date: 10/05/2026
-  - AI assisted: no (David).
-  - Gets input from PlayerInput component
-  - Updates camera when needed
-  - Creates link between input and the current active PlayerCharacter
+- Added `Assets/OurAssets/Scripts/Chat/OuijaGatedQuestionEntry.cs`
+  - Inspector-friendly entry per special question:
+    - Stable `questionId` (also used when the classifier returns JSON).
+    - `matchPhrases[]` — paraphrases to fuzzy-match player wording locally.
+    - `conditionIdsRequired[]` — if non-empty, all must pass evaluator checks for the **eligible** response; otherwise **blocked** response. Empty list means always **eligible**.
+    - `responseWhenBlocked` / `responseWhenEligible` preset lines (spirit voice is still up to wording).
 
-- Added `Assets/OurAssets/Player/ScriptableObjects/PlayerCharacterSettings.cs`
-  - Date: 10/05/2026
-  - AI assisted: no (David).
-  - Contains movement speed for player
+- Added `Assets/OurAssets/Scripts/Chat/OuijaGateConditionEvaluatorStub.cs`
+  - MonoBehaviour stub: toggle “treat all conditions as met” for testing before real gameplay hooks exist.
 
-- Added `Assets/OurAssets/Player/ScriptableObjects/PlayerCameraSettings.cs`
-  - Date: 10/05/2026
-  - AI assisted: no (David).
-  - Contains sensitivity and other settings for player camera
+- Added `Assets/OurAssets/Scripts/Chat/OuijaQuestionGateResolver.cs`
+  - **Stage 1 (no AI):** normalizes text, scores similarity per gate (token Jaccard, directional overlap, compact bigram Dice), auto-resolves if best score ≥ `gatedFuzzyStrongThreshold`.
+  - **Stage 2 (minimal Ollama call):** if not auto-resolved, sends only **top-K** fuzzy candidates (`gatedMaxClassifierCandidates`, floor `gatedFuzzyMinAiCandidateScore`) to a **single-shot** chat — system rules + candidate ids/phrases + player line — **no** story or `OuijaConversationState` history. Expects JSON `{ "matched_id":"...", "confidence":0.0 }`; `confidence` must be ≥ `gatedClassifierMinConfidence` and `matched_id` must be one of the candidates.
 
-- Added `Assets/OurAssets/Player/ScriptableObjects/PlayerInteractSettings.cs`
-  - Date: 10/05/2026
-  - AI assisted: no (David).
-  - Contains max interaction distance and layer for player interaction
-
-- Added `Assets/OurAssets/Player/ScriptableObjects/PlayerSettings.cs`
-  - Date: 10/05/2026
-  - AI assisted: no (David).
-  - Contains PlayerCharacterSettings, PlayerCameraSettings and PlayerInteractSettings that is added to the Player
-
-- Added `Assets/OurAssets/Player/FirstPersonCharacter.cs`
-  - Date: 10/05/2026
-  - AI assisted: no (David).
-  - Basic first person character that derives from PlayerCharacter
-  - Allows normal movement (no walking, jumping or crouching)
-  - Allows player to interact with interactables
-
-- Added `Assets/OurAssets/Interaction/Interactable.cs`
-  - Date: 10/05/2026
-  - AI assisted: no (David).
-  - Base interactable class that all interactables will derive from
+- Updated `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs`
+  - New inspector block **“Gated scripted questions”**: `enableQuestionGate`, `gatedQuestions[]`, optional `gateConditionEvaluator`, optional `gateClassifierInstructions` (`TextAsset`), optional `gateClassifierModelOverride` (blank = same model as normal Ouija chat), thresholds/timeouts/`enableGateDebugLogs`.
+  - `SendPlayerMessageToOuijaAsync` resolves gates **before** `_conversationState.AddPlayerMessage`; successful gate replies **never** add player or AI turns to conversation state.
+  - When the classifier path runs (`InvokedClassifier`), marks the classifier model warm for timeout bookkeeping (same as ouija unless override set).
