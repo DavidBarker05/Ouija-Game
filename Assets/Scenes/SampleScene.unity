@@ -1335,11 +1335,10 @@ MonoBehaviour:
     - name please
     - who is this
     - who am I talking to
-    - you are?
     conditionIdsRequired: []
     responseWhenBlocked: 
     responseWhenEligible: Johnny
-  gateConditionEvaluator: {fileID: 1516293016}
+  gateConditionEvaluator: {fileID: 1516293015}
   gateClassifierInstructions: {fileID: 0}
   gateClassifierModelOverride: 
   gatedFuzzyStrongThreshold: 0.72
