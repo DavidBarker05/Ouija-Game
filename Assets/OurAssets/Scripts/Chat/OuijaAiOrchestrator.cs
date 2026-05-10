@@ -51,16 +51,27 @@ namespace OurAssets.Scripts.Chat
         [SerializeField] private bool gatedAlwaysRunSemanticClassifier = false;
         [SerializeField, Range(0f, 1f)] private float gatedFuzzyMinAiCandidateScore = 0.18f;
         [SerializeField, Range(1, 20)] private int gatedMaxClassifierCandidates = 5;
-        [SerializeField, Range(0f, 1f)] private float gatedClassifierMinConfidence = 0.62f;
+        [Tooltip(
+            "Minimum model-reported confidence to accept a gate (0–1). Lower accepts more paraphrases; higher is stricter. " +
+            "Fuzzy matching still limits which gates are candidates.")]
+        [SerializeField, Range(0f, 1f)] private float gatedClassifierMinConfidence = 0.52f;
         [SerializeField, Range(5, 300)] private int gateClassifierTimeoutSeconds = 25;
         [Tooltip("Logs fuzzy scores per gated question/phrase and classifier candidate pool.")]
         [SerializeField] private bool enableGateDebugLogs = true;
-        [Tooltip("Only the gate semantic classifier uses these; main Ouija/story chat is unchanged. Lower temperature and top_k reduce flip-flopping on the same line.")]
-        [SerializeField, Range(0f, 2f)] private float gateClassifierTemperature = 0f;
-        [SerializeField, Range(0f, 1f)] private float gateClassifierTopP = 0.1f;
-        [Tooltip("1 = greedy token choice with temperature 0 (most stable). Ollama’s default is much higher.")]
-        [SerializeField, Range(1, 100)] private int gateClassifierTopK = 1;
-        [Tooltip("Same prompt + fixed seed makes repeat classifications line up more often with supported models.")]
+        [Tooltip(
+            "If the LLM returns empty or unusable JSON, optionally accept a gate when the player line equals a match phrase after normalization. " +
+            "Off by default — the classifier is for semantic intent, not string equality.")]
+        [SerializeField] private bool gateClassifierLexicalExactFallback = false;
+        [Tooltip(
+            "If the classifier picks a different gate than the highest fuzzy score in the candidate pool, reject when the fuzzy gap exceeds this value. " +
+            "Stops location questions being mis-filed as name gates while keeping paraphrases when scores are close. 0 = off.")]
+        [SerializeField, Range(0f, 0.45f)] private float gateClassifierMaxFuzzyLeaderGap = 0.14f;
+        [Tooltip("Only the gate semantic classifier uses these; main Ouija/story chat is unchanged. Moderate values favor paraphrase and intent.")]
+        [SerializeField, Range(0f, 2f)] private float gateClassifierTemperature = 0.25f;
+        [SerializeField, Range(0f, 1f)] private float gateClassifierTopP = 0.9f;
+        [Tooltip("Higher (e.g. 40) helps the model allow alternate wordings for the same intent. Very low acts like greedy decoding.")]
+        [SerializeField, Range(1, 100)] private int gateClassifierTopK = 40;
+        [Tooltip("Same prompt + fixed seed improves repeatability with supported backends.")]
         [SerializeField] private int gateClassifierSeed = 42;
 
         private readonly Dictionary<string, DateTime> _lastModelResponseUtc = new Dictionary<string, DateTime>();
@@ -100,6 +111,8 @@ namespace OurAssets.Scripts.Chat
                 ConvertKeepAliveSeconds(keepAliveSeconds),
                 enableGateDebugLogs,
                 gatedAlwaysRunSemanticClassifier,
+                gateClassifierLexicalExactFallback,
+                gateClassifierMaxFuzzyLeaderGap,
                 BuildGateClassifierInferenceOptions());
             RebuildConstants();
         }

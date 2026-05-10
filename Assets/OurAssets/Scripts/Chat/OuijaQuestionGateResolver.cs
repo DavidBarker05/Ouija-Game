@@ -16,6 +16,9 @@ namespace OurAssets.Scripts.Chat
     /// </summary>
     public sealed class OuijaQuestionGateResolver
     {
+        /// <summary>How many match phrases per gate to include in the classifier user message (more context for paraphrase / intent).</summary>
+        private const int ClassifierPromptMaxPhrasesPerGate = 8;
+
         [Serializable]
         private sealed class ClassifierEnvelope
         {
@@ -38,17 +41,138 @@ namespace OurAssets.Scripts.Chat
             public bool InvokedClassifier;
         }
 
+        /*
+         * =============================================================================
+         * GATE CLASSIFIER — TRIAL-AND-ERROR LOG (verbatim past prompts for reports)
+         * =============================================================================
+         * The live strings sent to Ollama are composed at runtime: system = optional
+         * gateClassifierInstructions (TextAsset) + DefaultClassifierPreamble; user =
+         * player line + candidate block + footer (see ClassifyAmongCandidatesAsync).
+         * Optional TextAsset in OuijaAiOrchestrator can prepend rules. Parsing fixes
+         * (camelCase JSON, matched_id cleanup, etc.) are in C# code, not listed here.
+         *
+         * ---------- PAST DEFAULT SYSTEM PREAMBLES (word-for-word, superseded) -------
+         *
+         * --- v0 (first default; minimal JSON contract) ----------------------------
+         * You classify whether the player's line is asking essentially the SAME intent as ONE of the listed gate questions.
+         * Rules:
+         * - Use only semantic match; wording may differ wildly (e.g. asking for a spirit's name matches a name gate).
+         * - If none fit, matched_id MUST be "" (empty string).
+         * - confidence MUST be a decimal from 0.0 to 1.0 meaning how sure you are (e.g. 0.85 = 85 percent sure). It is NOT a candidate index, NOT a row number, and NOT a percentage integer like 85 — use 0.85.
+         * - matched_id MUST be copied EXACTLY from the line "id=..." in the candidate list (e.g. id=spirit_name -> "spirit_name"). Do NOT use "1" or "2" to mean first or second row — use the literal id string.
+         * - Output VALID JSON ONLY, one object. Keys (snake_case):
+         *   {"matched_id":"<exact id from list or empty>","confidence":0.0}
+         *
+         * --- v1 (v0 + anti–flip-flop line; still greedy-decoding era) ---------------
+         * You classify whether the player's line is asking essentially the SAME intent as ONE of the listed gate questions.
+         * Rules:
+         * - Use only semantic match; wording may differ wildly (e.g. asking for a spirit's name matches a name gate).
+         * - If none fit, matched_id MUST be "" (empty string).
+         * - confidence MUST be a decimal from 0.0 to 1.0 meaning how sure you are (e.g. 0.85 = 85 percent sure). It is NOT a candidate index, NOT a row number, and NOT a percentage integer like 85 — use 0.85.
+         * - matched_id MUST be copied EXACTLY from the line "id=..." in the candidate list (e.g. id=spirit_name -> "spirit_name"). Do NOT use "1" or "2" to mean first or second row — use the literal id string.
+         * - Be consistent: the same player line (same words and intent) must map to the same matched_id every time.
+         * - Output VALID JSON ONLY, one object. Keys (snake_case):
+         *   {"matched_id":"<exact id from list or empty>","confidence":0.0}
+         *
+         * --- v2 (experiment: treat near-identical phrase as mandatory match) --------
+         * You classify whether the player's line is asking essentially the SAME intent as ONE of the listed gate questions.
+         * Rules:
+         * - Use only semantic match; wording may differ wildly (e.g. asking for a spirit's name matches a name gate).
+         * - If the player line is the same intent as (or only trivial punctuation/case differs from) one of the phrase: lines, that gate MATCHES — set matched_id to that gate's id and confidence 0.95 or higher. Never use "" in that case.
+         * - If none fit, matched_id MUST be "" (empty string).
+         * - confidence MUST be a decimal from 0.0 to 1.0 meaning how sure you are (e.g. 0.85 = 85 percent sure). It is NOT a candidate index, NOT a row number, and NOT a percentage integer like 85 — use 0.85.
+         * - matched_id MUST be copied EXACTLY from the line "id=..." in the candidate list (e.g. id=spirit_name -> "spirit_name"). Do NOT use "1" or "2" to mean first or second row — use the literal id string.
+         * - Be consistent: the same player line (same words and intent) must map to the same matched_id every time.
+         * - Output VALID JSON ONLY, one object. Keys (snake_case):
+         *   {"matched_id":"<exact id from list or empty>","confidence":0.0}
+         *
+         * --- v3 (first "intent routing" rewrite; before location / MY-vs-YOUR bullets) -
+         * You are the last routing check before a free-form Ouija model answers. Your job is intent, not string equality.
+         * Decide whether the player's line has the SAME conversational intent as ONE of the listed scripted gates (the phrase: lines are hints, not magic words).
+         * Semantic match examples:
+         * - "What is thy name?" matches a name gate whose phrases use "your" — archaic/pronoun swaps still count.
+         * - Typos, contractions, and reordered words still match if the goal is the same (e.g. asking identity vs location).
+         * Rules:
+         * - Prefer choosing a gate when a typical player would expect the scripted reply; be generous with paraphrase.
+         * - matched_id MUST be copied EXACTLY from "id=..." in the candidate list (e.g. id=spirit_name -> "spirit_name"). Never use "1" or "2" as row numbers.
+         * - confidence is 0.0–1.0 for how sure you are of that intent fit. Use middling values (e.g. 0.55–0.75) when wording differs but intent is clear; reserve high values (0.9+) for obvious fits.
+         * - If no candidate gate fits the intent, matched_id MUST be "".
+         * - Output VALID JSON ONLY, one object (snake_case keys):
+         *   {"matched_id":"<exact id from list or empty>","confidence":0.0}
+         *
+         * ---------- PAST USER-ROLE FOOTERS (after candidate phrase block) -----------
+         *
+         * --- user template u0 (older; "Candidate gate questions") -------------------
+         * Player said:
+         * "<player line>"
+         *
+         * Candidate gate questions (each line shows the gate id you must copy verbatim into matched_id):
+         * <numbered id=... + phrase lines>
+         *
+         * Return JSON only: {"matched_id":"<exact id= value or empty>","confidence":0.0} where confidence is a float 0.0..1.0 (probability), not an index.
+         *
+         * --- user template u1 (current logic; INTENT in header + wording tweak) -------
+         * Player said:
+         * "<player line>"
+         *
+         * Candidate gates (phrase: lines are reference wording — match INTENT, not exact letters):
+         * <numbered id=... + phrase lines>
+         *
+         * Return JSON only: {"matched_id":"<exact id= value or empty>","confidence":0.0} where confidence is a float 0.0..1.0 (your estimated probability of intent fit), not an index.
+         *
+         * ---------- SAMPLING DEFAULTS TRIED (Ollama options on classifier only) -----
+         * - Tight: temperature 0, top_p 0.1, top_k 1, seed 42 (stable but sometimes
+         *   brittle empty JSON or low paraphrase tolerance).
+         * - Looser (current inspector defaults): temperature ~0.25, top_p ~0.9,
+         *   top_k ~40; gatedClassifierMinConfidence was lowered (~0.52) so semantic
+         *   near-matches were not all dropped by threshold alone.
+         *
+         * ---------- NON-PROMPT MITIGATIONS (for assignment “what else we tried”) -----
+         * - gateClassifierMaxFuzzyLeaderGap: reject classifier if pick disagrees with
+         *   top lexical score in pool by more than a margin (wrong “where” → name).
+         * - ShouldRejectSelfDirectedNameToSpiritFacingGate: "What is MY name?" vs
+         *   spirit-only "your name" phrases.
+         * - gateClassifierLexicalExactFallback (default off): exact normalized phrase
+         *   recovery when the model returns empty/broken JSON only.
+         * - Archaic thy→your in NormalizeForMatch: tried, reverted (author testing).
+         *
+         * ---------- CURRENT DEFAULT SYSTEM PREAMBLE — v4 (verbatim; also in const) ---
+         * You are the last routing check before a free-form Ouija model answers. Your job is intent, not string equality.
+         * Decide whether the player's line has the SAME conversational intent as ONE of the listed scripted gates (the phrase: lines are hints, not magic words).
+         * Semantic match examples:
+         * - "What is thy name?" matches a name gate whose phrases use "your" — archaic/pronoun swaps still count.
+         * - Typos, contractions, and reordered words still match if the goal is the same.
+         * IMPORTANT — do not confuse intent categories:
+         * - Questions about PLACE / LOCATION / "where" (e.g. "Where are you?", "Where is the spirit?", "Are you here?") are NOT the same as asking for a NAME or "Who are you?" unless this candidate gate's phrases are clearly about location.
+         * - Name / identity / "what is your name" / "who are you" belong with identity-style gates, not location-style gates.
+         * - Asking about the PLAYER's own name ("What is MY name?", "Who am I?") is NOT the same intent as asking the SPIRIT for ITS name ("your name", "who are you") unless the gate is explicitly about the player.
+         * Rules:
+         * - Prefer choosing a gate when a typical player would expect the scripted reply; be generous with paraphrase within the SAME intent category.
+         * - matched_id MUST be copied EXACTLY from "id=..." in the candidate list (e.g. id=spirit_name -> "spirit_name").
+         *   Never use "1" or "2" as row numbers.
+         * - confidence is 0.0–1.0 for how sure you are of that intent fit. Use middling values (e.g. 0.55–0.75) when wording differs but intent is clear; reserve high values (0.9+) for obvious fits.
+         * - If no candidate gate fits the intent, matched_id MUST be "".
+         * - Output VALID JSON ONLY, one object (snake_case keys):
+         *   {"matched_id":"<exact id from list or empty>","confidence":0.0}
+         * =============================================================================
+         */
         private const string DefaultClassifierPreamble =
-            "You classify whether the player's line is asking essentially the SAME intent as ONE of the listed gate questions.\n" +
+            "You are the last routing check before a free-form Ouija model answers. Your job is intent, not string equality.\n" +
+            "Decide whether the player's line has the SAME conversational intent as ONE of the listed scripted gates (the phrase: lines are hints, not magic words).\n" +
+            "Semantic match examples:\n" +
+            "- \"What is thy name?\" matches a name gate whose phrases use \"your\" — archaic/pronoun swaps still count.\n" +
+            "- Typos, contractions, and reordered words still match if the goal is the same.\n" +
+            "IMPORTANT — do not confuse intent categories:\n" +
+            "- Questions about PLACE / LOCATION / \"where\" (e.g. \"Where are you?\", \"Where is the spirit?\", \"Are you here?\") are NOT the same as asking for a NAME or \"Who are you?\" unless this candidate gate's phrases are clearly about location.\n" +
+            "- Name / identity / \"what is your name\" / \"who are you\" belong with identity-style gates, not location-style gates.\n" +
+            "- Asking about the PLAYER's own name (\"What is MY name?\", \"Who am I?\") is NOT the same intent as asking the SPIRIT for ITS name (\"your name\", \"who are you\") unless the gate is explicitly about the player.\n" +
             "Rules:\n" +
-            "- Use only semantic match; wording may differ wildly (e.g. asking for a spirit's name matches a name gate).\n" +
-            "- If none fit, matched_id MUST be \"\" (empty string).\n" +
-            "- confidence MUST be a decimal from 0.0 to 1.0 meaning how sure you are (e.g. 0.85 = 85 percent sure). " +
-            "It is NOT a candidate index, NOT a row number, and NOT a percentage integer like 85 — use 0.85.\n" +
-            "- matched_id MUST be copied EXACTLY from the line \"id=...\" in the candidate list (e.g. id=spirit_name -> \"spirit_name\"). " +
-            "Do NOT use \"1\" or \"2\" to mean first or second row — use the literal id string.\n" +
-            "- Be consistent: the same player line (same words and intent) must map to the same matched_id every time.\n" +
-            "- Output VALID JSON ONLY, one object. Keys (snake_case):\n" +
+            "- Prefer choosing a gate when a typical player would expect the scripted reply; be generous with paraphrase within the SAME intent category.\n" +
+            "- matched_id MUST be copied EXACTLY from \"id=...\" in the candidate list (e.g. id=spirit_name -> \"spirit_name\"). " +
+            "Never use \"1\" or \"2\" as row numbers.\n" +
+            "- confidence is 0.0–1.0 for how sure you are of that intent fit. Use middling values (e.g. 0.55–0.75) when wording differs but intent is clear; reserve high values (0.9+) for obvious fits.\n" +
+            "- If no candidate gate fits the intent, matched_id MUST be \"\".\n" +
+            "- Output VALID JSON ONLY, one object (snake_case keys):\n" +
             "  {\"matched_id\":\"<exact id from list or empty>\",\"confidence\":0.0}\n";
 
         private readonly float _fuzzyStrongThreshold;
@@ -60,6 +184,9 @@ namespace OurAssets.Scripts.Chat
         private readonly string _keepAliveString;
         private readonly bool _debugLogs;
         private readonly bool _skipFuzzyInstantResolve;
+        private readonly bool _lexicalExactFallback;
+        /// <summary>When &gt; 0: if classifier pick differs from highest-fuzzy gate in the pool by more than this score margin, reject (reduces mis-routes). 0 = off.</summary>
+        private readonly float _classifierMaxFuzzyLeaderGap;
         private readonly OllamaChatInferenceOptions _classifierInferenceOptions;
 
         public OuijaQuestionGateResolver(
@@ -72,6 +199,8 @@ namespace OurAssets.Scripts.Chat
             string keepAliveString,
             bool debugLogs,
             bool skipFuzzyInstantResolve,
+            bool lexicalExactFallback,
+            float classifierMaxFuzzyLeaderGap,
             OllamaChatInferenceOptions classifierInferenceOptions)
         {
             _fuzzyStrongThreshold = Mathf.Clamp01(fuzzyStrongThreshold);
@@ -83,6 +212,8 @@ namespace OurAssets.Scripts.Chat
             _keepAliveString = keepAliveString ?? "120s";
             _debugLogs = debugLogs;
             _skipFuzzyInstantResolve = skipFuzzyInstantResolve;
+            _lexicalExactFallback = lexicalExactFallback;
+            _classifierMaxFuzzyLeaderGap = Mathf.Clamp01(classifierMaxFuzzyLeaderGap);
             _classifierInferenceOptions = classifierInferenceOptions ?? CreateDefaultClassifierInferenceOptions();
         }
 
@@ -90,9 +221,9 @@ namespace OurAssets.Scripts.Chat
         {
             return new OllamaChatInferenceOptions
             {
-                temperature = 0f,
-                top_p = 0.1f,
-                top_k = 1,
+                temperature = 0.25f,
+                top_p = 0.9f,
+                top_k = 40,
                 seed = 42,
             };
         }
@@ -180,7 +311,7 @@ namespace OurAssets.Scripts.Chat
 
             string classifiedId = await ClassifyAmongCandidatesAsync(
                     playerMessage.Trim(),
-                    aiPool.Select(p => p.Entry).ToList(),
+                    aiPool,
                     ollama,
                     classifierModelName,
                     string.IsNullOrWhiteSpace(optionalClassifierInstructions)
@@ -373,6 +504,32 @@ namespace OurAssets.Scripts.Chat
             return text.Length <= maxChars ? text : text.Substring(0, maxChars) + "...";
         }
 
+        /// <summary>Emits full text to the Unity console in chunks (very long <see cref="Debug.Log"/> lines can be truncated).</summary>
+        private void DebugLogFullGateClassifierString(string label, string text)
+        {
+            if (!_debugLogs)
+            {
+                return;
+            }
+
+            const int maxChunk = 12000;
+            if (string.IsNullOrEmpty(text))
+            {
+                Debug.Log($"[OuijaGate] {label}\n(empty)");
+                return;
+            }
+
+            int totalParts = (text.Length + maxChunk - 1) / maxChunk;
+            for (int i = 0; i < totalParts; i++)
+            {
+                int start = i * maxChunk;
+                int len = Mathf.Min(maxChunk, text.Length - start);
+                string part = text.Substring(start, len);
+                string seg = totalParts > 1 ? $" (part {i + 1}/{totalParts})" : string.Empty;
+                Debug.Log($"[OuijaGate] {label}{seg}\n{part}");
+            }
+        }
+
         private static IFormatProvider CultureInvariant()
         {
             return System.Globalization.CultureInfo.InvariantCulture;
@@ -547,23 +704,25 @@ namespace OurAssets.Scripts.Chat
 
         private async Task<string> ClassifyAmongCandidatesAsync(
             string trimmedPlayerUtterance,
-            IReadOnlyList<GatedQuestionEntrySnap> candidateGates,
+            IReadOnlyList<ScoredGate> fuzzyRankedPool,
             OllamaClient ollama,
             string classifierModelName,
             string systemText,
             CancellationToken cancellationToken)
         {
-            if (candidateGates.Count == 0)
+            if (fuzzyRankedPool == null || fuzzyRankedPool.Count == 0)
             {
                 return string.Empty;
             }
+
+            IReadOnlyList<GatedQuestionEntrySnap> candidateGates = fuzzyRankedPool.Select(p => p.Entry).ToList();
 
             StringBuilder candBlock = new StringBuilder();
             for (int i = 0; i < candidateGates.Count; i++)
             {
                 GatedQuestionEntrySnap g = candidateGates[i];
                 candBlock.AppendLine($"{i + 1}. id={g.QuestionId}");
-                foreach (string p in g.MatchPhrases.Where(x => !string.IsNullOrWhiteSpace(x)).Take(3))
+                foreach (string p in g.MatchPhrases.Where(x => !string.IsNullOrWhiteSpace(x)).Take(ClassifierPromptMaxPhrasesPerGate))
                 {
                     candBlock.AppendLine($"   phrase: {p.Trim()}");
                 }
@@ -572,10 +731,10 @@ namespace OurAssets.Scripts.Chat
             string userPrompt =
                 "Player said:\n" +
                 '\"' + trimmedPlayerUtterance.Replace("\"", "'") + "\"\n\n" +
-                "Candidate gate questions (each line shows the gate id you must copy verbatim into matched_id):\n" +
+                "Candidate gates (phrase: lines are reference wording — match INTENT, not exact letters):\n" +
                 candBlock +
                 "\nReturn JSON only: {\"matched_id\":\"<exact id= value or empty>\",\"confidence\":0.0} " +
-                "where confidence is a float 0.0..1.0 (probability), not an index.\n";
+                "where confidence is a float 0.0..1.0 (your estimated probability of intent fit), not an index.\n";
 
             List<OllamaMessage> msgs = new List<OllamaMessage>
             {
@@ -592,12 +751,38 @@ namespace OurAssets.Scripts.Chat
                 options = _classifierInferenceOptions,
             };
 
+            if (_debugLogs)
+            {
+                OllamaChatInferenceOptions opt = _classifierInferenceOptions;
+                Debug.Log(
+                    "[OuijaGate] Classifier request meta — model=\"" + classifierModelName + "\", keep_alive=\"" +
+                    _keepAliveString + "\", options: temperature=" + opt.temperature.ToString(CultureInfo.InvariantCulture) +
+                    ", top_p=" + opt.top_p.ToString(CultureInfo.InvariantCulture) + ", top_k=" + opt.top_k + ", seed=" + opt.seed);
+                DebugLogFullGateClassifierString("Classifier LLM — FULL system message", systemText);
+                DebugLogFullGateClassifierString("Classifier LLM — FULL user message", userPrompt);
+            }
+
             int timeoutSeconds = Mathf.Max(_classifierTimeoutSeconds, _resolveClassifierTimeoutSeconds.Invoke(classifierModelName));
             OllamaChatResponse response = await ollama.SendChatAsync(requestPayload, timeoutSeconds, cancellationToken);
 
             string rawContent = response?.message?.content?.Trim() ?? string.Empty;
+            if (_debugLogs)
+            {
+                DebugLogFullGateClassifierString("Classifier LLM — FULL raw assistant content", rawContent);
+                if (string.IsNullOrEmpty(rawContent))
+                {
+                    Debug.LogWarning("[OuijaGate] Classifier returned empty assistant content (nothing to parse).");
+                }
+            }
+
             if (string.IsNullOrEmpty(rawContent))
             {
+                if (_lexicalExactFallback &&
+                    TryGetLexicalOverrideGateId(trimmedPlayerUtterance, candidateGates, "model returned empty content", out string gidEmpty))
+                {
+                    return gidEmpty;
+                }
+
                 return string.Empty;
             }
 
@@ -607,7 +792,13 @@ namespace OurAssets.Scripts.Chat
                 {
                     Debug.LogWarning(
                         "[OuijaGate] Gate classifier JSON could not be parsed (model may use different keys than matched_id). " +
-                        $"Detail: {parseDetail}\nRaw (truncated): {TruncateForLog(rawContent, 600)}");
+                        $"Detail: {parseDetail}. Full raw content was logged above as \"Classifier LLM — FULL raw assistant content\".");
+                }
+
+                if (_lexicalExactFallback &&
+                    TryGetLexicalOverrideGateId(trimmedPlayerUtterance, candidateGates, "JSON parse failed", out string gidParse))
+                {
+                    return gidParse;
                 }
 
                 return string.Empty;
@@ -618,6 +809,12 @@ namespace OurAssets.Scripts.Chat
                 if (_debugLogs)
                 {
                     Debug.Log("[OuijaGate] Semantic classifier returned empty matched_id (no gate) — expected for unrelated questions.");
+                }
+
+                if (_lexicalExactFallback &&
+                    TryGetLexicalOverrideGateId(trimmedPlayerUtterance, candidateGates, "model returned empty matched_id", out string gidNullId))
+                {
+                    return gidNullId;
                 }
 
                 return string.Empty;
@@ -642,6 +839,12 @@ namespace OurAssets.Scripts.Chat
                     Debug.LogWarning(
                         $"[OuijaGate] Classifier output \"{normalizedId}\" (raw \"{env.matched_id.Trim()}\") could not be mapped to a gate id. {resolveFailReason} " +
                         "Reminder: use the exact text after id=, not the row number (1,2,…).");
+                }
+
+                if (_lexicalExactFallback &&
+                    TryGetLexicalOverrideGateId(trimmedPlayerUtterance, candidateGates, "classifier id could not be resolved", out string gidResolve))
+                {
+                    return gidResolve;
                 }
 
                 return string.Empty;
@@ -674,6 +877,39 @@ namespace OurAssets.Scripts.Chat
                         $"[OuijaGate] Semantic classifier low confidence ({env.confidence:F2} < {_classifierMinConfidence:F2}) for id '{env.matched_id}' — treating as no gate match.");
                 }
 
+                if (_lexicalExactFallback &&
+                    TryGetLexicalOverrideGateId(trimmedPlayerUtterance, candidateGates, "classifier confidence below minimum", out string gidLowConf))
+                {
+                    return gidLowConf;
+                }
+
+                return string.Empty;
+            }
+
+            GatedQuestionEntrySnap chosenForPronounCheck =
+                candidateGates.FirstOrDefault(g => string.Equals(g.QuestionId, env.matched_id.Trim(), StringComparison.Ordinal));
+            if (chosenForPronounCheck != null &&
+                ShouldRejectSelfDirectedNameToSpiritFacingGate(trimmedPlayerUtterance, chosenForPronounCheck))
+            {
+                if (_debugLogs)
+                {
+                    Debug.Log(
+                        "[OuijaGate] Classifier pick rejected — line asks about the human's own name (my/I), " +
+                        "but this gate's phrases only ask the spirit (your/you) for identity.");
+                }
+
+                return string.Empty;
+            }
+
+            if (!TryValidateClassifierAgainstFuzzyLeader(env.matched_id.Trim(), fuzzyRankedPool, out string fuzzyRejectReason))
+            {
+                if (_debugLogs)
+                {
+                    Debug.Log(
+                        "[OuijaGate] Classifier pick rejected — " + fuzzyRejectReason +
+                        " (raise gateClassifierMaxFuzzyLeaderGap or set to 0 to disable).");
+                }
+
                 return string.Empty;
             }
 
@@ -684,6 +920,206 @@ namespace OurAssets.Scripts.Chat
             }
 
             return env.matched_id.Trim();
+        }
+
+        /// <summary>
+        /// Blocks routing self-directed name questions ("What is MY name?") into gates whose phrases only ask the entity for THEIR
+        /// name ("your name", "who are you") — distinct intents in most Ouija setups.
+        /// </summary>
+        private static bool ShouldRejectSelfDirectedNameToSpiritFacingGate(
+            string trimmedPlayerUtterance,
+            GatedQuestionEntrySnap gate)
+        {
+            if (gate?.MatchPhrases == null || gate.MatchPhrases.Length == 0)
+            {
+                return false;
+            }
+
+            string np = NormalizeForMatch(trimmedPlayerUtterance);
+            if (string.IsNullOrEmpty(np))
+            {
+                return false;
+            }
+
+            bool playerAsksOwnIdentity = Regex.IsMatch(
+                np,
+                @"\b(my\s+name|who\s+am\s+i|what\s+am\s+i\s+called)\b",
+                RegexOptions.IgnoreCase);
+            if (!playerAsksOwnIdentity)
+            {
+                return false;
+            }
+
+            bool playerAlsoAsksSpiritIdentity =
+                Regex.IsMatch(np, @"\b(your|thy)\s+name\b", RegexOptions.IgnoreCase) ||
+                Regex.IsMatch(np, @"\bwho\s+are\s+you\b", RegexOptions.IgnoreCase);
+            if (playerAlsoAsksSpiritIdentity)
+            {
+                return false;
+            }
+
+            foreach (string p in gate.MatchPhrases)
+            {
+                if (string.IsNullOrWhiteSpace(p))
+                {
+                    continue;
+                }
+
+                string n = NormalizeForMatch(p);
+                if (Regex.IsMatch(n, @"\bmy\s+name\b", RegexOptions.IgnoreCase) ||
+                    Regex.IsMatch(n, @"\bwho\s+am\s+i\b", RegexOptions.IgnoreCase))
+                {
+                    return false;
+                }
+            }
+
+            foreach (string p in gate.MatchPhrases)
+            {
+                if (string.IsNullOrWhiteSpace(p))
+                {
+                    continue;
+                }
+
+                string n = NormalizeForMatch(p);
+                if (Regex.IsMatch(n, @"\b(your|thy)\s+name\b", RegexOptions.IgnoreCase) ||
+                    Regex.IsMatch(n, @"\bwho\s+are\s+you\b", RegexOptions.IgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// When the classifier picks a different gate than the pool's lexical leader, reject if the fuzzy-score gap is too large.
+        /// Reduces false positives (e.g. location phrasing routed to a name gate). Disabled when <paramref name="pool"/> empty or max gap is 0.
+        /// </summary>
+        private bool TryValidateClassifierAgainstFuzzyLeader(string chosenGateId, IReadOnlyList<ScoredGate> pool, out string detail)
+        {
+            detail = string.Empty;
+            if (_classifierMaxFuzzyLeaderGap <= 0f || pool == null || pool.Count == 0)
+            {
+                return true;
+            }
+
+            ScoredGate top = pool[0];
+            ScoredGate pick = null;
+            foreach (ScoredGate sg in pool)
+            {
+                if (string.Equals(sg.Entry.QuestionId.Trim(), chosenGateId.Trim(), StringComparison.Ordinal))
+                {
+                    pick = sg;
+                    break;
+                }
+            }
+
+            if (pick == null)
+            {
+                return true;
+            }
+
+            if (string.Equals(top.Entry.QuestionId.Trim(), chosenGateId.Trim(), StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            float gap = top.Score - pick.Score;
+            if (gap > _classifierMaxFuzzyLeaderGap)
+            {
+                detail =
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "fuzzy leader \"{0}\" ({1:F3}) vs classifier choice \"{2}\" ({3:F3}), gap {4:F3} > max {5:F3}",
+                        top.Entry.QuestionId.Trim(),
+                        top.Score,
+                        chosenGateId.Trim(),
+                        pick.Score,
+                        gap,
+                        _classifierMaxFuzzyLeaderGap);
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// When the LLM returns empty/wrong output but the player line matches a configured phrase (same normalization as fuzzy matching)
+        /// for exactly one gate in the current pool, use that gate. Compares all match phrases per gate, not only the three copied into the LLM prompt.
+        /// </summary>
+        private bool TryGetLexicalOverrideGateId(
+            string trimmedPlayerUtterance,
+            IReadOnlyList<GatedQuestionEntrySnap> candidateGates,
+            string reason,
+            out string gateId)
+        {
+            gateId = string.Empty;
+            if (!TryUnambiguousNormalizedPhraseMatch(trimmedPlayerUtterance, candidateGates, out string id))
+            {
+                return false;
+            }
+
+            gateId = id;
+            if (_debugLogs)
+            {
+                Debug.Log(
+                    "[OuijaGate] Lexical phrase override (" + reason + "): normalized player text equals a matchPhrase for a single gate — using id \"" +
+                    gateId + "\".");
+            }
+
+            return true;
+        }
+
+        private static bool TryUnambiguousNormalizedPhraseMatch(
+            string trimmedPlayerUtterance,
+            IReadOnlyList<GatedQuestionEntrySnap> candidateGates,
+            out string gateId)
+        {
+            gateId = string.Empty;
+            string np = NormalizeForMatch(trimmedPlayerUtterance);
+            if (string.IsNullOrEmpty(np))
+            {
+                return false;
+            }
+
+            string winnerId = null;
+            foreach (GatedQuestionEntrySnap g in candidateGates)
+            {
+                if (g.MatchPhrases == null)
+                {
+                    continue;
+                }
+
+                foreach (string phrase in g.MatchPhrases)
+                {
+                    if (string.IsNullOrWhiteSpace(phrase))
+                    {
+                        continue;
+                    }
+
+                    string nph = NormalizeForMatch(phrase);
+                    if (!string.Equals(nph, np, StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    string id = g.QuestionId.Trim();
+                    if (winnerId != null && !string.Equals(winnerId, id, StringComparison.Ordinal))
+                    {
+                        return false;
+                    }
+
+                    winnerId = id;
+                }
+            }
+
+            if (string.IsNullOrEmpty(winnerId))
+            {
+                return false;
+            }
+
+            gateId = winnerId;
+            return true;
         }
 
         /// <summary>
