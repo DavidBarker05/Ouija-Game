@@ -28,6 +28,7 @@ namespace OurAssets.Scripts.AI
         {
             _baseUrl = baseUrl.TrimEnd('/');
             _processManager = new OllamaProcessManager();
+            UnityMainThread.TryRegisterFromCurrentSynchronizationContext();
         }
 
         public async Task<OllamaProcessManager.StartupResult> EnsureServerReadyAsync(
@@ -72,6 +73,8 @@ namespace OurAssets.Scripts.AI
             int timeoutSeconds,
             CancellationToken cancellationToken = default)
         {
+            await UnityMainThread.SwitchToMainThreadAsync();
+
             string url = $"{_baseUrl}/api/chat";
             string json = JsonUtility.ToJson(requestPayload);
             byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
@@ -119,6 +122,8 @@ namespace OurAssets.Scripts.AI
             {
                 return;
             }
+
+            await UnityMainThread.SwitchToMainThreadAsync();
 
             string url = $"{_baseUrl}/api/generate";
             OllamaUnloadRequest unloadPayload = new OllamaUnloadRequest

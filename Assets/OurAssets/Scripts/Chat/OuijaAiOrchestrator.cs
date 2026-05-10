@@ -42,13 +42,26 @@ namespace OurAssets.Scripts.Chat
         [SerializeField] private TextAsset gateClassifierInstructions;
         [Tooltip("Blank uses the configured Ouija chat model.")]
         [SerializeField] private string gateClassifierModelOverride = string.Empty;
+        [Tooltip(
+            "If the best fuzzy score is at or above this value, a gate may match without calling the semantic classifier. " +
+            "Lowering this makes fuzzy act alone more often (classifier skipped). Raising it (e.g. 0.85) keeps borderline lines for the classifier.")]
         [SerializeField, Range(0f, 1f)] private float gatedFuzzyStrongThreshold = 0.72f;
+        [Tooltip(
+            "When enabled, fuzzy similarity never locks a gate by itself: the semantic classifier still runs whenever the candidate pool is non-empty.")]
+        [SerializeField] private bool gatedAlwaysRunSemanticClassifier = false;
         [SerializeField, Range(0f, 1f)] private float gatedFuzzyMinAiCandidateScore = 0.18f;
         [SerializeField, Range(1, 20)] private int gatedMaxClassifierCandidates = 5;
         [SerializeField, Range(0f, 1f)] private float gatedClassifierMinConfidence = 0.62f;
         [SerializeField, Range(5, 300)] private int gateClassifierTimeoutSeconds = 25;
         [Tooltip("Logs fuzzy scores per gated question/phrase and classifier candidate pool.")]
         [SerializeField] private bool enableGateDebugLogs = true;
+        [Tooltip("Only the gate semantic classifier uses these; main Ouija/story chat is unchanged. Lower temperature and top_k reduce flip-flopping on the same line.")]
+        [SerializeField, Range(0f, 2f)] private float gateClassifierTemperature = 0f;
+        [SerializeField, Range(0f, 1f)] private float gateClassifierTopP = 0.1f;
+        [Tooltip("1 = greedy token choice with temperature 0 (most stable). Ollama’s default is much higher.")]
+        [SerializeField, Range(1, 100)] private int gateClassifierTopK = 1;
+        [Tooltip("Same prompt + fixed seed makes repeat classifications line up more often with supported models.")]
+        [SerializeField] private int gateClassifierSeed = 42;
 
         private readonly Dictionary<string, DateTime> _lastModelResponseUtc = new Dictionary<string, DateTime>();
 
@@ -72,6 +85,7 @@ namespace OurAssets.Scripts.Chat
 
         private void Awake()
         {
+            UnityMainThread.RegisterMainThreadContext(SynchronizationContext.Current);
             _ollamaClient = new OllamaClient(ollamaBaseUrl);
             _conversationState = new OuijaConversationState();
             GetAIModels();
@@ -84,7 +98,9 @@ namespace OurAssets.Scripts.Chat
                 gateClassifierTimeoutSeconds,
                 ResolveTimeoutSeconds,
                 ConvertKeepAliveSeconds(keepAliveSeconds),
-                enableGateDebugLogs);
+                enableGateDebugLogs,
+                gatedAlwaysRunSemanticClassifier,
+                BuildGateClassifierInferenceOptions());
             RebuildConstants();
         }
 
@@ -235,6 +251,7 @@ namespace OurAssets.Scripts.Chat
                         ? ouijaModelName
                         : gateClassifierModelOverride.Trim();
 
+                    // Default ConfigureAwait:true — UnityWebRequest in OllamaClient must run on the main thread.
                     OuijaQuestionGateResolver.ResolveResult gateOutcome =
                         await _questionGateResolver.TryResolveAsync(
                             playerMessage,
@@ -243,7 +260,7 @@ namespace OurAssets.Scripts.Chat
                             _ollamaClient,
                             classifierModel,
                             gateClassifierInstructions != null ? gateClassifierInstructions.text : null,
-                            cancellationToken).ConfigureAwait(false);
+                            cancellationToken);
 
                     if (gateOutcome.InvokedClassifier)
                     {
@@ -422,6 +439,17 @@ namespace OurAssets.Scripts.Chat
             Template template = new Template(templateAsset.text);
             string rendered = template.Render(new Dictionary<string, object>());
             return rendered ?? string.Empty;
+        }
+
+        private OllamaChatInferenceOptions BuildGateClassifierInferenceOptions()
+        {
+            return new OllamaChatInferenceOptions
+            {
+                temperature = gateClassifierTemperature,
+                top_p = gateClassifierTopP,
+                top_k = Mathf.Max(1, gateClassifierTopK),
+                seed = gateClassifierSeed,
+            };
         }
 
         private int ResolveTimeoutSeconds(string modelName)

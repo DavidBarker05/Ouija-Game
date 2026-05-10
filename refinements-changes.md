@@ -226,4 +226,31 @@ This file tracks the Unity + Ollama integration work completed so far.
     - Per-request fuzzy breakdown including normalized player text, thresholds, and per-gate/per-phrase scores.
     - Similarity component values (`jacc`, token coverage, bigram Dice) for each phrase entry.
     - Classifier candidate-pool summary and explicit “no candidates above floor” logging.
-  - `enableGateDebugLogs` is now independent of `enableRegularDebugLogs` so gate diagnostics can be enabled by themselves.
+    - `enableGateDebugLogs` is now independent of `enableRegularDebugLogs` so gate diagnostics can be enabled by themselves.
+
+- Added `Assets/OurAssets/Scripts/AI/UnityMainThread.cs`
+  - Date: 10/05/2026
+  - AI assisted: yes.
+  - Captures the Unity `SynchronizationContext` and provides `SwitchToMainThreadAsync()` so async continuations can post back to the main thread.
+
+- Updated `Assets/OurAssets/Scripts/AI/OllamaClient.cs`
+  - Date: 10/05/2026
+  - AI assisted: yes.
+  - `SendChatAsync` and `UnloadModelAsync` await `UnityMainThread.SwitchToMainThreadAsync()` before creating `UnityWebRequest` (fixes “Create can only be called from the main thread” when chat code resumes off the main thread after `await`).
+
+- Updated `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs`
+  - Date: 10/05/2026
+  - AI assisted: yes.
+  - Registers the main-thread context in `Awake` via `UnityMainThread.RegisterMainThreadContext` before creating `OllamaClient`.
+
+- Updated `Assets/OurAssets/Scripts/Chat/OuijaQuestionGateResolver.cs`
+  - Date: 10/05/2026
+  - AI assisted: yes.
+  - Classifier JSON parsing hardened for real model outputs: camelCase envelope (`matchedId`), regex fallbacks, `NormalizeClassifierMatchedId` (strip `id=`, list prefixes), numeric / index mapping to `QuestionId`, and flooring `confidence` when it is exactly `0` but a valid gate id was returned (models often misuse zero).
+
+- Updated `Assets/OurAssets/Scripts/AI/OllamaDtos.cs`, `OuijaQuestionGateResolver.cs`, `OuijaAiOrchestrator.cs`
+  - Date: 10/05/2026
+  - AI assisted: yes.
+  - `OllamaChatInferenceOptions` (`temperature`, `top_p`, `top_k`, `seed`) attached to `OllamaChatRequest.options` **only for the gate classifier** so sampling is near-greedy by default (temperature 0, `top_k` 1, fixed seed) and repeats the same player line classify more consistently; main Ouija/story chat still omits `options` and keeps server defaults.
+  - Inspector fields on `OuijaAiOrchestrator`: `gateClassifierTemperature`, `gateClassifierTopP`, `gateClassifierTopK`, `gateClassifierSeed`.
+  - Default classifier preamble adds an explicit rule that the same player line must map to the same `matched_id` each time.
