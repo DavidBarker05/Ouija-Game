@@ -111,8 +111,9 @@ public class FirstPersonCharacter : PlayerCharacter
 			layerMask: m_InteractSettings.InteractableLayer,
 			queryTriggerInteraction: QueryTriggerInteraction.Collide))
 		{
-			//Interactable interactable = hit.GetComponent<Interactable>();
-			//if (interactable == null) return;
+			Interactable interactable = hitInfo.collider.gameObject.GetComponent<Interactable>();
+			if (interactable == null) return;
+			interactable.Interact();
 		}
 	}
 	#endregion Interaction

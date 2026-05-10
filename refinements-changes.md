@@ -236,3 +236,8 @@ This file tracks the Unity + Ollama integration work completed so far.
   - Basic first person character that derives from PlayerCharacter
   - Allows normal movement (no walking, jumping or crouching)
   - Allows player to interact with interactables
+
+- Added `Assets/OurAssets/Interaction/Interactable.cs`
+  - Date: 10/05/2026
+  - AI assisted: no (David).
+  - Base interactable class that all interactables will derive from
