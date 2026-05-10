@@ -251,6 +251,17 @@ This file tracks the Unity + Ollama integration work completed so far.
 - Updated `Assets/OurAssets/Scripts/AI/OllamaDtos.cs`, `OuijaQuestionGateResolver.cs`, `OuijaAiOrchestrator.cs`
   - Date: 10/05/2026
   - AI assisted: yes.
-  - `OllamaChatInferenceOptions` (`temperature`, `top_p`, `top_k`, `seed`) attached to `OllamaChatRequest.options` **only for the gate classifier** so sampling is near-greedy by default (temperature 0, `top_k` 1, fixed seed) and repeats the same player line classify more consistently; main Ouija/story chat still omits `options` and keeps server defaults.
-  - Inspector fields on `OuijaAiOrchestrator`: `gateClassifierTemperature`, `gateClassifierTopP`, `gateClassifierTopK`, `gateClassifierSeed`.
-  - Default classifier preamble adds an explicit rule that the same player line must map to the same `matched_id` each time.
+  - `OllamaChatRequest` supports optional nested `OllamaChatInferenceOptions` (`temperature`, `top_p`, `top_k`, `seed`); only the **gate classifier** sets `options` on its chat request. Main Ouija/story chat omit `options` and keep Ollama defaults.
+  - Inspector fields on `OuijaAiOrchestrator` tune classifier sampling: `gateClassifierTemperature`, `gateClassifierTopP`, `gateClassifierTopK`, `gateClassifierSeed`.
+
+- Further **gated scripted questions / classifier** refinements
+  - Date: 10/05/2026
+  - AI assisted: yes.
+  - **`DefaultClassifierPreamble`:** rewritten around **semantic intent** (last routing step before free-form Ouija): phrases as hints not magic strings; **location** (“where”, place) vs **name/identity**; **player self** (“What is *my* name?”, “Who am I?”) vs **spirit-directed** (“*your* name”, “Who are you?”); thy/your and similar paraphrase; guidance on confidence for borderline vs obvious fits.
+  - **Classifier user prompt:** shows up to **eight** `matchPhrases` per gate in the candidate block (`ClassifierPromptMaxPhrasesPerGate`); header tells the model to match **intent**, not exact wording.
+  - **Inspector defaults** tuned for paraphrase (approx. temperature **0.25**, top_p **0.9**, top_k **40**); **`gatedClassifierMinConfidence`** default **~0.52** so reasonable semantic hits are not always rejected (wrong-but-confident cases addressed by other checks below).
+  - **`gateClassifierLexicalExactFallback`:** if enabled, when the model returns empty or unusable JSON, accept a gate only when the normalized player text equals a configured phrase (**off by default** so routing stays intent-first).
+  - **`gateClassifierMaxFuzzyLeaderGap`:** after the model picks a gate, **reject** that pick if its fuzzy score in the candidate pool falls too far below the **top** fuzzy-scoring gate (reduces false positives such as “Where are you?” classified as a name gate with high confidence).
+  - **`ShouldRejectSelfDirectedNameToSpiritFacingGate`:** blocks routing clear **self**-identity questions into gates whose phrases only ask the **spirit** for identity (unless those gates also include player-self phrasing in `matchPhrases`).
+  - **`ClassifyAmongCandidatesAsync`** takes the **scored** fuzzy pool (`List<ScoredGate>`) for the leader-gap check; resolver constructor wiring extended accordingly.
+  - **`enableGateDebugLogs`:** also logs **full** classifier system text, full user text, full raw model reply, and request meta (model, `keep_alive`, inference options); long payloads split into console-sized chunks. Parse-failure warnings point at that full raw log instead of a short truncated excerpt.
