@@ -32,6 +32,23 @@ namespace OurAssets.Scripts.Chat
         [Header("Debug")]
         [SerializeField] private bool enableRegularDebugLogs = true;
 
+        [Header("Gated scripted questions")]
+        [Tooltip("If true, specific player lines can be routed to scripted answers before the conversational model.")]
+        [SerializeField] private bool enableQuestionGate = true;
+        [SerializeField] private OuijaGatedQuestionEntry[] gatedQuestions = Array.Empty<OuijaGatedQuestionEntry>();
+        [Tooltip("Optional: MonoBehaviour implementing IOuijaGateConditionEvaluator (minigame flags, progress, inventory).")]
+        [SerializeField] private Component gateConditionEvaluator;
+        [Tooltip("Prepended classifier rules; fuzzy matching still runs before this call.")]
+        [SerializeField] private TextAsset gateClassifierInstructions;
+        [Tooltip("Blank uses the configured Ouija chat model.")]
+        [SerializeField] private string gateClassifierModelOverride = string.Empty;
+        [SerializeField, Range(0f, 1f)] private float gatedFuzzyStrongThreshold = 0.72f;
+        [SerializeField, Range(0f, 1f)] private float gatedFuzzyMinAiCandidateScore = 0.18f;
+        [SerializeField, Range(1, 20)] private int gatedMaxClassifierCandidates = 5;
+        [SerializeField, Range(0f, 1f)] private float gatedClassifierMinConfidence = 0.62f;
+        [SerializeField, Range(5, 300)] private int gateClassifierTimeoutSeconds = 25;
+        [SerializeField] private bool enableGateDebugLogs = true;
+
         private readonly Dictionary<string, DateTime> _lastModelResponseUtc = new Dictionary<string, DateTime>();
 
 		private string storyModelName;
@@ -42,6 +59,8 @@ namespace OurAssets.Scripts.Chat
         private string _latestStoryContext;
         private bool _isUnloadingModels;
         private bool _isQuitting;
+        private IOuijaGateConditionEvaluator _gateConditionEvaluator;
+        private OuijaQuestionGateResolver _questionGateResolver;
 
 		string ApplicationPath => Application.dataPath.Substring(0, Application.dataPath.LastIndexOf('/')); // David - The path of the application, this is where the executable is for the build or in the project is for the editor
 
@@ -55,6 +74,16 @@ namespace OurAssets.Scripts.Chat
             _ollamaClient = new OllamaClient(ollamaBaseUrl);
             _conversationState = new OuijaConversationState();
             GetAIModels();
+            CacheGateEvaluator();
+            _questionGateResolver = new OuijaQuestionGateResolver(
+                gatedFuzzyStrongThreshold,
+                gatedFuzzyMinAiCandidateScore,
+                gatedMaxClassifierCandidates,
+                gatedClassifierMinConfidence,
+                gateClassifierTimeoutSeconds,
+                ResolveTimeoutSeconds,
+                ConvertKeepAliveSeconds(keepAliveSeconds),
+                enableGateDebugLogs && enableRegularDebugLogs);
             RebuildConstants();
         }
 
@@ -196,6 +225,37 @@ namespace OurAssets.Scripts.Chat
                 throw new ArgumentException("Player message is empty.");
             }
 
+            if (enableQuestionGate && _questionGateResolver != null)
+            {
+                List<OuijaQuestionGateResolver.GatedQuestionEntrySnap> gateSnapshots = CollectGateSnapshots();
+                if (gateSnapshots.Count > 0)
+                {
+                    string classifierModel = string.IsNullOrWhiteSpace(gateClassifierModelOverride)
+                        ? ouijaModelName
+                        : gateClassifierModelOverride.Trim();
+
+                    OuijaQuestionGateResolver.ResolveResult gateOutcome =
+                        await _questionGateResolver.TryResolveAsync(
+                            playerMessage,
+                            gateSnapshots,
+                            _gateConditionEvaluator,
+                            _ollamaClient,
+                            classifierModel,
+                            gateClassifierInstructions != null ? gateClassifierInstructions.text : null,
+                            cancellationToken).ConfigureAwait(false);
+
+                    if (gateOutcome.InvokedClassifier)
+                    {
+                        MarkModelWarm(classifierModel);
+                    }
+
+                    if (gateOutcome.MatchedGate && !string.IsNullOrWhiteSpace(gateOutcome.Reply))
+                    {
+                        return gateOutcome.Reply.Trim();
+                    }
+                }
+            }
+
             _conversationState.AddPlayerMessage(playerMessage);
 
             OllamaChatRequest request = new OllamaChatRequest
@@ -220,6 +280,39 @@ namespace OurAssets.Scripts.Chat
             _conversationState.AddAiMessage(aiText);
             MarkModelWarm(ouijaModelName);
             return aiText;
+        }
+
+        /// <summary>Lazy refresh if someone wires the evaluator component mid-session.</summary>
+        private void CacheGateEvaluator()
+        {
+            IOuijaGateConditionEvaluator evaluator = gateConditionEvaluator as IOuijaGateConditionEvaluator;
+            if (gateConditionEvaluator != null && evaluator == null)
+            {
+                Debug.LogWarning($"{nameof(OuijaAiOrchestrator)}: {gateConditionEvaluator.name} lacks {nameof(IOuijaGateConditionEvaluator)}.", gateConditionEvaluator);
+            }
+
+            _gateConditionEvaluator = evaluator;
+        }
+
+        private List<OuijaQuestionGateResolver.GatedQuestionEntrySnap> CollectGateSnapshots()
+        {
+            if (gatedQuestions == null || gatedQuestions.Length == 0)
+            {
+                return new List<OuijaQuestionGateResolver.GatedQuestionEntrySnap>();
+            }
+
+            List<OuijaQuestionGateResolver.GatedQuestionEntrySnap> list = new List<OuijaQuestionGateResolver.GatedQuestionEntrySnap>();
+            foreach (OuijaGatedQuestionEntry entry in gatedQuestions)
+            {
+                OuijaQuestionGateResolver.GatedQuestionEntrySnap snap =
+                    OuijaQuestionGateResolver.GatedQuestionEntrySnap.From(entry);
+                if (snap != null && snap.Enabled)
+                {
+                    list.Add(snap);
+                }
+            }
+
+            return list;
         }
 
         private async Task EnsureOllamaReadyAsync(CancellationToken cancellationToken)
