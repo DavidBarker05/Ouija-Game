@@ -218,3 +218,12 @@ This file tracks the Unity + Ollama integration work completed so far.
   - New inspector block **“Gated scripted questions”**: `enableQuestionGate`, `gatedQuestions[]`, optional `gateConditionEvaluator`, optional `gateClassifierInstructions` (`TextAsset`), optional `gateClassifierModelOverride` (blank = same model as normal Ouija chat), thresholds/timeouts/`enableGateDebugLogs`.
   - `SendPlayerMessageToOuijaAsync` resolves gates **before** `_conversationState.AddPlayerMessage`; successful gate replies **never** add player or AI turns to conversation state.
   - When the classifier path runs (`InvokedClassifier`), marks the classifier model warm for timeout bookkeeping (same as ouija unless override set).
+
+- Updated `Assets/OurAssets/Scripts/Chat/OuijaQuestionGateResolver.cs` and `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs`
+  - Date: 10/05/2026
+  - AI assisted: yes.
+  - Added detailed gated-question debug logs behind `enableGateDebugLogs`:
+    - Per-request fuzzy breakdown including normalized player text, thresholds, and per-gate/per-phrase scores.
+    - Similarity component values (`jacc`, token coverage, bigram Dice) for each phrase entry.
+    - Classifier candidate-pool summary and explicit “no candidates above floor” logging.
+  - `enableGateDebugLogs` is now independent of `enableRegularDebugLogs` so gate diagnostics can be enabled by themselves.
