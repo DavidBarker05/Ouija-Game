@@ -47,6 +47,7 @@ namespace OurAssets.Scripts.Chat
         [SerializeField, Range(1, 20)] private int gatedMaxClassifierCandidates = 5;
         [SerializeField, Range(0f, 1f)] private float gatedClassifierMinConfidence = 0.62f;
         [SerializeField, Range(5, 300)] private int gateClassifierTimeoutSeconds = 25;
+        [Tooltip("Logs fuzzy scores per gated question/phrase and classifier candidate pool.")]
         [SerializeField] private bool enableGateDebugLogs = true;
 
         private readonly Dictionary<string, DateTime> _lastModelResponseUtc = new Dictionary<string, DateTime>();
@@ -83,7 +84,7 @@ namespace OurAssets.Scripts.Chat
                 gateClassifierTimeoutSeconds,
                 ResolveTimeoutSeconds,
                 ConvertKeepAliveSeconds(keepAliveSeconds),
-                enableGateDebugLogs && enableRegularDebugLogs);
+                enableGateDebugLogs);
             RebuildConstants();
         }
 

@@ -84,6 +84,11 @@ namespace OurAssets.Scripts.Chat
             }
 
             List<ScoredGate> rankings = RankGates(normalizedPlayer, gates);
+            if (_debugLogs)
+            {
+                LogFuzzyMatchBreakdown(normalizedPlayer, gates);
+            }
+
             if (rankings.Count == 0)
             {
                 return new ResolveResult { MatchedGate = false, Reply = string.Empty, InvokedClassifier = false };
@@ -108,7 +113,20 @@ namespace OurAssets.Scripts.Chat
 
             if (aiPool.Count == 0)
             {
+                if (_debugLogs)
+                {
+                    Debug.Log("[OuijaGate] No phrases above classifier floor; skipping gate classifier.");
+                }
+
                 return new ResolveResult { MatchedGate = false, Reply = string.Empty, InvokedClassifier = false };
+            }
+
+            if (_debugLogs)
+            {
+                string poolSummary = string.Join(
+                    ", ",
+                    aiPool.Select(p => $"{p.Entry.QuestionId}={p.Score:F3}"));
+                Debug.Log($"[OuijaGate] Classifier candidate pool ({aiPool.Count}): {poolSummary}");
             }
 
             string classifiedId = await ClassifyAmongCandidatesAsync(
@@ -187,14 +205,133 @@ namespace OurAssets.Scripts.Chat
             return list;
         }
 
+        private void LogFuzzyMatchBreakdown(string normalizedPlayer, IReadOnlyList<GatedQuestionEntrySnap> allGates)
+        {
+            StringBuilder sb = new StringBuilder(1024);
+            sb.Append("[OuijaGate] Fuzzy similarity (player vs each match phrase)\n");
+            sb.Append("  Player normalized: \"").Append(normalizedPlayer).Append("\"\n");
+            sb.AppendFormat(
+                CultureInvariant(),
+                "  Thresholds — auto-resolve if best ≥ {0:F3}; classifier considers top gates with score ≥ {1:F3} (max {2} gates).\n",
+                _fuzzyStrongThreshold,
+                _fuzzyMinAiCandidateScore,
+                _maxAiCandidates);
+
+            List<(GatedQuestionEntrySnap gate, float bestScore)> rankedForLog = CollectGateScoresForLog(normalizedPlayer, allGates);
+            rankedForLog.Sort((a, b) => b.bestScore.CompareTo(a.bestScore));
+
+            if (rankedForLog.Count == 0)
+            {
+                sb.Append("  (No enabled gated questions with match phrases.)");
+                Debug.Log(sb.ToString());
+                return;
+            }
+
+            foreach ((GatedQuestionEntrySnap gate, float bestScore) in rankedForLog)
+            {
+                sb.AppendFormat(CultureInvariant(), "  Gate \"{0}\" — best phrase score {1:F3}\n", gate.QuestionId, bestScore);
+                foreach (string phrase in gate.MatchPhrases)
+                {
+                    if (string.IsNullOrWhiteSpace(phrase))
+                    {
+                        continue;
+                    }
+
+                    string phraseNorm = NormalizeForMatch(phrase);
+                    if (string.IsNullOrEmpty(phraseNorm))
+                    {
+                        continue;
+                    }
+
+                    SimilarityCombinedWithParts(normalizedPlayer, phraseNorm, out float combined, out float jacc,
+                        out float recall, out float dice);
+                    sb.AppendFormat(
+                        CultureInvariant(),
+                        "    {0:F3} ← \"{1}\" | norm:\"{2}\" | jacc {3:F2}, token-cover {4:F2}, bigramDice {5:F2}\n",
+                        combined,
+                        TruncateForLog(phrase.Trim(), 64),
+                        TruncateForLog(phraseNorm, 64),
+                        jacc,
+                        recall,
+                        dice);
+                }
+            }
+
+            Debug.Log(sb.ToString());
+        }
+
+        private static List<(GatedQuestionEntrySnap gate, float bestScore)> CollectGateScoresForLog(
+            string normalizedPlayer,
+            IReadOnlyList<GatedQuestionEntrySnap> allGates)
+        {
+            List<(GatedQuestionEntrySnap gate, float bestScore)> rows = new List<(GatedQuestionEntrySnap gate, float bestScore)>();
+
+            foreach (GatedQuestionEntrySnap gate in allGates)
+            {
+                if (!gate.Enabled || string.IsNullOrWhiteSpace(gate.QuestionId) || gate.MatchPhrases.Length == 0)
+                {
+                    continue;
+                }
+
+                float best = 0f;
+                foreach (string phrase in gate.MatchPhrases)
+                {
+                    if (string.IsNullOrWhiteSpace(phrase))
+                    {
+                        continue;
+                    }
+
+                    string np = NormalizeForMatch(phrase);
+                    if (string.IsNullOrEmpty(np))
+                    {
+                        continue;
+                    }
+
+                    SimilarityCombinedWithParts(normalizedPlayer, np, out float combined, out _, out _, out _);
+                    best = Mathf.Max(best, combined);
+                }
+
+                rows.Add((gate, best));
+            }
+
+            return rows;
+        }
+
+        private static string TruncateForLog(string text, int maxChars)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return string.Empty;
+            }
+
+            return text.Length <= maxChars ? text : text.Substring(0, maxChars) + "...";
+        }
+
+        private static IFormatProvider CultureInvariant()
+        {
+            return System.Globalization.CultureInfo.InvariantCulture;
+        }
+
         private static float SimilarityCombined(string normalizedA, string normalizedB)
         {
-            float jacc = TokenJaccard(normalizedA, normalizedB);
-            float recallInHaystack = DirectionalCoverage(normalizedB, normalizedA);
+            SimilarityCombinedWithParts(normalizedA, normalizedB, out float combined, out _, out _, out _);
+            return combined;
+        }
+
+        private static void SimilarityCombinedWithParts(
+            string normalizedA,
+            string normalizedB,
+            out float combined,
+            out float jaccard,
+            out float tokenCoverage,
+            out float bigramDice)
+        {
+            jaccard = TokenJaccard(normalizedA, normalizedB);
+            tokenCoverage = DirectionalCoverage(normalizedB, normalizedA);
             string compactA = normalizedA.Replace(" ", string.Empty);
             string compactB = normalizedB.Replace(" ", string.Empty);
-            float dice = BigramDiceCompact(compactA, compactB);
-            return Mathf.Clamp01(0.42f * jacc + 0.38f * recallInHaystack + 0.2f * dice);
+            bigramDice = BigramDiceCompact(compactA, compactB);
+            combined = Mathf.Clamp01(0.42f * jaccard + 0.38f * tokenCoverage + 0.2f * bigramDice);
         }
 
         private static float TokenJaccard(string normalizedA, string normalizedB)
