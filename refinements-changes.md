@@ -191,3 +191,48 @@ This file tracks the Unity + Ollama integration work completed so far.
   - Date: 09/05/2026
   - AI assisted: no (David).
   - Basic logic for the Ouija Board that moves a planchette and displays characters to the screen based on the response from the AI
+
+- Added `Assets/OurAssets/Player/PlayerCharacter.cs`
+  - Date: 10/05/2026
+  - AI assisted: no (David).
+  - Base class that all minigame characters can use to be modular
+  - Also IPlayerCharacterInitData and IPlayerCharacterUpdateData are interfaces that each character has their own class that defines what these need as input which allows modularity
+
+- Added `Assets/OurAssets/Player/PlayerCamera.cs`
+  - Date: 10/05/2026
+  - AI assisted: no (David).
+  - Allows player to control camera
+
+- Added `Assets/OurAssets/Player/Player.cs`
+  - Date: 10/05/2026
+  - AI assisted: no (David).
+  - Gets input from PlayerInput component
+  - Updates camera when needed
+  - Creates link between input and the current active PlayerCharacter
+
+- Added `Assets/OurAssets/Player/ScriptableObjects/PlayerCharacterSettings.cs`
+  - Date: 10/05/2026
+  - AI assisted: no (David).
+  - Contains movement speed for player
+
+- Added `Assets/OurAssets/Player/ScriptableObjects/PlayerCameraSettings.cs`
+  - Date: 10/05/2026
+  - AI assisted: no (David).
+  - Contains sensitivity and other settings for player camera
+
+- Added `Assets/OurAssets/Player/ScriptableObjects/PlayerInteractSettings.cs`
+  - Date: 10/05/2026
+  - AI assisted: no (David).
+  - Contains max interaction distance and layer for player interaction
+
+- Added `Assets/OurAssets/Player/ScriptableObjects/PlayerSettings.cs`
+  - Date: 10/05/2026
+  - AI assisted: no (David).
+  - Contains PlayerCharacterSettings, PlayerCameraSettings and PlayerInteractSettings that is added to the Player
+
+- Added `Assets/OurAssets/Player/FirstPersonCharacter.cs`
+  - Date: 10/05/2026
+  - AI assisted: no (David).
+  - Basic first person character that derives from PlayerCharacter
+  - Allows normal movement (no walking, jumping or crouching)
+  - Allows player to interact with interactables
