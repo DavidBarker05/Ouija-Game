@@ -281,3 +281,19 @@ This file tracks the Unity + Ollama integration work completed so far.
   - AI assisted: no (David).
   - Used for when loading back into the main scene to go back to proper position
   - Updated `Assets/OurAssets/Scripts/Player/PlayerCharacter.cs` and all derived classes to work with it
+
+- **Story AI vs Ouija AI split + cross-scene handoff via temp cache**
+  - Date: 11/05/2026
+  - AI assisted: yes.
+  - **`StoryAiService`** (`Assets/OurAssets/Scripts/Chat/StoryAiService.cs`): DontDestroyOnLoad singleton (lazy `Instance` or scene-placed). Owns story model name (`StoryModel.txt`), story prompt template, and `GenerateStoryContextAsync` / `WriteStoryContextToCache`. No longer embedded in `OuijaAiOrchestrator`.
+  - **`OuijaGameCachePaths`**: `Application.temporaryCachePath/OuijaGame/` for non-persistent scratch files.
+  - **`story_context.txt`**: story output written here; Ouija scene reads it when building system constants (no in-memory-only coupling).
+  - **`OuijaConversationHistoryStore`** + **`OuijaConversationState.ReplaceTranscript`**: Ouija player/assistant turns persisted as `ouija_conversation.json` in the same folder; orchestrator loads on `Awake` and saves after each turn (gate matches still skip history as before).
+
+- **Shared Ollama session + unified model lifetime**
+  - Date: 11/05/2026
+  - AI assisted: yes.
+  - **`OllamaGameSession`** (`Assets/OurAssets/Scripts/AI/OllamaGameSession.cs`): DontDestroyOnLoad singleton, `[DefaultExecutionOrder(-100)]`, holds the **single** `OllamaClient`, `EnsureServerReadyAsync`, shared **`MarkModelWarm` / `IsModelCold` / `ResolveRequestTimeoutSeconds`** keyed by model name (so story, Ouija, and gate classifier stay in sync when they share a model).
+  - **Pause / unfocus / quit**: only this service runs unload logic; it snapshots all touched model names, dedupes, unloads each once, and owns **`ShutdownOwnedServer`** on quit (or clears warm map if the session-owned server was stopped).
+  - **`OuijaAiOrchestrator`** and **`StoryAiService`**: no per-scene Ollama client or lifecycle handlers; they call `OllamaGameSession.Instance` for readiness, `Client`, warm marks, and request timeouts. Connection URL / startup probe / unload HTTP timeout live on `OllamaGameSession` (inspector on the persistent host in `SampleScene` alongside `StoryAiService`).
+  - **`OuijaAiOrchestrator`**: story generation and story prompt fields removed; still reads Ouija model from `OuijaModel.txt` and keeps per-feature timing (`keepAliveSeconds`, warm/cold timeouts) for API `keep_alive` and timeout heuristics.
