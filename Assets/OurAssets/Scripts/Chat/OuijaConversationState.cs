@@ -20,6 +20,28 @@ namespace OurAssets.Scripts.Chat
             _aiMessages.Clear();
         }
 
+        /// <summary>Replaces player/assistant turns (constants are unchanged). Used when restoring from temp cache.</summary>
+        public void ReplaceTranscript(IReadOnlyList<string> playerLines, IReadOnlyList<string> aiLines)
+        {
+            _playerMessages.Clear();
+            _aiMessages.Clear();
+            if (playerLines != null)
+            {
+                for (int i = 0; i < playerLines.Count; i++)
+                {
+                    AddPlayerMessage(playerLines[i]);
+                }
+            }
+
+            if (aiLines != null)
+            {
+                for (int i = 0; i < aiLines.Count; i++)
+                {
+                    AddAiMessage(aiLines[i]);
+                }
+            }
+        }
+
         public void SetConstants(IEnumerable<string> constants)
         {
             _constantMessages.Clear();
