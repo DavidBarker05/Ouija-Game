@@ -306,3 +306,11 @@ This file tracks the Unity + Ollama integration work completed so far.
   - Win when all cards flipped
   - Lose when run out of time then have to restart
   - Updated `Assets/OurAssets/Scripts/Player/TarotCharacter.cs` to flip the card
+
+- Added `Assets/OurAssets/Scripts/Rune/RuneMatchManager.cs`
+  - Date: 11/05/2026
+  - AI assisted: no (David).
+  - Press buttons in the correct order of runes displayed
+  - Each rune shows for limited time
+  - Runes increase over time
+  - Make mistake = restart
