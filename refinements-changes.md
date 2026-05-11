@@ -323,3 +323,9 @@ This file tracks the Unity + Ollama integration work completed so far.
   - Classes that derive from PlayerCharacter specify their action map they use
   - This allows us to keep some of the minigames in the same scene without having to switch (like the cryptex and ouija board which the player will have to keep going in and out of)
   - Allows other minigames to still have their own scene (like the tarot cards which the player is stuck in until completion)
+
+- Added `Assets/OurAssets/Scripts/TempCacheManager.cs`
+  - Date: 11/05/2026
+  - AI assisted: no (David).
+  - Allows easier managing files in temp cache path
+  - Deletes all files in temp cache path on quit
