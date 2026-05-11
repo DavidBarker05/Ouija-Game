@@ -66,21 +66,22 @@ public class TarotManager : MonoBehaviour
 	void Awake()
 	{
         if (Instance && Instance != this) Destroy(gameObject);
-        else
-        {
-            Instance = this;
-			if (m_CardPositions == null || m_CardPositions.Length != NUM_CARDS)
-			{
-				Debug.LogError($"Invalid number of card positions need {NUM_CARDS}");
-				return;
-			}
-			if (m_CardFrontMaterials == null || m_CardFrontMaterials.Length != NUM_CARDS)
-			{
-				Debug.LogError($"Invalid number of card front materials need {NUM_CARDS}");
-				return;
-			}
-			StartGame();
+        else Instance = this;
+	}
+
+	void Start()
+	{
+		if (m_CardPositions == null || m_CardPositions.Length != NUM_CARDS)
+		{
+			Debug.LogError($"Invalid number of card positions need {NUM_CARDS}");
+			return;
 		}
+		if (m_CardFrontMaterials == null || m_CardFrontMaterials.Length != NUM_CARDS)
+		{
+			Debug.LogError($"Invalid number of card front materials need {NUM_CARDS}");
+			return;
+		}
+		StartGame();
 	}
 
 	void Update()
