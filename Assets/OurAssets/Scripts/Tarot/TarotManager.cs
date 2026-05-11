@@ -184,6 +184,7 @@ public class TarotManager : MonoBehaviour
 	void DoWin()
 	{
 		CanFlipCard = false;
+		MinigameManager.Instance.OnMinigameBeaten(Minigames.Tarot);
 	}
 
 	void DoLose()
