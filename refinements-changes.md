@@ -297,3 +297,12 @@ This file tracks the Unity + Ollama integration work completed so far.
   - **Pause / unfocus / quit**: only this service runs unload logic; it snapshots all touched model names, dedupes, unloads each once, and owns **`ShutdownOwnedServer`** on quit (or clears warm map if the session-owned server was stopped).
   - **`OuijaAiOrchestrator`** and **`StoryAiService`**: no per-scene Ollama client or lifecycle handlers; they call `OllamaGameSession.Instance` for readiness, `Client`, warm marks, and request timeouts. Connection URL / startup probe / unload HTTP timeout live on `OllamaGameSession` (inspector on the persistent host in `SampleScene` alongside `StoryAiService`).
   - **`OuijaAiOrchestrator`**: story generation and story prompt fields removed; still reads Ouija model from `OuijaModel.txt` and keeps per-feature timing (`keepAliveSeconds`, warm/cold timeouts) for API `keep_alive` and timeout heuristics.
+
+- Added `Assets/OurAssets/Scripts/Tarot/TarotCard.cs` and `Assets/OurAssets/Scripts/Tarot/TarotManager.cs`
+  - Date: 11/05/2026
+  - AI assisted: no (David).
+  - All the different tarot card types
+  - Can flip cards, two cards that flip if add up to 21 stay flipped
+  - Win when all cards flipped
+  - Lose when run out of time then have to restart
+  - Updated `Assets/OurAssets/Scripts/Player/TarotCharacter.cs` to flip the card
