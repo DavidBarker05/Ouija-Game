@@ -51,10 +51,8 @@ public class TarotCharacter : PlayerCharacter
 			Debug.LogError($"playerCharacterUpdateData needs to be type TarotCharacterUpdateData! Received {playerCharacterUpdateData.GetType()}");
 			return;
 		}
-		if (updateData.MouseInfo.IsOverUI || !updateData.MouseInfo.DidHitObject)
-		{
-			updateData.LeftClickedThisFrame = false;
-			return;
-		}
+		if (!updateData.MouseInfo.IsOverUI && updateData.MouseInfo.DidHitObject)
+			playerCharacterUpdateData.MouseInfo.HitInfo.collider.gameObject.GetComponent<TarotCard>()?.Flip();
+		updateData.LeftClickedThisFrame = false;
 	}
 }
