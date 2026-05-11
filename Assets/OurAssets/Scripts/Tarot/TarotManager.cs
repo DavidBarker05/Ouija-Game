@@ -149,7 +149,7 @@ public class TarotManager : MonoBehaviour
 		System.Random rng = new System.Random();
 		for (int i = NUM_CARDS - 1; i > 0; --i)
 		{
-			int j = rng.Next(0, i);
+			int j = rng.Next(i + 1);
 			Vector3 _temp = m_Cards[i].transform.position;
 			m_Cards[i].transform.position = m_Cards[j].transform.position;
 			m_Cards[j].transform.position = _temp;
