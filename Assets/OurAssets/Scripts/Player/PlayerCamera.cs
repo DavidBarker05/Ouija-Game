@@ -38,5 +38,11 @@ public class PlayerCamera : MonoBehaviour
 		transform.eulerAngles = m_EulerAngles;
 	}
 
+	public void SetRotation(Vector3 eulerAngles)
+	{
+		m_EulerAngles = eulerAngles;
+		transform.eulerAngles = eulerAngles;
+	}
+
 	public void UpdatePosition(Transform target) => transform.position = target.position;
 }

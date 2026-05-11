@@ -48,6 +48,18 @@ public class FirstPersonCharacter : PlayerCharacter
 		HasBeenInitialised = true;
 	}
 
+	public override void LoadSceneData(PlayerSceneData playerSceneData)
+	{
+		if (!HasBeenInitialised)
+		{
+			Debug.LogError("FirstPersonCharacter hasn't been initialised!");
+			return;
+		}
+		if (playerSceneData == null) return;
+		transform.position = playerSceneData.Position;
+		transform.eulerAngles = playerSceneData.EulerAngles;
+	}
+
 	public override void UpdateCharacter(ref IPlayerCharacterUpdateData playerCharacterUpdateData)
 	{
 		if (!HasBeenInitialised)
