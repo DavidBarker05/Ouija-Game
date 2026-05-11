@@ -8,7 +8,7 @@ public class Player : MonoBehaviour
     [SerializeField]
     PlayerSettings m_PlayerSettings;
 	[SerializeField]
-	PlayerCharacter m_PlayerCharacter;
+	PlayerCharacter m_StartingPlayerCharacter;
     [SerializeField]
     PlayerCamera m_PlayerCamera;
 	[SerializeField]
@@ -16,6 +16,7 @@ public class Player : MonoBehaviour
 
 	PlayerInput m_PlayerInput;
 
+	PlayerCharacter m_PlayerCharacter;
 	IPlayerCharacterUpdateData m_PlayerCharacterUpdateData;
 	CameraInput m_CameraInput;
 	MouseInfo m_MouseInfo;
@@ -25,8 +26,7 @@ public class Player : MonoBehaviour
 	void Awake()
 	{
 		m_PlayerInput = GetComponent<PlayerInput>();
-		m_PlayerCharacter.Init(PlayerCharacterInitData);
-		m_PlayerCharacterUpdateData = PlayerCharacterUpdateData;
+		ChangeCharacter(m_StartingPlayerCharacter);
 		m_PlayerCamera.Init(m_PlayerSettings.CameraSettings, m_PlayerCharacter.CameraTarget);
 		m_CameraInput = new CameraInput();
 		m_MouseInfo = new MouseInfo();
@@ -52,6 +52,14 @@ public class Player : MonoBehaviour
 	}
 
 	void LateUpdate() => m_PlayerCamera.UpdatePosition(m_PlayerCharacter.CameraTarget);
+
+	public void ChangeCharacter(PlayerCharacter character)
+	{
+		m_PlayerCharacter = character;
+		if (!m_PlayerCharacter.HasBeenInitialised) m_PlayerCharacter.Init(PlayerCharacterInitData);
+		m_PlayerInput.SwitchCurrentActionMap(m_PlayerCharacter.ActionMap);
+		m_PlayerCharacterUpdateData = PlayerCharacterUpdateData;
+	}
 
 	IPlayerCharacterInitData PlayerCharacterInitData => m_PlayerCharacter switch
 	{
@@ -126,7 +134,7 @@ public class Player : MonoBehaviour
 
 	public void HandleLookInput(InputAction.CallbackContext ctx)
 	{
-		if (!m_PlayerCharacter.DoCameraRotation) return;
+		if (!m_StartingPlayerCharacter.DoCameraRotation) return;
 		m_CameraInput.LookInput = ctx.ReadValue<Vector2>();
 		m_CameraInput.LookDevice = ctx.control.device;
 	}

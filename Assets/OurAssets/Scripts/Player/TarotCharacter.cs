@@ -15,9 +15,11 @@ public class TarotCharacter : PlayerCharacter
 {
 	public override bool HasBeenInitialised { get; protected set; }
 
+	public override string ActionMap => "TarotPlayer";
 	public override bool MouseVisible => true;
 	public override bool DoCameraRotation => false;
 	public override bool UseMouseScreenPosition => true;
+
 
 	public override void Init(IPlayerCharacterInitData playerCharacterInitData)
 	{

@@ -21,6 +21,7 @@ public class FirstPersonCharacter : PlayerCharacter
 {
 	public override bool HasBeenInitialised { get; protected set; }
 
+	public override string ActionMap => "Player";
 	public override bool MouseVisible => false;
 	public override bool DoCameraRotation => true;
 	public override bool UseMouseScreenPosition => false;

@@ -27,6 +27,8 @@ public abstract class PlayerCharacter : MonoBehaviour
 	public float MouseHitDistance { get; protected set; } = 100f;
 
 	public abstract bool HasBeenInitialised { get; protected set; }
+
+	public abstract string ActionMap { get; }
 	public abstract bool MouseVisible { get; }
 	public abstract bool DoCameraRotation { get; }
 	public abstract bool UseMouseScreenPosition { get; }
