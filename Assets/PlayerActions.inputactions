@@ -192,6 +192,34 @@
             ]
         },
         {
+            "name": "TarotPlayer",
+            "id": "51e1369a-529b-4a0e-8a7a-f5cb3b0b2d14",
+            "actions": [
+                {
+                    "name": "LeftClick",
+                    "type": "Button",
+                    "id": "eb0eaffc-59b9-4b59-8314-44e5e04d0e34",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "6e51f014-765b-41c1-8a9b-a180278992c5",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "LeftClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
             "name": "UI",
             "id": "4df3f738-905a-487e-b23b-f95e7f766cd8",
             "actions": [
