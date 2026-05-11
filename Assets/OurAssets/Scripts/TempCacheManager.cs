@@ -28,14 +28,10 @@ public class TempCacheManager : MonoBehaviour
         }
 	}
 
-    // Delete all our temp files in the temp cache folder on quit
-	void OnApplicationQuit()
-	{
-        string[] tempFiles = Directory.GetFiles(Application.temporaryCachePath, "*", SearchOption.AllDirectories); // Get all the temp files located in our temp cache folder
-        foreach (string tempFile in tempFiles) File.Delete(tempFile); // Delete every single file in our temp cache folder
-	}
 
-    public bool ReadFile(string path, out string contents)
+    void OnApplicationQuit() => ClearTempCache(); // Delete all our temp files in the temp cache folder on quit
+
+	public bool ReadFile(string path, out string contents)
     {
         path = path.Trim();
         if (string.IsNullOrWhiteSpace(path))
@@ -72,4 +68,10 @@ public class TempCacheManager : MonoBehaviour
 		if (!path.StartsWith(Application.temporaryCachePath)) path = Path.Combine(Application.temporaryCachePath, path);
 		if (File.Exists(path)) File.Delete(path);
     }
+
+	public void ClearTempCache()
+    {
+		string[] tempFiles = Directory.GetFiles(Application.temporaryCachePath, "*", SearchOption.AllDirectories); // Get all the temp files located in our temp cache folder
+		foreach (string tempFile in tempFiles) File.Delete(tempFile); // Delete every single file in our temp cache folder
+	}
 }
