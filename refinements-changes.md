@@ -329,3 +329,8 @@ This file tracks the Unity + Ollama integration work completed so far.
   - AI assisted: no (David).
   - Allows easier managing files in temp cache path
   - Deletes all files in temp cache path on quit
+
+- Added `Assets/OurAssets/Scripts/SpiritNameManager.cs`
+  - Date: 11/05/2026
+  - AI assisted: no (David).
+  - Generates a random name from 10 names for the spirit
