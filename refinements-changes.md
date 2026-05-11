@@ -355,3 +355,8 @@ This file tracks the Unity + Ollama integration work completed so far.
   - Keeps the order that minigames need to be beaten in
   - Keeps track of what minigames have been beaten
   - Updated TarotManager, RuneMatchManager and CyptexManager to update the MinigameManager when those minigames are beaten
+
+- Added `Assets/OurAssets/Scripts/GameManager.cs`
+  - Date: 11/05/2026
+  - AI assisted: no (David).
+  - Used to start new game
