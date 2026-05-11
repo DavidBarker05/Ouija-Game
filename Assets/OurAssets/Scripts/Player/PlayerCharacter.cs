@@ -3,6 +3,7 @@ using UnityEngine;
 public struct MouseInfo
 {
 	public Vector3 MouseScreenPosition { get; set; }
+	public bool IsOverUI { get; set; }
 	public bool DidHitObject { get; set; }
 	public RaycastHit HitInfo { get; set; }
 }
@@ -31,5 +32,6 @@ public abstract class PlayerCharacter : MonoBehaviour
 	public abstract bool UseMouseScreenPosition { get; }
 
 	public abstract void Init(IPlayerCharacterInitData playerCharacterInitData);
+	public abstract void LoadSceneData(PlayerSceneData playerSceneData);
 	public abstract void UpdateCharacter(ref IPlayerCharacterUpdateData playerCharacterUpdateData);
 }

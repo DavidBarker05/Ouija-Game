@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8094060071243121784}
   - component: {fileID: 4110039158585201587}
   m_Layer: 3
-  m_Name: Player
+  m_Name: FirstPersonCharacter
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -178,7 +178,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
   m_PlayerSettings: {fileID: 11400000, guid: 75d7bd69a6da12e4c8f63d074f6ce2d3, type: 2}
-  m_FirstPersonCharacter: {fileID: 8444355186628466975}
+  m_PlayerCharacter: {fileID: 8444355186628466975}
   m_PlayerCamera: {fileID: 6997698293445084034}
   m_Camera: {fileID: 8173381940565030777}
 --- !u!1 &6003352308450087496

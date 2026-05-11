@@ -265,3 +265,19 @@ This file tracks the Unity + Ollama integration work completed so far.
   - **`ShouldRejectSelfDirectedNameToSpiritFacingGate`:** blocks routing clear **self**-identity questions into gates whose phrases only ask the **spirit** for identity (unless those gates also include player-self phrasing in `matchPhrases`).
   - **`ClassifyAmongCandidatesAsync`** takes the **scored** fuzzy pool (`List<ScoredGate>`) for the leader-gap check; resolver constructor wiring extended accordingly.
   - **`enableGateDebugLogs`:** also logs **full** classifier system text, full user text, full raw model reply, and request meta (model, `keep_alive`, inference options); long payloads split into console-sized chunks. Parse-failure warnings point at that full raw log instead of a short truncated excerpt.
+
+- Updated `Assets/OurAssets/Scripts/Player/Player.cs`
+  - Date: 11/05/2026
+  - AI assisted: no (David).
+  - Only use one character per scene now
+
+- Added `Assets/OurAssets/Scripts/Player/TarotCharacter.cs`
+  - Date: 11/05/2026
+  - AI assisted: no (David).
+  - Character for tarot card flipping minigame
+
+- Added `Assets/OurAssets/Scripts/Player/PlayerSceneData.cs`
+  - Date: 11/05/2026
+  - AI assisted: no (David).
+  - Used for when loading back into the main scene to go back to proper position
+  - Updated `Assets/OurAssets/Scripts/Player/PlayerCharacter.cs` and all derived classes to work with it

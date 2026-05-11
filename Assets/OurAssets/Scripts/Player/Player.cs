@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(PlayerInput))]
@@ -6,8 +7,8 @@ public class Player : MonoBehaviour
 {
     [SerializeField]
     PlayerSettings m_PlayerSettings;
-    [SerializeField]
-    FirstPersonCharacter m_FirstPersonCharacter;
+	[SerializeField]
+	PlayerCharacter m_PlayerCharacter;
     [SerializeField]
     PlayerCamera m_PlayerCamera;
 	[SerializeField]
@@ -15,8 +16,7 @@ public class Player : MonoBehaviour
 
 	PlayerInput m_PlayerInput;
 
-	PlayerCharacter m_CurrentPlayerCharacter;
-	IPlayerCharacterUpdateData m_CurrentPlayerCharacterUpdateData;
+	IPlayerCharacterUpdateData m_PlayerCharacterUpdateData;
 	CameraInput m_CameraInput;
 	MouseInfo m_MouseInfo;
 
@@ -25,74 +25,51 @@ public class Player : MonoBehaviour
 	void Awake()
 	{
 		m_PlayerInput = GetComponent<PlayerInput>();
-		ChangeCharacter(m_PlayerInput.currentActionMap.name);
-		m_PlayerCamera.Init(m_PlayerSettings.CameraSettings, m_CurrentPlayerCharacter.CameraTarget);
+		m_PlayerCharacter.Init(PlayerCharacterInitData);
+		m_PlayerCharacterUpdateData = PlayerCharacterUpdateData;
+		m_PlayerCamera.Init(m_PlayerSettings.CameraSettings, m_PlayerCharacter.CameraTarget);
 		m_CameraInput = new CameraInput();
 		m_MouseInfo = new MouseInfo();
 	}
 
 	void Update()
 	{
-		if (!m_CurrentPlayerCharacter || !m_PlayerCamera) return;
-		SetCursorVisibility(m_CurrentPlayerCharacter.MouseVisible);
-		m_CurrentPlayerCharacterUpdateData.DeltaTime = Time.deltaTime;
-		if (m_CurrentPlayerCharacter.DoCameraRotation)
+		if (!m_PlayerCharacter || !m_PlayerCamera) return;
+		SetCursorVisibility(m_PlayerCharacter.MouseVisible);
+		m_PlayerCharacterUpdateData.DeltaTime = Time.deltaTime;
+		if (m_PlayerCharacter.DoCameraRotation)
 		{
 			m_PlayerCamera.UpdateRotation(ref m_CameraInput, Time.deltaTime);
-			m_CurrentPlayerCharacterUpdateData.CameraRotation = m_PlayerCamera.transform.rotation;
+			m_PlayerCharacterUpdateData.CameraRotation = m_PlayerCamera.transform.rotation;
 		}
-		if (m_CurrentPlayerCharacter.UseMouseScreenPosition)
+		if (m_PlayerCharacter.UseMouseScreenPosition)
 		{
 			m_MouseInfo.MouseScreenPosition = GetMousePositionOnScreen();
-			GetMouseInfo(ref m_MouseInfo, m_CurrentPlayerCharacter.MouseHitLayer, m_CurrentPlayerCharacter.MouseHitDistance);
-			m_CurrentPlayerCharacterUpdateData.MouseInfo = m_MouseInfo;
+			GetMouseInfo(ref m_MouseInfo, m_PlayerCharacter.MouseHitLayer, m_PlayerCharacter.MouseHitDistance);
+			m_PlayerCharacterUpdateData.MouseInfo = m_MouseInfo;
 		}
-		m_CurrentPlayerCharacter.UpdateCharacter(ref m_CurrentPlayerCharacterUpdateData);
+		m_PlayerCharacter.UpdateCharacter(ref m_PlayerCharacterUpdateData);
 	}
 
-	void LateUpdate() => m_PlayerCamera.UpdatePosition(m_CurrentPlayerCharacter.CameraTarget);
+	void LateUpdate() => m_PlayerCamera.UpdatePosition(m_PlayerCharacter.CameraTarget);
 
-	#region Change Action Map
-	public void ChangeActionMap(string actionMap)
-	{
-		if (m_PlayerInput.currentActionMap.name == actionMap) return;
-		m_PlayerInput.SwitchCurrentActionMap(actionMap);
-		ChangeCharacter(actionMap);
-	}
-
-	#region Change Character
-	PlayerCharacter ChangePlayerCharacter(string actionMap) => actionMap switch
-	{
-		"Player" => m_FirstPersonCharacter,
-		_ => null
-	};
-
-	IPlayerCharacterInitData CurrentPlayerCharacterInitData => m_CurrentPlayerCharacter switch
+	IPlayerCharacterInitData PlayerCharacterInitData => m_PlayerCharacter switch
 	{
 		FirstPersonCharacter => new FirstPersonCharacterInitData()
 		{
 			CharacterSettings = m_PlayerSettings.CharacterSettings,
 			InteractSettings = m_PlayerSettings.InteractSettings
 		},
+		TarotCharacter => new TarotCharacterInitData(),
 		_ => null
 	};
 
-	IPlayerCharacterUpdateData CurrentPlayerCharacterUpdateData => m_CurrentPlayerCharacter switch
+	IPlayerCharacterUpdateData PlayerCharacterUpdateData => m_PlayerCharacter switch
 	{
 		FirstPersonCharacter => new FirstPersonCharacterUpdateData(),
+		TarotCharacter => new TarotCharacterUpdateData(),
 		_ => null
 	};
-
-	void ChangeCharacter(string actionMap)
-	{
-		m_CurrentPlayerCharacter = ChangePlayerCharacter(actionMap);
-		if (!m_CurrentPlayerCharacter.HasBeenInitialised) m_CurrentPlayerCharacter.Init(CurrentPlayerCharacterInitData);
-		m_CurrentPlayerCharacterUpdateData = CurrentPlayerCharacterUpdateData;
-		m_PlayerCamera.ChangeCameraTarget(m_CurrentPlayerCharacter.CameraTarget);
-		SetCursorVisibility(m_CurrentPlayerCharacter.MouseVisible);
-	}
-	#endregion Change Character
-	#endregion Change Action Map
 
 	#region Cursor Toggles
 	public void ShowCursor()
@@ -126,6 +103,7 @@ public class Player : MonoBehaviour
 
 	public void GetMouseInfo(ref MouseInfo mouseInfo, LayerMask layerToHit, float maxDistance = 100f)
 	{
+		mouseInfo.IsOverUI = EventSystem.current.IsPointerOverGameObject();
 		Ray ray = m_Camera.ScreenPointToRay(mouseInfo.MouseScreenPosition);
 		mouseInfo.DidHitObject = Physics.Raycast(ray, out RaycastHit hit, maxDistance, layerToHit);
 		if (mouseInfo.DidHitObject) mouseInfo.HitInfo = hit;
@@ -138,7 +116,7 @@ public class Player : MonoBehaviour
 
 	void SetDataValue<T>(SetDataValueFunc<T> dataChangeFunction) where T : class, IPlayerCharacterUpdateData
 	{
-		if (m_CurrentPlayerCharacterUpdateData is T t) dataChangeFunction(t);
+		if (m_PlayerCharacterUpdateData is T t) dataChangeFunction(t);
 	}
 
 	public void HandleMoveInput(InputAction.CallbackContext ctx)
@@ -148,7 +126,7 @@ public class Player : MonoBehaviour
 
 	public void HandleLookInput(InputAction.CallbackContext ctx)
 	{
-		if (!m_CurrentPlayerCharacter.DoCameraRotation) return;
+		if (!m_PlayerCharacter.DoCameraRotation) return;
 		m_CameraInput.LookInput = ctx.ReadValue<Vector2>();
 		m_CameraInput.LookDevice = ctx.control.device;
 	}
@@ -158,13 +136,11 @@ public class Player : MonoBehaviour
 		SetDataValue<FirstPersonCharacterUpdateData>(updateData => updateData.PressedInteract |= ctx.started);
 	}
 
-	//public void HandleLeftClickInput(InputAction.CallbackContext ctx)
-	//{
-	//	//SetDataValue<PipePlayerCharacterUpdateData>(input => input.ClickedThisFrame |= ctx.started);
-	//	//SetDataValue<WirePlayerCharacterUpdateData>(input => input.ClickedThisFrame = ctx.action.WasPressedThisFrame());
-	//	//SetDataValue<WallKnockPlayerCharacterUpdateData>(input => input.LeftClickedThisFrame |= ctx.started);
-	//}
-	//
+	public void HandleLeftClickInput(InputAction.CallbackContext ctx)
+	{
+		SetDataValue<TarotCharacterUpdateData>(updateData => updateData.LeftClickedThisFrame |= ctx.started);
+	}
+
 	//public void HandleRightClickInput(InputAction.CallbackContext ctx)
 	//{
 	//	//SetDataValue<WallKnockPlayerCharacterUpdateData>(input => input.RightClickedThisFrame |= ctx.started);
