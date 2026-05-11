@@ -339,3 +339,12 @@ This file tracks the Unity + Ollama integration work completed so far.
   - Date: 11/05/2026
   - AI assisted: no (David).
   - Allow to generate story without having to provide the prompt or cancellation token and just use the prompt defined in the service
+
+- Added `Assets/OurAssets/Scripts/Cryptex/Cryptex.cs`, `Assets/OurAssets/Scripts/Cryptex/CryptexButton.cs` and `Assets/OurAssets/Scripts/Tarot/CryptexManager.cs`
+  - Date: 11/05/2026
+  - AI assisted: no (David).
+  - Used for the puzzle lock for the door
+  - Answer to the puzzle is the ghost name
+  - Cryptex rotates the rings
+  - Cryptex button tells the cryptex which ring to rotate and which direction
+  - Cryptex manager checks if the name matches
