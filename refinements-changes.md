@@ -334,3 +334,8 @@ This file tracks the Unity + Ollama integration work completed so far.
   - Date: 11/05/2026
   - AI assisted: no (David).
   - Generates a random name from 10 names for the spirit
+
+- Updated `Assets/OurAssets/Scripts/Chat/StoryAiService.cs`
+  - Date: 11/05/2026
+  - AI assisted: no (David).
+  - Allow to generate story without having to provide the prompt or cancellation token and just use the prompt defined in the service

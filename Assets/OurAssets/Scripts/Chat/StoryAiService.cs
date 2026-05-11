@@ -134,10 +134,20 @@ namespace OurAssets.Scripts.Chat
             }
         }
 
-        /// <summary>
-        /// Runs the story model, updates the temp-cache file used by the Ouija scene, and returns the text.
-        /// </summary>
-        public async Task<string> GenerateStoryContextAsync(string prompt, CancellationToken cancellationToken)
+		/// <summary>
+		/// Runs the story model, updates the temp-cache file used by the Ouija scene, and returns the text.
+		/// </summary>
+		public async Task<string> GenerateStoryContextAsync()
+        {
+			string storyPrompt = RenderPromptTemplate(storyPromptTemplate, StoryPromptResourcePath);
+			string story = await GenerateStoryContextAsync(storyPrompt, CancellationToken.None);
+			return story;
+		}
+
+		/// <summary>
+		/// Runs the story model, updates the temp-cache file used by the Ouija scene, and returns the text.
+		/// </summary>
+		public async Task<string> GenerateStoryContextAsync(string prompt, CancellationToken cancellationToken)
         {
             await Session.EnsureServerReadyAsync(cancellationToken);
 
