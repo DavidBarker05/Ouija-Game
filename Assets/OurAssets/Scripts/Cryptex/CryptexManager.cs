@@ -29,6 +29,7 @@ public class CryptexManager : MonoBehaviour
         if (name.ToString().Equals(SpiritNameManager.Instance.SpiritName, System.StringComparison.OrdinalIgnoreCase))
         {
             Debug.Log("You Win");
+            MinigameManager.Instance.OnMinigameBeaten(Minigames.Cryptex);
             m_Player.ChangeCharacter(m_FirstPersonCharacter);
         }
     }

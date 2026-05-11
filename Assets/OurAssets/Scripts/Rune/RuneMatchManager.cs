@@ -100,11 +100,12 @@ public class RuneMatchManager : MonoBehaviour
         }
     }
 
-	private void DoWin()
+	void DoWin()
 	{
+        MinigameManager.Instance.OnMinigameBeaten(Minigames.Rune);
 	}
 
-	private void DoLose()
+	void DoLose()
 	{
         StartGame();
 	}
