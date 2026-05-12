@@ -34,9 +34,9 @@ public class OuijaBoard : MonoBehaviour
     [SerializeField]
 	BoardResponsePosition[] m_BoardResponsePositionsOnBoard; // David added
     [SerializeField, Range(0.001f, 1f), Tooltip("The time it takes for the planchette to move between letters")]
-    float m_PlanchetteTravelTime = 0.25f; // David added
+    float m_PlanchetteTravelTime = 0.75f; // David added
     [SerializeField, Range(0.001f, 1f), Tooltip("The time that the planchette will stay on a letter")]
-    float m_PlancehtteWaitTime = 0.1f; // David added
+    float m_PlancehtteWaitTime = 0.375f; // David added
     [SerializeField]
     TMP_Text m_ResponseDisplayText; // David added
     [SerializeField]
