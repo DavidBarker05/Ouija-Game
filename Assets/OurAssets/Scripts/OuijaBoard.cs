@@ -70,6 +70,7 @@ public class OuijaBoard : MonoBehaviour
     Vector3 m_PlanchetteStartingPosition = Vector3.zero; // David added
     int m_CurrentCharacter = -1; // David added
     BoardResponse m_CurrentResponse; // David added
+    bool m_bBlockedSendButton = false; // David added
 
 	void Awake() => PopulateDictionaryWithStartingValues();
 
@@ -79,7 +80,15 @@ public class OuijaBoard : MonoBehaviour
         // we check if it exists because it might not have been assigned in the first
         // place or maybe it got destroyed before this and we don't want to do this
         // on a null object
-		if (m_OuijaPlayerInputController) m_OuijaPlayerInputController.AiResponseReceived -= StartDisplayingResponse;
+        if (m_OuijaPlayerInputController)
+        {
+            if (m_bBlockedSendButton)
+            {
+                m_OuijaPlayerInputController.PopSendBlock();
+                m_bBlockedSendButton = false;
+            }
+            m_OuijaPlayerInputController.AiResponseReceived -= StartDisplayingResponse;
+        }
 	}
 
 	void Start()
@@ -124,6 +133,11 @@ public class OuijaBoard : MonoBehaviour
             m_bWait = false;
             m_CurrentTime = 0f;
 			DisplayingResponse = m_CurrentCharacter < m_CurrentText.Length;
+            if (!DisplayingResponse && m_bBlockedSendButton)
+            {
+                m_OuijaPlayerInputController?.PopSendBlock();
+                m_bBlockedSendButton = false;
+            }
             if (m_CurrentResponse == BoardResponse.Goodbye)
             {
 				m_OuijaPlayerInputController.gameObject.SetActive(false);
@@ -151,6 +165,11 @@ public class OuijaBoard : MonoBehaviour
         m_CurrentText = response.Trim().ToUpper();
         if (string.IsNullOrEmpty(m_CurrentText)) return;
         DisplayingResponse = true;
+        if (m_OuijaPlayerInputController)
+        {
+            m_OuijaPlayerInputController.PushSendBlock();
+            m_bBlockedSendButton = true;
+        }
         m_bWait = false;
         m_PlanchetteStartingPosition = m_Planchette.transform.position;
 		m_CurrentCharacter = 0;
