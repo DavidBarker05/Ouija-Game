@@ -391,3 +391,8 @@ This file tracks the Unity + Ollama integration work completed so far.
   - Updated `Assets/OurAssets/Scripts/Chat/OuijaQuestionGateResolver.cs` — snapshots carry the new ids; `TryResolveAsync` takes the resolver; `ComposeReply` resolves each branch through the resolver first.
   - Updated `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs` — optional `gateResponseResolver` component; if unset, uses `gateConditionEvaluator` when it also implements `IOuijaGateResponseResolver`.
   - Updated `Assets/OurAssets/Scripts/Chat/OuijaGateConditionEvaluatorStub.cs` — implements the response resolver with optional inspector `gatedResponseOverrides` (id + text) for testing.
+
+- Added `Assets/OurAssets/Scripts/Chat/OuijaGateResponseResolver.cs`
+  - Date: 12/05/2026.
+  - AI assisted: no (David).
+  - Replaces id with text at runtime, rn just replace the name
