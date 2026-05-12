@@ -372,3 +372,8 @@ This file tracks the Unity + Ollama integration work completed so far.
   - AI assisted: no (David).
   - When saying goodbye go back to normal character
   - Also wait for a few seconds after saying the final character now
+
+- Added `Assets/OurAssets/Scripts/Interaction/OuijaInteraction.cs`
+  - Date: 12/05/2026
+  - AI assisted: no (David).
+  - Used to start the ouija board when interacting
