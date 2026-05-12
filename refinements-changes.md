@@ -377,3 +377,8 @@ This file tracks the Unity + Ollama integration work completed so far.
   - Date: 12/05/2026
   - AI assisted: no (David).
   - Used to start the ouija board when interacting
+
+- Updated `Assets/OurAssets/Scripts/Chat/OuijaPlayerInputController.cs`
+  - Date: 12/05/2026
+  - AI assisted: yes.
+  - External code can block send (send button + input submit / Enter) via ref-counted `PushSendBlock` / `PopSendBlock`, or `AcquireSendBlock()` for a disposable `using` scope. `CanSend()` treats a positive block count like other busy states so the UI stays consistent.
