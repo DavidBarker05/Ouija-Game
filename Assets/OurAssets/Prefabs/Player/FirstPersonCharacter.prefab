@@ -182,7 +182,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
   m_PlayerSettings: {fileID: 11400000, guid: 75d7bd69a6da12e4c8f63d074f6ce2d3, type: 2}
-  m_StartingPlayerCharacter: {fileID: 0}
+  m_StartingPlayerCharacter: {fileID: 8444355186628466975}
   m_PlayerCamera: {fileID: 6997698293445084034}
   m_Camera: {fileID: 8173381940565030777}
 --- !u!1 &6003352308450087496
@@ -319,7 +319,7 @@ Transform:
   m_GameObject: {fileID: 6422676714977271715}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -366,7 +366,7 @@ Transform:
   m_GameObject: {fileID: 7272849606497349288}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
