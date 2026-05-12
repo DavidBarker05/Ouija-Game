@@ -113,7 +113,7 @@ public class OuijaBoard : MonoBehaviour
 				BoardResponse.Yes => 3, // David - Length of "yes"
 				BoardResponse.No => 2, // David - Length of "no"
 				BoardResponse.Goodbye => 7, // David - Length of "goodbye"
-				_ => (m_CurrentText[m_CurrentCharacter + 1] == ' ' ? 2 : 1) // David - If next character is a space go to character after space, otherwise go to next character
+				_ => (m_CurrentCharacter < m_CurrentText.Length - 1 ? (m_CurrentText[m_CurrentCharacter + 1] == ' ' ? 2 : 1) : 1) // David - If next character is a space go to character after space, otherwise go to next character
 			};
 			m_CurrentCharacter += charsToDisplay;
             if (m_ResponseDisplayText) m_ResponseDisplayText.maxVisibleCharacters = m_CurrentCharacter;
@@ -152,17 +152,12 @@ public class OuijaBoard : MonoBehaviour
         if (string.IsNullOrEmpty(m_CurrentText)) return;
         DisplayingResponse = true;
         m_bWait = false;
-        m_PlanchetteStartingPosition = m_BoardResponsePositions[BoardResponse.Goodbye]?.position ?? Vector3.zero;
-        m_Planchette.transform.position = m_PlanchetteStartingPosition;
-		m_CurrentCharacter = -1;
+        m_PlanchetteStartingPosition = m_Planchette.transform.position;
+		m_CurrentCharacter = 0;
 		if (m_CurrentText == "YES") m_CurrentResponse = BoardResponse.Yes;
         else if (m_CurrentText == "NO") m_CurrentResponse = BoardResponse.No;
         else if (m_CurrentText == "GOODBYE" || m_CurrentText == "GOOD BYE") m_CurrentResponse = BoardResponse.Goodbye;
-        else // Response with characters to display
-        {
-            m_CurrentCharacter = 0;
-            m_CurrentResponse = CharacterToResponse(m_CurrentText[0]);
-        }
+        else m_CurrentResponse = CharacterToResponse(m_CurrentText[0]);
         if (!m_ResponseDisplayText) return;
         m_ResponseDisplayText.text = m_CurrentText;
         m_ResponseDisplayText.maxVisibleCharacters = 0;
