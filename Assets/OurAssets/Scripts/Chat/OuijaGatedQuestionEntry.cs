@@ -22,14 +22,21 @@ namespace OurAssets.Scripts.Chat
         [Tooltip("All listed condition ids must be met (AND) for the eligible response. Leave empty — always eligible branch.")]
         [SerializeField] private string[] conditionIdsRequired = Array.Empty<string>();
 
+        [Tooltip("Optional id passed to IOuijaGateResponseResolver for the blocked branch. Empty = use only responseWhenBlocked text.")]
+        [SerializeField] private string responseIdWhenBlocked = string.Empty;
         [SerializeField] private string responseWhenBlocked = string.Empty;
+
+        [Tooltip("Optional id passed to IOuijaGateResponseResolver for the eligible branch. Empty = use only responseWhenEligible text.")]
+        [SerializeField] private string responseIdWhenEligible = string.Empty;
         [SerializeField] private string responseWhenEligible = string.Empty;
 
         public string QuestionId => questionId;
         public bool Enabled => enabled;
         public string[] MatchPhrases => matchPhrases;
         public string[] ConditionIdsRequired => conditionIdsRequired;
+        public string ResponseIdWhenBlocked => responseIdWhenBlocked;
         public string ResponseWhenBlocked => responseWhenBlocked;
+        public string ResponseIdWhenEligible => responseIdWhenEligible;
         public string ResponseWhenEligible => responseWhenEligible;
     }
 }

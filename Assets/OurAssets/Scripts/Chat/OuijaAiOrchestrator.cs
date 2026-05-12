@@ -30,6 +30,8 @@ namespace OurAssets.Scripts.Chat
         [SerializeField] private OuijaGatedQuestionEntry[] gatedQuestions = Array.Empty<OuijaGatedQuestionEntry>();
         [Tooltip("Optional: MonoBehaviour implementing IOuijaGateConditionEvaluator (minigame flags, progress, inventory).")]
         [SerializeField] private Component gateConditionEvaluator;
+        [Tooltip("Optional: MonoBehaviour implementing IOuijaGateResponseResolver (runtime gated reply text). If empty, uses gateConditionEvaluator when it also implements that interface.")]
+        [SerializeField] private Component gateResponseResolver;
         [Tooltip("Prepended classifier rules; fuzzy matching still runs before this call.")]
         [SerializeField] private TextAsset gateClassifierInstructions;
         [Tooltip("Blank uses the configured Ouija chat model.")]
@@ -71,6 +73,7 @@ namespace OurAssets.Scripts.Chat
         private OllamaGameSession _session;
         private OuijaConversationState _conversationState;
         private IOuijaGateConditionEvaluator _gateConditionEvaluator;
+        private IOuijaGateResponseResolver _gateResponseResolver;
         private OuijaQuestionGateResolver _questionGateResolver;
 
 		string ApplicationPath => Application.dataPath.Substring(0, Application.dataPath.LastIndexOf('/')); // David - The path of the application, this is where the executable is for the build or in the project is for the editor
@@ -174,6 +177,7 @@ namespace OurAssets.Scripts.Chat
                             playerMessage,
                             gateSnapshots,
                             _gateConditionEvaluator,
+                            _gateResponseResolver,
                             _session.Client,
                             classifierModel,
                             gateClassifierInstructions != null ? gateClassifierInstructions.text : null,
@@ -233,6 +237,23 @@ namespace OurAssets.Scripts.Chat
             }
 
             _gateConditionEvaluator = evaluator;
+
+            IOuijaGateResponseResolver responseResolver = null;
+            if (gateResponseResolver != null)
+            {
+                responseResolver = gateResponseResolver as IOuijaGateResponseResolver;
+                if (responseResolver == null)
+                {
+                    Debug.LogWarning($"{nameof(OuijaAiOrchestrator)}: {gateResponseResolver.name} lacks {nameof(IOuijaGateResponseResolver)}.", gateResponseResolver);
+                }
+            }
+
+            if (responseResolver == null && gateConditionEvaluator != null)
+            {
+                responseResolver = gateConditionEvaluator as IOuijaGateResponseResolver;
+            }
+
+            _gateResponseResolver = responseResolver;
         }
 
         private List<OuijaQuestionGateResolver.GatedQuestionEntrySnap> CollectGateSnapshots()

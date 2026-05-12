@@ -233,6 +233,7 @@ namespace OurAssets.Scripts.Chat
             string playerMessage,
             IReadOnlyList<GatedQuestionEntrySnap> gates,
             IOuijaGateConditionEvaluator evaluator,
+            IOuijaGateResponseResolver responseResolver,
             OllamaClient ollama,
             string classifierModelName,
             string optionalClassifierInstructions,
@@ -266,7 +267,7 @@ namespace OurAssets.Scripts.Chat
                         $"fuzzy={best.Score:F3} ≥ instant-threshold={_fuzzyStrongThreshold:F3}");
                 }
 
-                string replyLocal = ComposeReply(best.Entry, evaluator);
+                string replyLocal = ComposeReply(best.Entry, evaluator, responseResolver);
                 return new ResolveResult { MatchedGate = true, Reply = replyLocal, InvokedClassifier = false };
             }
 
@@ -351,7 +352,7 @@ namespace OurAssets.Scripts.Chat
                 Debug.Log($"[OuijaGate] Semantic classifier matched gate id '{chosen.QuestionId}' — using preset reply (main Ouija model will not run for this message).");
             }
 
-            return new ResolveResult { MatchedGate = true, Reply = ComposeReply(chosen, evaluator), InvokedClassifier = true };
+            return new ResolveResult { MatchedGate = true, Reply = ComposeReply(chosen, evaluator, responseResolver), InvokedClassifier = true };
         }
 
         private sealed class ScoredGate
@@ -674,16 +675,19 @@ namespace OurAssets.Scripts.Chat
             return Regex.Replace(sb.ToString().Trim(), @"\s+", " ");
         }
 
-        private static string ComposeReply(GatedQuestionEntrySnap gate, IOuijaGateConditionEvaluator evaluator)
+        private static string ComposeReply(
+            GatedQuestionEntrySnap gate,
+            IOuijaGateConditionEvaluator evaluator,
+            IOuijaGateResponseResolver responseResolver)
         {
             if (gate.ConditionIdsRequired == null || gate.ConditionIdsRequired.Length == 0)
             {
-                return string.IsNullOrWhiteSpace(gate.ResponseWhenEligible) ? string.Empty : gate.ResponseWhenEligible.Trim();
+                return ResolveGatedResponse(gate.ResponseIdWhenEligible, gate.ResponseWhenEligible, responseResolver);
             }
 
             if (evaluator == null)
             {
-                return string.IsNullOrWhiteSpace(gate.ResponseWhenBlocked) ? string.Empty : gate.ResponseWhenBlocked.Trim();
+                return ResolveGatedResponse(gate.ResponseIdWhenBlocked, gate.ResponseWhenBlocked, responseResolver);
             }
 
             foreach (string conditionId in gate.ConditionIdsRequired)
@@ -695,11 +699,28 @@ namespace OurAssets.Scripts.Chat
 
                 if (!evaluator.IsConditionMet(conditionId))
                 {
-                    return string.IsNullOrWhiteSpace(gate.ResponseWhenBlocked) ? string.Empty : gate.ResponseWhenBlocked.Trim();
+                    return ResolveGatedResponse(gate.ResponseIdWhenBlocked, gate.ResponseWhenBlocked, responseResolver);
                 }
             }
 
-            return string.IsNullOrWhiteSpace(gate.ResponseWhenEligible) ? string.Empty : gate.ResponseWhenEligible.Trim();
+            return ResolveGatedResponse(gate.ResponseIdWhenEligible, gate.ResponseWhenEligible, responseResolver);
+        }
+
+        private static string ResolveGatedResponse(
+            string responseId,
+            string inspectorFallback,
+            IOuijaGateResponseResolver responseResolver)
+        {
+            if (!string.IsNullOrWhiteSpace(responseId) && responseResolver != null)
+            {
+                string resolved = responseResolver.GetGatedResponseText(responseId.Trim());
+                if (!string.IsNullOrWhiteSpace(resolved))
+                {
+                    return resolved.Trim();
+                }
+            }
+
+            return string.IsNullOrWhiteSpace(inspectorFallback) ? string.Empty : inspectorFallback.Trim();
         }
 
         private async Task<string> ClassifyAmongCandidatesAsync(
@@ -1405,6 +1426,8 @@ namespace OurAssets.Scripts.Chat
             public bool Enabled;
             public string[] MatchPhrases = Array.Empty<string>();
             public string[] ConditionIdsRequired = Array.Empty<string>();
+            public string ResponseIdWhenBlocked;
+            public string ResponseIdWhenEligible;
             public string ResponseWhenBlocked;
             public string ResponseWhenEligible;
 
@@ -1421,6 +1444,8 @@ namespace OurAssets.Scripts.Chat
                     Enabled = e.Enabled,
                     MatchPhrases = e.MatchPhrases ?? Array.Empty<string>(),
                     ConditionIdsRequired = e.ConditionIdsRequired ?? Array.Empty<string>(),
+                    ResponseIdWhenBlocked = e.ResponseIdWhenBlocked ?? string.Empty,
+                    ResponseIdWhenEligible = e.ResponseIdWhenEligible ?? string.Empty,
                     ResponseWhenBlocked = e.ResponseWhenBlocked ?? string.Empty,
                     ResponseWhenEligible = e.ResponseWhenEligible ?? string.Empty,
                 };

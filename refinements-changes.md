@@ -383,7 +383,11 @@ This file tracks the Unity + Ollama integration work completed so far.
   - AI assisted: yes.
   - External code can block send (send button + input submit / Enter) via ref-counted `PushSendBlock` / `PopSendBlock`, or `AcquireSendBlock()` for a disposable `using` scope. `CanSend()` treats a positive block count like other busy states so the UI stays consistent.
 
-- Updated `Assets/OurAssets/Scripts/OuijaBoard.cs`
+- **Gated question responses: optional runtime ids (story-dependent lines)**
   - Date: 12/05/2026
-  - AI assisted: no (David).
-  - Block the send button while a response is displaying
+  - AI assisted: yes.
+  - Added `Assets/OurAssets/Scripts/Chat/IOuijaGateResponseResolver.cs` — `GetGatedResponseText(responseId)`; non-empty return wins, otherwise falls back to inspector `responseWhenBlocked` / `responseWhenEligible`.
+  - Updated `Assets/OurAssets/Scripts/Chat/OuijaGatedQuestionEntry.cs` — optional `responseIdWhenBlocked` / `responseIdWhenEligible` alongside the existing response strings.
+  - Updated `Assets/OurAssets/Scripts/Chat/OuijaQuestionGateResolver.cs` — snapshots carry the new ids; `TryResolveAsync` takes the resolver; `ComposeReply` resolves each branch through the resolver first.
+  - Updated `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs` — optional `gateResponseResolver` component; if unset, uses `gateConditionEvaluator` when it also implements `IOuijaGateResponseResolver`.
+  - Updated `Assets/OurAssets/Scripts/Chat/OuijaGateConditionEvaluatorStub.cs` — implements the response resolver with optional inspector `gatedResponseOverrides` (id + text) for testing.
