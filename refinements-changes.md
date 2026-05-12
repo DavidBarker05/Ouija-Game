@@ -366,3 +366,9 @@ This file tracks the Unity + Ollama integration work completed so far.
   - AI assisted: no (David).
   - Used when talking to the ouija board
   - Also updated Player to not try to change action map if string is empty
+
+- Updated `Assets/OurAssets/Scripts/OuijaBoard.cs`
+  - Date: 11/05/2026
+  - AI assisted: no (David).
+  - When saying goodbye go back to normal character
+  - Also wait for a few seconds after saying the final character now

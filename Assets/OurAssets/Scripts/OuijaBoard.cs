@@ -39,6 +39,10 @@ public class OuijaBoard : MonoBehaviour
     float m_PlancehtteWaitTime = 0.1f; // David added
     [SerializeField]
     TMP_Text m_ResponseDisplayText; // David added
+    [SerializeField]
+    Player m_Player; // David added
+    [SerializeField]
+    FirstPersonCharacter m_FirstPersonCharacter; // David added
 
     // David added
     Dictionary<BoardResponse, Transform> m_BoardResponsePositions = new Dictionary<BoardResponse, Transform>()
@@ -113,14 +117,19 @@ public class OuijaBoard : MonoBehaviour
 			};
 			m_CurrentCharacter += charsToDisplay;
             if (m_ResponseDisplayText) m_ResponseDisplayText.maxVisibleCharacters = m_CurrentCharacter;
-            DisplayingResponse = m_CurrentCharacter < m_CurrentText.Length;
-            if (DisplayingResponse) m_CurrentResponse = CharacterToResponse(m_CurrentText[m_CurrentCharacter]);
+            if (m_CurrentCharacter < m_CurrentText.Length) m_CurrentResponse = CharacterToResponse(m_CurrentText[m_CurrentCharacter]);
         }
         else if (m_CurrentTime >= m_PlancehtteWaitTime) // David - Waiting and wait time finished
         {
             m_bWait = false;
             m_CurrentTime = 0f;
-        }
+			DisplayingResponse = m_CurrentCharacter < m_CurrentText.Length;
+            if (m_CurrentResponse == BoardResponse.Goodbye)
+            {
+				m_OuijaPlayerInputController.gameObject.SetActive(false);
+				m_Player.ChangeCharacter(m_FirstPersonCharacter);
+            }
+		}
     }
 
     // David - populate the dictionary which is easy to get the positions for a
@@ -148,7 +157,7 @@ public class OuijaBoard : MonoBehaviour
 		m_CurrentCharacter = -1;
 		if (m_CurrentText == "YES") m_CurrentResponse = BoardResponse.Yes;
         else if (m_CurrentText == "NO") m_CurrentResponse = BoardResponse.No;
-        else if (m_CurrentText == "GOODBYE") m_CurrentResponse = BoardResponse.Goodbye;
+        else if (m_CurrentText == "GOODBYE" || m_CurrentText == "GOOD BYE") m_CurrentResponse = BoardResponse.Goodbye;
         else // Response with characters to display
         {
             m_CurrentCharacter = 0;
