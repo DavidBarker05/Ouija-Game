@@ -108,7 +108,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 4110039158585201587}
         m_TargetAssemblyTypeName: Player, Assembly-CSharp
-        m_MethodName: HandleLookInput
+        m_MethodName: HandleInteractInput
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

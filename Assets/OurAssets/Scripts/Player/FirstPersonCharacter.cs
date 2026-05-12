@@ -108,10 +108,11 @@ public class FirstPersonCharacter : PlayerCharacter
 	{
 		if (updateData.PressedInteract)
 		{
+			updateData.PressedInteract = false;
 			Vector3 direction = updateData.CameraRotation * Vector3.forward; // Rotate forward vector by camera rotation to get camera's forward vector
 			DoInteraction(direction);
 		}
-		updateData.PressedInteract = false;
+		else updateData.PressedInteract = false;
 	}
 
 	void DoInteraction(Vector3 direction)
