@@ -69,6 +69,7 @@ public class Player : MonoBehaviour
 			InteractSettings = m_PlayerSettings.InteractSettings
 		},
 		TarotCharacter => new TarotCharacterInitData(),
+		OuijaCharacter => new OuijaCharacterInitData(),
 		_ => null
 	};
 
@@ -76,6 +77,7 @@ public class Player : MonoBehaviour
 	{
 		FirstPersonCharacter => new FirstPersonCharacterUpdateData(),
 		TarotCharacter => new TarotCharacterUpdateData(),
+		OuijaCharacter => new OuijaCharacterUpdateData(),
 		_ => null
 	};
 
