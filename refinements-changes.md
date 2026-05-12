@@ -360,3 +360,9 @@ This file tracks the Unity + Ollama integration work completed so far.
   - Date: 11/05/2026
   - AI assisted: no (David).
   - Used to start new game
+
+- Added `Assets/OurAssets/Scripts/Player/OuijaCharacter.cs`
+  - Date: 12/05/2026
+  - AI assisted: no (David).
+  - Used when talking to the ouija board
+  - Also updated Player to not try to change action map if string is empty

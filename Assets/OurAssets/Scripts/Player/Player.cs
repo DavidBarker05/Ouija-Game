@@ -57,7 +57,7 @@ public class Player : MonoBehaviour
 	{
 		m_PlayerCharacter = character;
 		if (!m_PlayerCharacter.HasBeenInitialised) m_PlayerCharacter.Init(PlayerCharacterInitData);
-		m_PlayerInput.SwitchCurrentActionMap(m_PlayerCharacter.ActionMap);
+		if (!string.IsNullOrWhiteSpace(m_PlayerCharacter.ActionMap)) m_PlayerInput.SwitchCurrentActionMap(m_PlayerCharacter.ActionMap);
 		m_PlayerCharacterUpdateData = PlayerCharacterUpdateData;
 	}
 
