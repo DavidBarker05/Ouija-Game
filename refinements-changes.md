@@ -396,3 +396,11 @@ This file tracks the Unity + Ollama integration work completed so far.
   - Date: 12/05/2026.
   - AI assisted: no (David).
   - Replaces id with text at runtime, rn just replace the name
+
+- Added `Assets/OurAssets/Scripts/EndMinigame/Candle.cs`, `Assets/OurAssets/Scripts/EndMinigame/SmallPentagram.cs`, `Assets/OurAssets/Scripts/EndMinigame/BigPentagram.cs`, and `Assets/OurAssets/Scripts/EndMinigame/EndSurvivalMinigame.cs`
+  - Date: 12/05/2026.
+  - AI assisted: no (David).
+  - Started working on the code for the final minigame
+  - Time limit that they have to survive in while candles blow out (all candles blow out they lose)
+  - One large pentagram that contains 5 small pentagrams at each point
+  - At the point of each small pentagram is a candle
