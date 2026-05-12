@@ -59,6 +59,57 @@ namespace OurAssets.Scripts.Chat
         private bool _isSending;
         private bool _isTranscribing;
         private float _recordingEndRealtime;
+        private int _externalSendBlockCount;
+
+        /// <summary>
+        /// Blocks send until the returned value is disposed. Intended for <c>using (input.AcquireSendBlock()) { ... }</c>.
+        /// </summary>
+        public IDisposable AcquireSendBlock()
+        {
+            PushSendBlock();
+            return new SendBlockReleaser(this);
+        }
+
+        /// <summary>
+        /// Increments how many external systems are blocking send (button + submit). Pair every call with <see cref="PopSendBlock"/>.
+        /// </summary>
+        public void PushSendBlock()
+        {
+            _externalSendBlockCount++;
+            RefreshSendButtonInteractable();
+        }
+
+        /// <summary>
+        /// Decrements the send block count from <see cref="PushSendBlock"/> / <see cref="AcquireSendBlock"/>.
+        /// </summary>
+        public void PopSendBlock()
+        {
+            if (_externalSendBlockCount > 0)
+            {
+                _externalSendBlockCount--;
+            }
+
+            RefreshSendButtonInteractable();
+        }
+
+        private sealed class SendBlockReleaser : IDisposable
+        {
+            private OuijaPlayerInputController _owner;
+
+            public SendBlockReleaser(OuijaPlayerInputController owner)
+            {
+                _owner = owner;
+            }
+
+            public void Dispose()
+            {
+                if (_owner != null)
+                {
+                    _owner.PopSendBlock();
+                    _owner = null;
+                }
+            }
+        }
 
         private void Awake()
         {
@@ -349,6 +400,11 @@ namespace OurAssets.Scripts.Chat
 
         private bool CanSend()
         {
+            if (_externalSendBlockCount > 0)
+            {
+                return false;
+            }
+
             if (_isSending || _isTranscribing)
             {
                 return false;
