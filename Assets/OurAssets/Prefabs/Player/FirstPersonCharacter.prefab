@@ -160,6 +160,10 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 8f956ef3-fb54-462a-851b-1af5b790e93c
     m_ActionName: UI/TrackedDeviceOrientation
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: eb0eaffc-59b9-4b59-8314-44e5e04d0e34
+    m_ActionName: 'TarotPlayer/LeftClick[/Mouse/leftButton]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -178,7 +182,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
   m_PlayerSettings: {fileID: 11400000, guid: 75d7bd69a6da12e4c8f63d074f6ce2d3, type: 2}
-  m_PlayerCharacter: {fileID: 8444355186628466975}
+  m_StartingPlayerCharacter: {fileID: 0}
   m_PlayerCamera: {fileID: 6997698293445084034}
   m_Camera: {fileID: 8173381940565030777}
 --- !u!1 &6003352308450087496
@@ -240,7 +244,7 @@ CharacterController:
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!114 &8444355186628466975
 MonoBehaviour:
   m_ObjectHideFlags: 0
