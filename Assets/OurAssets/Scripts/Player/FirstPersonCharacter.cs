@@ -4,6 +4,7 @@ public class FirstPersonCharacterInitData : IPlayerCharacterInitData
 {
 	public PlayerCharacterSettings CharacterSettings { get; set; }
 	public PlayerInteractSettings InteractSettings { get; set; }
+	public PauseCharacter PauseCharacter { get; set; }
 }
 
 public class FirstPersonCharacterUpdateData : IPlayerCharacterUpdateData
@@ -31,6 +32,7 @@ public class FirstPersonCharacter : PlayerCharacter
 
 	PlayerCharacterSettings m_CharacterSettings;
 	PlayerInteractSettings m_InteractSettings;
+	PauseCharacter m_PauseCharacter;
 	CharacterController m_CharacterController;
 
 	Vector3 m_Velocity;
@@ -44,6 +46,7 @@ public class FirstPersonCharacter : PlayerCharacter
 		}
 		m_CharacterSettings = initData.CharacterSettings;
 		m_InteractSettings = initData.InteractSettings;
+		m_PauseCharacter = initData.PauseCharacter;
 		m_CharacterController = GetComponent<CharacterController>();
 		m_Velocity = Vector3.zero;
 		HasBeenInitialised = true;
@@ -63,19 +66,35 @@ public class FirstPersonCharacter : PlayerCharacter
 
 	public override void UpdateCharacter(ref IPlayerCharacterUpdateData playerCharacterUpdateData)
 	{
-		if (!HasBeenInitialised)
-		{
-			Debug.LogError("FirstPersonCharacter hasn't been initialised!");
-			return;
-		}
 		if (playerCharacterUpdateData is not FirstPersonCharacterUpdateData updateData)
 		{
 			Debug.LogError($"playerCharacterUpdateData needs to be type FirstPersonCharacterUpdateData! Received {playerCharacterUpdateData.GetType()}");
 			return;
 		}
+		if (!HasBeenInitialised)
+		{
+			Debug.LogError("FirstPersonCharacter hasn't been initialised!");
+			updateData.PressedInteract = false;
+			return;
+		}
+		if (m_PauseCharacter.Paused || Time.timeScale == 0f)
+		{
+			updateData.PressedInteract = false;
+			return;
+		}
 		HandleMovement(ref updateData);
 		HandleInteraction(ref updateData);
 	}
+
+	public override void OnPausePressed()
+    {
+        if (!HasBeenInitialised)
+		{
+			Debug.LogError("FirstPersonCharacter hasn't been initialised!");
+			return;
+		}
+		m_PauseCharacter.PauseGame(this);
+    }
 
 	#region Movement
 	void HandleMovement(ref FirstPersonCharacterUpdateData updateData)
@@ -130,5 +149,5 @@ public class FirstPersonCharacter : PlayerCharacter
 			interactable.Interact();
 		}
 	}
-	#endregion Interaction
+    #endregion Interaction
 }

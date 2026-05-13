@@ -1,6 +1,9 @@
 using UnityEngine;
 
-public class TarotCharacterInitData : IPlayerCharacterInitData { }
+public class TarotCharacterInitData : IPlayerCharacterInitData
+{
+	public PauseCharacter PauseCharacter { get; set; }
+}
 
 public class TarotCharacterUpdateData : IPlayerCharacterUpdateData
 {
@@ -20,14 +23,16 @@ public class TarotCharacter : PlayerCharacter
 	public override bool DoCameraRotation => false;
 	public override bool UseMouseScreenPosition => true;
 
+	PauseCharacter m_PauseCharacter;
 
 	public override void Init(IPlayerCharacterInitData playerCharacterInitData)
 	{
-		if (playerCharacterInitData is not TarotCharacterInitData)
+		if (playerCharacterInitData is not TarotCharacterInitData initData)
 		{
 			Debug.LogError($"playerCharacterInitData needs to be type TarotCharacterInitData! Received {playerCharacterInitData.GetType()}");
 			return;
 		}
+		m_PauseCharacter = initData.PauseCharacter;
 		HasBeenInitialised = true;
 	}
 
@@ -41,20 +46,36 @@ public class TarotCharacter : PlayerCharacter
 		if (playerSceneData == null) return;
 	}
 
-	public override void UpdateCharacter(ref IPlayerCharacterUpdateData playerCharacterUpdateData)
+    public override void UpdateCharacter(ref IPlayerCharacterUpdateData playerCharacterUpdateData)
 	{
-		if (!HasBeenInitialised)
-		{
-			Debug.LogError("TarotCharacter hasn't been initialised!");
-			return;
-		}
 		if (playerCharacterUpdateData is not TarotCharacterUpdateData updateData)
 		{
 			Debug.LogError($"playerCharacterUpdateData needs to be type TarotCharacterUpdateData! Received {playerCharacterUpdateData.GetType()}");
 			return;
 		}
-		if (!updateData.MouseInfo.IsOverUI && updateData.MouseInfo.DidHitObject)
+		if (!HasBeenInitialised)
+		{
+			Debug.LogError("TarotCharacter hasn't been initialised!");
+			updateData.LeftClickedThisFrame = false;
+			return;
+		}
+		if (m_PauseCharacter.Paused || Time.timeScale == 0f)
+		{
+			updateData.LeftClickedThisFrame = false;
+			return;
+		}
+		if (updateData.LeftClickedThisFrame && !updateData.MouseInfo.IsOverUI && updateData.MouseInfo.DidHitObject)
 			playerCharacterUpdateData.MouseInfo.HitInfo.collider.gameObject.GetComponent<TarotCard>()?.Flip();
 		updateData.LeftClickedThisFrame = false;
 	}
+
+	public override void OnPausePressed()
+    {
+        if (!HasBeenInitialised)
+		{
+			Debug.LogError("TarotCharacter hasn't been initialised!");
+			return;
+		}
+		m_PauseCharacter.PauseGame(this);
+    }
 }

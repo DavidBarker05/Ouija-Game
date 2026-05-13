@@ -409,3 +409,10 @@ This file tracks the Unity + Ollama integration work completed so far.
   - Date: 13/05/2026.
   - AI assisted: no (David).
   - Blow out random number of candles for each small pentagram meaning player runs around more
+
+- Added `Assets/OurAssets/Scripts/Player/PauseCharacter.cs` and `Assets/OurAssets/Scripts/Player/RuneCharacter.cs`
+  - Date: 13/05/2026.
+  - AI assisted: no (David).
+  - PauseCharacter allows for the game to be paused and unpaused
+  - Updated PlayerCharacter to handle pause press
+  - Updated FirstPersonCharacter, TarotCharacter, OuijaCharacter and Player and added RuneCharacter to be able to handle the pause toggle and switch between PauseCharacter and last character
