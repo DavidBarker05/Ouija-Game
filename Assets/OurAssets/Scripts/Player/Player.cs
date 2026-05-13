@@ -9,6 +9,8 @@ public class Player : MonoBehaviour
     PlayerSettings m_PlayerSettings;
 	[SerializeField]
 	PlayerCharacter m_StartingPlayerCharacter;
+	[SerializeField]
+	PauseCharacter m_PauseCharacter;
     [SerializeField]
     PlayerCamera m_PlayerCamera;
 	[SerializeField]
@@ -26,6 +28,7 @@ public class Player : MonoBehaviour
 	void Awake()
 	{
 		m_PlayerInput = GetComponent<PlayerInput>();
+		m_PauseCharacter.Init(new PauseCharacterInitData());
 		ChangeCharacter(m_StartingPlayerCharacter);
 		m_PlayerCamera.Init(m_PlayerSettings.CameraSettings, m_PlayerCharacter.CameraTarget);
 		m_CameraInput = new CameraInput();
@@ -67,10 +70,13 @@ public class Player : MonoBehaviour
 		FirstPersonCharacter => new FirstPersonCharacterInitData()
 		{
 			CharacterSettings = m_PlayerSettings.CharacterSettings,
-			InteractSettings = m_PlayerSettings.InteractSettings
+			InteractSettings = m_PlayerSettings.InteractSettings,
+			PauseCharacter = m_PauseCharacter
 		},
-		TarotCharacter => new TarotCharacterInitData(),
-		OuijaCharacter => new OuijaCharacterInitData(),
+		TarotCharacter => new TarotCharacterInitData() { PauseCharacter = m_PauseCharacter },
+		RuneCharacter => new RuneCharacterInitData() { PauseCharacter = m_PauseCharacter },
+		OuijaCharacter => new OuijaCharacterInitData() { PauseCharacter = m_PauseCharacter },
+		PauseCharacter => new PauseCharacterInitData(),
 		_ => null
 	};
 
@@ -79,6 +85,7 @@ public class Player : MonoBehaviour
 		FirstPersonCharacter => new FirstPersonCharacterUpdateData(),
 		TarotCharacter => new TarotCharacterUpdateData(),
 		OuijaCharacter => new OuijaCharacterUpdateData(),
+		PauseCharacter => new PauseCharacterUpdateData(),
 		_ => null
 	};
 
@@ -152,10 +159,10 @@ public class Player : MonoBehaviour
 		SetDataValue<TarotCharacterUpdateData>(updateData => updateData.LeftClickedThisFrame |= ctx.started);
 	}
 
-	//public void HandleRightClickInput(InputAction.CallbackContext ctx)
-	//{
-	//	//SetDataValue<WallKnockPlayerCharacterUpdateData>(input => input.RightClickedThisFrame |= ctx.started);
-	//}
+	public void HandlePauseToggleInput(InputAction.CallbackContext ctx)
+	{
+		if (ctx.started) m_PlayerCharacter.OnPausePressed();
+	}
 
 	#region Control Scheme Change
 	public InputDevice CurrentDevice { get; private set; }
