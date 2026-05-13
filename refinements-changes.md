@@ -404,3 +404,8 @@ This file tracks the Unity + Ollama integration work completed so far.
   - Time limit that they have to survive in while candles blow out (all candles blow out they lose)
   - One large pentagram that contains 5 small pentagrams at each point
   - At the point of each small pentagram is a candle
+
+- Updated `Assets/OurAssets/Scripts/EndMinigame/BigPentagram.cs`
+  - Date: 13/05/2026.
+  - AI assisted: no (David).
+  - Blow out random number of candles for each small pentagram meaning player runs around more
