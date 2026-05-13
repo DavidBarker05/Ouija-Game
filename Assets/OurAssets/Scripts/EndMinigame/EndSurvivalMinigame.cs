@@ -67,7 +67,7 @@ public class EndSurvivalMinigame : MonoBehaviour
 		m_CandleBlowTimer += Time.deltaTime;
 		CandleBlowOutTimeFrame currentBlowOutFrame = CurrentCandleBlowOutFrame;
 		if (m_CandleBlowTimer < currentBlowOutFrame.BlowOutTime) return;
-		int numCandlesToExtinguish = Random.Range(currentBlowOutFrame.MinCandles, currentBlowOutFrame.MaxCandles);
+		int numCandlesToExtinguish = Random.Range(currentBlowOutFrame.MinCandles, currentBlowOutFrame.MaxCandles + 1);
 		if (m_Pentagram.ExtinguishCandles(numCandlesToExtinguish)) DoLose();
 	}
 
