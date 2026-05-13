@@ -56,7 +56,7 @@ public class EndSurvivalMinigame : MonoBehaviour
 
 	void Start()
 	{
-		if(m_Pentagram?.Init() ?? false) m_CurrentTime = m_TimeToSurvive;
+		if (m_Pentagram?.Init() ?? false) m_CurrentTime = m_TimeToSurvive;
 		m_CandleBlowTimer = 0f;
 	}
 
@@ -67,6 +67,7 @@ public class EndSurvivalMinigame : MonoBehaviour
 		m_CandleBlowTimer += Time.deltaTime;
 		CandleBlowOutTimeFrame currentBlowOutFrame = CurrentCandleBlowOutFrame;
 		if (m_CandleBlowTimer < currentBlowOutFrame.BlowOutTime) return;
+		m_CandleBlowTimer = 0f;
 		int numCandlesToExtinguish = Random.Range(currentBlowOutFrame.MinCandles, currentBlowOutFrame.MaxCandles + 1);
 		if (m_Pentagram.ExtinguishCandles(numCandlesToExtinguish)) DoLose();
 	}
@@ -75,11 +76,11 @@ public class EndSurvivalMinigame : MonoBehaviour
 	{
 		get
 		{
-			if (m_CurrentTime >= m_TimeToSurvive / 8f) return m_CandleBlowOutSettings.FirstEighth;
-			if (m_CurrentTime >= m_TimeToSurvive / 4f) return m_CandleBlowOutSettings.FirstQuarter;
-			if (m_CurrentTime >= m_TimeToSurvive / 2f) return m_CandleBlowOutSettings.FirstHalf;
-			if (m_CurrentTime >= m_TimeToSurvive / 2f - m_TimeToSurvive / 8f) return m_CandleBlowOutSettings.LastHalf;
-			if (m_CurrentTime >= m_TimeToSurvive / 2f - m_TimeToSurvive / 4f) return m_CandleBlowOutSettings.LastQuarter;
+			if (m_CurrentTime >= m_TimeToSurvive - m_TimeToSurvive / 8f) return m_CandleBlowOutSettings.FirstEighth;
+			if (m_CurrentTime >= m_TimeToSurvive - m_TimeToSurvive / 4f) return m_CandleBlowOutSettings.FirstQuarter;
+			if (m_CurrentTime >= m_TimeToSurvive - m_TimeToSurvive / 2f) return m_CandleBlowOutSettings.FirstHalf;
+			if (m_CurrentTime >= m_TimeToSurvive - m_TimeToSurvive / 2f - m_TimeToSurvive / 8f) return m_CandleBlowOutSettings.LastHalf;
+			if (m_CurrentTime >= m_TimeToSurvive - m_TimeToSurvive / 2f - m_TimeToSurvive / 4f) return m_CandleBlowOutSettings.LastQuarter;
 			return m_CandleBlowOutSettings.LastEighth;
 		}
 	}
