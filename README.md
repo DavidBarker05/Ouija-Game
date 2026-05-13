@@ -2,6 +2,8 @@ Part 2
 -------------------------------------------------------------------------------------------------------------------------------------------------------
 High Concept Document - 
 
+LLM Integration Report -
+
 Technical Demonstration Video - 
 
 Showcase Video - 
