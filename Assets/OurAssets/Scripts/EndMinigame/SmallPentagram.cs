@@ -21,12 +21,13 @@ public class SmallPentagram : MonoBehaviour
 	{
 		if (m_bInitted) return false;
 		m_bInitted = true;
-		m_bInitted |= InitCandle(Candle0);
-		m_bInitted |= InitCandle(Candle1);
-		m_bInitted |= InitCandle(Candle2);
-		m_bInitted |= InitCandle(Candle3);
-		m_bInitted |= InitCandle(Candle4);
-		return true;
+		bool bInitted = true;
+		bInitted |= InitCandle(Candle0);
+		bInitted |= InitCandle(Candle1);
+		bInitted |= InitCandle(Candle2);
+		bInitted |= InitCandle(Candle3);
+		bInitted |= InitCandle(Candle4);
+		return bInitted;
 	}
 
 	bool InitCandle(Candle candle)
