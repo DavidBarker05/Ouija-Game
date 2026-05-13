@@ -422,3 +422,9 @@ This file tracks the Unity + Ollama integration work completed so far.
   - AI assisted: no (David).
   - Add how often candles blow out and how many
   - Also start on win and lose a bit
+
+- Added `Assets/OurAssets/Scripts/Interaction/CryptexInteraction.cs` and `Assets/OurAssets/Scripts/UI/CryptexExitButton.cs`
+  - Date: 13/05/2026.
+  - AI assisted: no (David).
+  - CryptexInteraction allows to start interacting with the cryptex
+  - CryptexExitButton allows to stop interacting with the cryptex
