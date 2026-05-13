@@ -87,14 +87,14 @@ public class FirstPersonCharacter : PlayerCharacter
 	}
 
 	public override void OnPausePressed()
-    {
-        if (!HasBeenInitialised)
+	{
+		if (!HasBeenInitialised)
 		{
 			Debug.LogError("FirstPersonCharacter hasn't been initialised!");
 			return;
 		}
 		m_PauseCharacter.PauseGame(this);
-    }
+	}
 
 	#region Movement
 	void HandleMovement(ref FirstPersonCharacterUpdateData updateData)
@@ -149,5 +149,5 @@ public class FirstPersonCharacter : PlayerCharacter
 			interactable.Interact();
 		}
 	}
-    #endregion Interaction
+	#endregion Interaction
 }

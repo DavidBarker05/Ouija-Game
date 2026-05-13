@@ -44,7 +44,7 @@ public class BigPentagram : MonoBehaviour
 		{
 			int index = Random.Range(0, _litPentagrams.Count);
 			SmallPentagram _smallPentagram = _litPentagrams[index];
-			int _randomNumToExtinguish = Random.Range(1, numCandlesToExtinguish + 1);
+			int _randomNumToExtinguish = Mathf.Min(Random.Range(1, numCandlesToExtinguish + 1), 3); // Usually never blow out more than 3 candles per small pentagram unless it gets selected again
 			numCandlesToExtinguish -= _randomNumToExtinguish;
 			if (_smallPentagram.ExtinguishRandomCandle(_randomNumToExtinguish, out int leftover))
 			{
