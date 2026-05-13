@@ -416,3 +416,9 @@ This file tracks the Unity + Ollama integration work completed so far.
   - PauseCharacter allows for the game to be paused and unpaused
   - Updated PlayerCharacter to handle pause press
   - Updated FirstPersonCharacter, TarotCharacter, OuijaCharacter and Player and added RuneCharacter to be able to handle the pause toggle and switch between PauseCharacter and last character
+
+- Updated `Assets/OurAssets/Scripts/EndMinigame/EndSurvivalMinigame.cs`
+  - Date: 13/05/2026.
+  - AI assisted: no (David).
+  - Add how often candles blow out and how many
+  - Also start on win and lose a bit
