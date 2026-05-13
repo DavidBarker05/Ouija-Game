@@ -21,12 +21,13 @@ public class BigPentagram : MonoBehaviour
 	{
 		if (m_bInitted) return false;
 		m_bInitted = true;
-		m_bInitted |= InitSmallPentagram(SmallPentagram0);
-		m_bInitted |= InitSmallPentagram(SmallPentagram1);
-		m_bInitted |= InitSmallPentagram(SmallPentagram2);
-		m_bInitted |= InitSmallPentagram(SmallPentagram3);
-		m_bInitted |= InitSmallPentagram(SmallPentagram4);
-		return m_bInitted;
+		bool bInitted = true;
+		bInitted |= InitSmallPentagram(SmallPentagram0);
+		bInitted |= InitSmallPentagram(SmallPentagram1);
+		bInitted |= InitSmallPentagram(SmallPentagram2);
+		bInitted |= InitSmallPentagram(SmallPentagram3);
+		bInitted |= InitSmallPentagram(SmallPentagram4);
+		return bInitted;
 	}
 
 	bool InitSmallPentagram(SmallPentagram smallPentagram)
