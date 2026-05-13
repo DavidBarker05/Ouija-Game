@@ -43,11 +43,14 @@ public class BigPentagram : MonoBehaviour
 		{
 			int index = Random.Range(0, _litPentagrams.Count);
 			SmallPentagram _smallPentagram = _litPentagrams[index];
-			if (_smallPentagram.ExtinguishRandomCandle(numCandlesToExtinguish, out numCandlesToExtinguish))
+			int _randomNumToExtinguish = Random.Range(1, numCandlesToExtinguish + 1);
+			numCandlesToExtinguish -= _randomNumToExtinguish;
+			if (_smallPentagram.ExtinguishRandomCandle(_randomNumToExtinguish, out int leftover))
 			{
 				_litPentagrams.RemoveAt(index);
 				m_LitPentagrams.Remove(_smallPentagram);
 			}
+			numCandlesToExtinguish += leftover;
 		}
 		return m_LitPentagrams.Count == 0;
 	}
