@@ -17,6 +17,8 @@ public class TarotManager : MonoBehaviour
 
 	[SerializeField, Min(30f)]
 	float m_TimeLimit = 180f;
+	[SerializeField, Min(0.1f)]
+	float m_RemainFlippedTime = 0.5f;
 	[SerializeField]
 	TarotCard m_TarotCardPrefab;
 	[SerializeField]
@@ -56,12 +58,14 @@ public class TarotManager : MonoBehaviour
 
 	TarotCard[] m_Cards;
 
-	TarotCard flippedCardA = null;
-	TarotCard flippedCardB = null;
+	TarotCard m_FlippedCardA = null;
+	TarotCard m_FlippedCardB = null;
 
 	int m_Pairs = 0;
+	bool m_bDontUpdate = true;
 
 	float m_CurrentTime;
+	float m_CurrentFlipTime;
 
 	void Awake()
 	{
@@ -86,6 +90,19 @@ public class TarotManager : MonoBehaviour
 
 	void Update()
 	{
+		if (m_bDontUpdate) return;
+		if (!CanFlipCard)
+		{
+			m_CurrentFlipTime += Time.deltaTime;
+			if (m_CurrentFlipTime < m_RemainFlippedTime) return;
+			m_CurrentFlipTime = 0f;
+			m_FlippedCardA.Unflip();
+			m_FlippedCardB.Unflip();
+			m_FlippedCardA = null;
+			m_FlippedCardB = null;
+			CanFlipCard = true;
+			return;
+		}
 		m_CurrentTime -= Time.deltaTime;
 		if (m_CurrentTime <= 0) DoLose();
 	}
@@ -98,6 +115,7 @@ public class TarotManager : MonoBehaviour
 		CreateCards();
 		ShuffleCards();
 		CanFlipCard = true;
+		m_bDontUpdate = false;
 	}
 
 	public void RestartGame()
@@ -106,12 +124,13 @@ public class TarotManager : MonoBehaviour
 		RecreateCards();
 		ShuffleCards();
 		CanFlipCard = true;
+		m_bDontUpdate = false;
 	}
 
 	void ClearValues()
 	{
-		flippedCardA = null;
-		flippedCardB = null;
+		m_FlippedCardA = null;
+		m_FlippedCardB = null;
 		m_Pairs = 0;
 		m_CurrentTime = m_TimeLimit;
 	}
@@ -160,35 +179,34 @@ public class TarotManager : MonoBehaviour
 
 	public void FlipCard(TarotCard tarotCard)
 	{
-		if (flippedCardA) flippedCardB = tarotCard;
-		else flippedCardA = tarotCard;
-		if (flippedCardA && flippedCardB) CheckIfMatch();
+		if (m_FlippedCardA) m_FlippedCardB = tarotCard;
+		else m_FlippedCardA = tarotCard;
+		if (m_FlippedCardA && m_FlippedCardB) CheckIfMatch();
 	}
 
 	void CheckIfMatch()
 	{
-		if ((int)flippedCardA.Card + (int)flippedCardB.Card == PAIR_VALUE)
+		if ((int)m_FlippedCardA.Card + (int)m_FlippedCardB.Card == PAIR_VALUE)
 		{
+			m_FlippedCardA = null;
+			m_FlippedCardB = null;
 			++m_Pairs;
 			if (m_Pairs == MAX_PAIRS) DoWin();
 		}
-		else
-		{
-			flippedCardA.Unflip();
-			flippedCardB.Unflip();
-			flippedCardA = null;
-			flippedCardB = null;
-		}
+		else CanFlipCard = false;
 	}
 
 	void DoWin()
 	{
 		CanFlipCard = false;
+		m_bDontUpdate = true;
 		MinigameManager.Instance.OnMinigameBeaten(Minigames.Tarot);
 	}
 
 	void DoLose()
 	{
+		CanFlipCard = false;
+		m_bDontUpdate = true;
 		RestartGame();
 	}
 }
