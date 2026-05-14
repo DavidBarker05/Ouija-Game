@@ -129,7 +129,7 @@ public class Player : MonoBehaviour
 
 	public void GetMouseInfo(ref MouseInfo mouseInfo, LayerMask layerToHit, float maxDistance = 100f)
 	{
-		mouseInfo.IsOverUI = false;//EventSystem.current?.IsPointerOverGameObject() ?? false; // This doesn't work because of panels so just defaulting to false I don't feel like getting rid of it or figuring out how to do it properly
+		mouseInfo.IsOverUI = EventSystem.current?.IsPointerOverGameObject() ?? false; // It works just need to make the panel not Raycast Target
 		Ray ray = m_Camera.ScreenPointToRay(mouseInfo.MouseScreenPosition);
 		mouseInfo.DidHitObject = Physics.Raycast(ray, out RaycastHit hit, maxDistance, layerToHit);
 		if (mouseInfo.DidHitObject) mouseInfo.HitInfo = hit;
