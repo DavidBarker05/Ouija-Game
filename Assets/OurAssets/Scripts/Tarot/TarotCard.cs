@@ -6,7 +6,7 @@ public enum TarotCards
 	Magician,
 	HighPriestess,
 	Empress,
-	Emporor,
+	Emperor,
 	Hierophant,
 	Lovers,
 	Chariot,
