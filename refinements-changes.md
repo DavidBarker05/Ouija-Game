@@ -455,3 +455,9 @@ This file tracks the Unity + Ollama integration work completed so far.
   - Date: 14/05/2026.
   - AI assisted: no (David).
   - Generates a new story when the scene is loaded
+
+- Added `Assets/OurAssets/Scripts/Player/CryptexCharacter.cs`
+  - Date: 14/05/2026.
+  - AI assisted: no (David).
+  - Allows to switch to working with the cryptex rings
+  - Updated `Assets/OurAssets/Scripts/Interact/CryptexInteraction.cs` to use this character
