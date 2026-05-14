@@ -450,3 +450,8 @@ This file tracks the Unity + Ollama integration work completed so far.
   - Date: 14/05/2026.
   - AI assisted: no (David).
   - Loads scene asynchronously and updates progress bar when  enabled
+
+- Added `Assets/OurAssets/Scripts/UI/StoryGeneratorScreen.cs`
+  - Date: 14/05/2026.
+  - AI assisted: no (David).
+  - Generates a new story when the scene is loaded
