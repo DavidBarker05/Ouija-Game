@@ -162,6 +162,7 @@ public class Player : MonoBehaviour
 	public void HandleLeftClickInput(InputAction.CallbackContext ctx)
 	{
 		SetDataValue<TarotCharacterUpdateData>(updateData => updateData.LeftClickedThisFrame |= ctx.started);
+		SetDataValue<CryptexCharacterUpdateData>(updateData => updateData.LeftClickedThisFrame |= ctx.started);
 	}
 
 	public void HandlePauseToggleInput(InputAction.CallbackContext ctx)

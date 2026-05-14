@@ -6,7 +6,7 @@ public class CryptexInteraction : Interactable
     [SerializeField]
     Player m_Player;
     [SerializeField]
-    OuijaCharacter m_OuijaCharacter;
+    CryptexCharacter m_CryptexCharacter;
     [SerializeField]
     GameObject m_HUD;
     [SerializeField]
@@ -27,7 +27,7 @@ public class CryptexInteraction : Interactable
             m_HUD?.SetActive(false);
             m_CryptexUI?.SetActive(true);
             foreach (CryptexRingButton b in m_CryptexRingButtons) b.gameObject.SetActive(true);
-            m_Player.ChangeCharacter(m_OuijaCharacter);
+            m_Player.ChangeCharacter(m_CryptexCharacter);
         }
         return null;
     }
