@@ -46,6 +46,7 @@ namespace OurAssets.Scripts.Chat
 
         [Header("Prompts")]
         [SerializeField] private TextAsset storyPromptTemplate;
+        [SerializeField] private TextAsset sessionLorePromptTemplate;
 
         [Header("Timing")]
         [SerializeField] private int keepAliveSeconds = 120;
@@ -58,6 +59,7 @@ namespace OurAssets.Scripts.Chat
         private string _storyModelName;
 
         private const string StoryPromptResourcePath = "Prompts/StoryPrompt";
+        private const string SessionLorePromptResourcePath = "Prompts/SessionLorePrompt";
 
         private string ApplicationPath =>
             Application.dataPath.Substring(0, Application.dataPath.LastIndexOf('/'));
@@ -115,12 +117,31 @@ namespace OurAssets.Scripts.Chat
             }
         }
 
+        [ContextMenu("Generate Session Lore")]
+        public async void GenerateSessionLoreFromInspector()
+        {
+            try
+            {
+                StorySessionLore lore = await GenerateSessionLoreAsync(CancellationToken.None);
+                if (enableRegularDebugLogs)
+                {
+                    Debug.Log(
+                        $"Session lore: player={lore.playerName}, wife={lore.wifeName}, " +
+                        $"left={lore.wifeLeftReason}, sad={lore.wifeSadReason}");
+                }
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError($"Session lore generation failed: {exception.Message}");
+            }
+        }
+
         [ContextMenu("Generate Story Context")]
         public async void GenerateStoryContextFromInspector()
         {
             try
             {
-                string storyPrompt = RenderPromptTemplate(storyPromptTemplate, StoryPromptResourcePath);
+                string storyPrompt = BuildStoryPromptWithSessionBindings();
                 string story = await GenerateStoryContextAsync(storyPrompt, CancellationToken.None);
                 if (enableRegularDebugLogs)
                 {
@@ -139,10 +160,53 @@ namespace OurAssets.Scripts.Chat
 		/// </summary>
 		public async Task<string> GenerateStoryContextAsync()
         {
-			string storyPrompt = RenderPromptTemplate(storyPromptTemplate, StoryPromptResourcePath);
+			string storyPrompt = BuildStoryPromptWithSessionBindings();
 			string story = await GenerateStoryContextAsync(storyPrompt, CancellationToken.None);
 			return story;
 		}
+
+        /// <summary>
+        /// Runs before <see cref="GenerateStoryContextAsync"/> for a new game: fills session lore JSON
+        /// (names + two answer strings) so story and gated Ouija lines stay aligned.
+        /// </summary>
+        public async Task<StorySessionLore> GenerateSessionLoreAsync(CancellationToken cancellationToken = default)
+        {
+            await Session.EnsureServerReadyAsync(cancellationToken);
+
+            string lorePrompt = RenderPromptTemplate(sessionLorePromptTemplate, SessionLorePromptResourcePath, null);
+            if (string.IsNullOrWhiteSpace(lorePrompt))
+            {
+                throw new ArgumentException("Session lore prompt is empty.");
+            }
+
+            OllamaChatRequest request = new OllamaChatRequest
+            {
+                model = _storyModelName,
+                keep_alive = ConvertKeepAliveSeconds(keepAliveSeconds),
+                stream = false,
+                messages = new List<OllamaMessage>
+                {
+                    new OllamaMessage("user", lorePrompt),
+                },
+            };
+
+            int timeout = Session.ResolveRequestTimeoutSeconds(
+                _storyModelName,
+                keepAliveSeconds,
+                warmRequestTimeoutSeconds,
+                coldStartTimeoutSeconds);
+            OllamaChatResponse response = await Session.Client.SendChatAsync(request, timeout, cancellationToken);
+            string generated = response?.message?.content?.Trim() ?? string.Empty;
+
+            if (!StorySessionLoreParser.TryParseFromModelContent(generated, out StorySessionLore lore, out string parseDetail))
+            {
+                throw new InvalidOperationException($"Session lore model output was unusable ({parseDetail}). Raw length={generated.Length}.");
+            }
+
+            WriteSessionLoreToCache(lore);
+            Session.MarkModelWarm(_storyModelName);
+            return lore;
+        }
 
 		/// <summary>
 		/// Runs the story model, updates the temp-cache file used by the Ouija scene, and returns the text.
@@ -185,6 +249,38 @@ namespace OurAssets.Scripts.Chat
             return generated;
         }
 
+        public void WriteSessionLoreToCache(StorySessionLore lore)
+        {
+            OuijaGameCachePaths.EnsureRootExists();
+            string path = OuijaGameCachePaths.SessionLoreFilePath;
+            StorySessionLore toWrite = lore ?? new StorySessionLore();
+            toWrite.TrimInPlace();
+            File.WriteAllText(path, JsonUtility.ToJson(toWrite, prettyPrint: true));
+        }
+
+        public static bool TryReadSessionLoreFromCache(out StorySessionLore lore)
+        {
+            lore = null;
+            string path = OuijaGameCachePaths.SessionLoreFilePath;
+            if (!File.Exists(path))
+            {
+                return false;
+            }
+
+            try
+            {
+                string json = File.ReadAllText(path) ?? string.Empty;
+                lore = JsonUtility.FromJson<StorySessionLore>(json);
+                lore?.TrimInPlace();
+                return lore != null;
+            }
+            catch (Exception exception)
+            {
+                Debug.LogWarning($"Failed to read session lore cache: {exception.Message}");
+                return false;
+            }
+        }
+
         /// <summary>
         /// Writes the current story context to <see cref="OuijaGameCachePaths.StoryContextFilePath"/> (e.g. menu-driven seed text).
         /// </summary>
@@ -216,7 +312,21 @@ namespace OurAssets.Scripts.Chat
             }
         }
 
-        private static string RenderPromptTemplate(TextAsset serializedTemplate, string resourcePath)
+        private string BuildStoryPromptWithSessionBindings()
+        {
+            StorySessionLore lore = new StorySessionLore();
+            if (TryReadSessionLoreFromCache(out StorySessionLore fromDisk) && fromDisk != null)
+            {
+                lore = fromDisk;
+            }
+
+            return RenderPromptTemplate(storyPromptTemplate, StoryPromptResourcePath, lore.ToJinjaBindings());
+        }
+
+        private static string RenderPromptTemplate(
+            TextAsset serializedTemplate,
+            string resourcePath,
+            IDictionary<string, object> variables)
         {
             TextAsset templateAsset = serializedTemplate != null
                 ? serializedTemplate
@@ -227,8 +337,17 @@ namespace OurAssets.Scripts.Chat
                 return string.Empty;
             }
 
+            Dictionary<string, object> dict = new Dictionary<string, object>();
+            if (variables != null)
+            {
+                foreach (KeyValuePair<string, object> kv in variables)
+                {
+                    dict[kv.Key] = kv.Value;
+                }
+            }
+
             Template template = new Template(templateAsset.text);
-            string rendered = template.Render(new Dictionary<string, object>());
+            string rendered = template.Render(dict);
             return rendered ?? string.Empty;
         }
 

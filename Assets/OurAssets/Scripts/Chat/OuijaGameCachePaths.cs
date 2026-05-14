@@ -15,6 +15,9 @@ namespace OurAssets.Scripts.Chat
 
         public static string StoryContextFilePath => Path.Combine(RootDirectory, "story_context.txt");
 
+        /// <summary>JSON written at the start of each story session (player/wife names and canon reasons).</summary>
+        public static string SessionLoreFilePath => Path.Combine(RootDirectory, "session_lore.json");
+
         public static string OuijaConversationFilePath => Path.Combine(RootDirectory, "ouija_conversation.json");
 
         public static void EnsureRootExists()

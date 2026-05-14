@@ -428,3 +428,14 @@ This file tracks the Unity + Ollama integration work completed so far.
   - AI assisted: no (David).
   - CryptexInteraction allows to start interacting with the cryptex
   - CryptexExitButton allows to stop interacting with the cryptex
+
+- **Session lore: pre-story AI step (consistent player/wife facts per run)**
+  - Date: 14/05/2026
+  - AI assisted: yes.
+  - Added `Assets/OurAssets/Scripts/Chat/StorySessionLore.cs` — holds `playerName`, `wifeName`, `wifeLeftReason`, `wifeSadReason`; builds Jinja bindings; parses model JSON (strips markdown fences; accepts camelCase or snake_case keys).
+  - Added `Assets/Resources/Prompts/SessionLorePrompt.j2` — instructs the model to return a single JSON object with those four keys only.
+  - Updated `Assets/OurAssets/Scripts/Chat/OuijaGameCachePaths.cs` — `SessionLoreFilePath` (`session_lore.json` next to `story_context.txt`).
+  - Updated `Assets/OurAssets/Scripts/Chat/StoryAiService.cs` — `GenerateSessionLoreAsync` (same story model as narrative); writes/reads session lore cache; `BuildStoryPromptWithSessionBindings` passes lore into the story Jinja template; context menu to generate session lore from the inspector.
+  - Updated `Assets/Resources/Prompts/StoryPrompt.j2` — opens with a canon block (`player_name`, `wife_name`, `wife_left_reason`, `wife_sad_reason`) so the story pass does not contradict the lore pass.
+  - Updated `Assets/OurAssets/Scripts/GameManager.cs` — `StartNewGame` calls `GenerateSessionLoreAsync` before `GenerateStoryContextAsync`, with progress strings for each phase.
+  - Updated `Assets/OurAssets/Scripts/Chat/OuijaGateResponseResolver.cs` — resolves gated `responseId` values `player_name`, `wife_name`, `wife_left_reason`, and `wife_sad_reason` from cached session lore (alongside existing `spirit_name`).
