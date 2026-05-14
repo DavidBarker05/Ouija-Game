@@ -1805,7 +1805,7 @@ Transform:
   m_GameObject: {fileID: 305694777}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -0.5, y: 1.0125, z: 0}
+  m_LocalPosition: {x: -0.375, y: 1.0125, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6508,6 +6508,7 @@ MonoBehaviour:
   m_FirstPersonCharacter: {fileID: 1532632640}
   m_Door: {fileID: 387177869}
   m_DoorRotation: {x: 0, y: -90, z: 0}
+  m_CryptexInteraction: {fileID: 0}
 --- !u!1 &1588106976
 GameObject:
   m_ObjectHideFlags: 0
