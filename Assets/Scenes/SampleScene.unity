@@ -2309,6 +2309,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4425827515834252, guid: 8eb802985616d134da97830b682ac851, type: 3}
   m_PrefabInstance: {fileID: 376666930}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &387177869 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1398413310623440, guid: ff36c605a739def44ad4a550d4ab7d54, type: 3}
+  m_PrefabInstance: {fileID: 769631543}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &403548113
 GameObject:
   m_ObjectHideFlags: 0
@@ -6501,6 +6506,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CryptexManager
   m_Player: {fileID: 1759659709}
   m_FirstPersonCharacter: {fileID: 1532632640}
+  m_Door: {fileID: 387177869}
+  m_DoorRotation: {x: 0, y: -90, z: 0}
 --- !u!1 &1588106976
 GameObject:
   m_ObjectHideFlags: 0
