@@ -461,3 +461,9 @@ This file tracks the Unity + Ollama integration work completed so far.
   - AI assisted: no (David).
   - Allows to switch to working with the cryptex rings
   - Updated `Assets/OurAssets/Scripts/Interact/CryptexInteraction.cs` to use this character
+
+- Added `Assets/OurAssets/Scripts/OwnUtils.cs`
+  - Date: 14/05/2026.
+  - AI assisted: no (David).
+  - Will contain any utility functions I add
+  - Right now only has an exit function that can exit function that can be used to exit the in editor or build
