@@ -4,16 +4,16 @@ using UnityEngine;
 [System.Serializable]
 public struct CardFront
 {
-    public TarotCards Card;
-    public Material Material;
+	public TarotCards Card;
+	public Material Material;
 }
 
 public class TarotManager : MonoBehaviour
 {
-    public static TarotManager Instance { get; private set; }
+	public static TarotManager Instance { get; private set; }
 	const int NUM_CARDS = 22;
-    const int PAIR_VALUE = 21;
-    const int MAX_PAIRS = 11;
+	const int PAIR_VALUE = 21;
+	const int MAX_PAIRS = 11;
 
 	[SerializeField, Min(30f)]
 	float m_TimeLimit = 180f;
@@ -21,52 +21,52 @@ public class TarotManager : MonoBehaviour
 	TarotCard m_TarotCardPrefab;
 	[SerializeField]
 	Transform[] m_CardPositions;
-    [field: SerializeField]
-    public Material CardBack { get; private set; }
-    [SerializeField]
-    CardFront[] m_CardFrontMaterials;
+	[field: SerializeField]
+	public Material CardBack { get; private set; }
+	[SerializeField]
+	CardFront[] m_CardFrontMaterials;
 
-    public bool CanFlipCard { get; private set; }
+	public bool CanFlipCard { get; private set; }
 
-    Dictionary<TarotCards, Material> m_CardFronts = new Dictionary<TarotCards, Material>()
-    {
+	Dictionary<TarotCards, Material> m_CardFronts = new Dictionary<TarotCards, Material>()
+	{
 		{ TarotCards.Fool, null  },
-	    { TarotCards.Magician, null },
-	    { TarotCards.HighPriestess, null },
-	    { TarotCards.Empress, null },
-	    { TarotCards.Emporor, null },
-	    { TarotCards.Hierophant, null },
-	    { TarotCards.Lovers, null },
-	    { TarotCards.Chariot, null },
-	    { TarotCards.Strength, null },
-	    { TarotCards.Hermit, null },
-	    { TarotCards.WheelOfFortune, null },
-	    { TarotCards.Justice, null },
-	    { TarotCards.HangedMan, null },
-	    { TarotCards.Death, null },
-	    { TarotCards.Temperance, null },
-	    { TarotCards.Devil, null },
-	    { TarotCards.Tower, null },
-	    { TarotCards.Star, null },
-	    { TarotCards.Moon, null },
-	    { TarotCards.Sun, null },
-	    { TarotCards.Judgement, null },
-	    { TarotCards.World, null }
+		{ TarotCards.Magician, null },
+		{ TarotCards.HighPriestess, null },
+		{ TarotCards.Empress, null },
+		{ TarotCards.Emperor, null },
+		{ TarotCards.Hierophant, null },
+		{ TarotCards.Lovers, null },
+		{ TarotCards.Chariot, null },
+		{ TarotCards.Strength, null },
+		{ TarotCards.Hermit, null },
+		{ TarotCards.WheelOfFortune, null },
+		{ TarotCards.Justice, null },
+		{ TarotCards.HangedMan, null },
+		{ TarotCards.Death, null },
+		{ TarotCards.Temperance, null },
+		{ TarotCards.Devil, null },
+		{ TarotCards.Tower, null },
+		{ TarotCards.Star, null },
+		{ TarotCards.Moon, null },
+		{ TarotCards.Sun, null },
+		{ TarotCards.Judgement, null },
+		{ TarotCards.World, null }
 	};
 
 	TarotCard[] m_Cards;
 
-    TarotCard flippedCardA = null;
-    TarotCard flippedCardB = null;
+	TarotCard flippedCardA = null;
+	TarotCard flippedCardB = null;
 
-    int m_Pairs = 0;
+	int m_Pairs = 0;
 
 	float m_CurrentTime;
 
 	void Awake()
 	{
-        if (Instance && Instance != this) Destroy(gameObject);
-        else Instance = this;
+		if (Instance && Instance != this) Destroy(gameObject);
+		else Instance = this;
 	}
 
 	void Start()
@@ -159,14 +159,14 @@ public class TarotManager : MonoBehaviour
 	public Material CardFront(TarotCards card) => m_CardFronts[card];
 
 	public void FlipCard(TarotCard tarotCard)
-    {
-        if (flippedCardA) flippedCardB = tarotCard;
-        else flippedCardA = tarotCard;
+	{
+		if (flippedCardA) flippedCardB = tarotCard;
+		else flippedCardA = tarotCard;
 		if (flippedCardA && flippedCardB) CheckIfMatch();
-    }
+	}
 
-    void CheckIfMatch()
-    {
+	void CheckIfMatch()
+	{
 		if ((int)flippedCardA.Card + (int)flippedCardB.Card == PAIR_VALUE)
 		{
 			++m_Pairs;
@@ -179,7 +179,7 @@ public class TarotManager : MonoBehaviour
 			flippedCardA = null;
 			flippedCardB = null;
 		}
-    }
+	}
 
 	void DoWin()
 	{
