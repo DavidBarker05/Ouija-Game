@@ -5,14 +5,14 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(PlayerInput))]
 public class Player : MonoBehaviour
 {
-    [SerializeField]
-    PlayerSettings m_PlayerSettings;
+	[SerializeField]
+	PlayerSettings m_PlayerSettings;
 	[SerializeField]
 	PlayerCharacter m_StartingPlayerCharacter;
 	[SerializeField]
 	PauseCharacter m_PauseCharacter;
-    [SerializeField]
-    PlayerCamera m_PlayerCamera;
+	[SerializeField]
+	PlayerCamera m_PlayerCamera;
 	[SerializeField]
 	Camera m_Camera;
 
@@ -121,7 +121,7 @@ public class Player : MonoBehaviour
 
 	public void GetMouseInfo(ref MouseInfo mouseInfo, LayerMask layerToHit, float maxDistance = 100f)
 	{
-		mouseInfo.IsOverUI = EventSystem.current.IsPointerOverGameObject();
+		mouseInfo.IsOverUI = EventSystem.current?.IsPointerOverGameObject() ?? false;
 		Ray ray = m_Camera.ScreenPointToRay(mouseInfo.MouseScreenPosition);
 		mouseInfo.DidHitObject = Physics.Raycast(ray, out RaycastHit hit, maxDistance, layerToHit);
 		if (mouseInfo.DidHitObject) mouseInfo.HitInfo = hit;
