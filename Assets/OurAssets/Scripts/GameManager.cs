@@ -43,6 +43,9 @@ public class GameManager : MonoBehaviour
         progress.Report("Randomly Assigning Challenges");
         MinigameManager.Instance.StartNewGame();
         progress.Report("Assigned All Challenges");
+        progress.Report("Generating session character facts");
+        await StoryAiService.Instance.GenerateSessionLoreAsync();
+        progress.Report("Finished session character facts");
         progress.Report("Generating a Story");
         string story = await StoryAiService.Instance.GenerateStoryContextAsync();
         progress.Report("Finished Generating Story");
