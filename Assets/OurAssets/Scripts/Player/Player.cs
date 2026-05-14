@@ -12,6 +12,8 @@ public class Player : MonoBehaviour
 	[SerializeField]
 	PauseCharacter m_PauseCharacter;
 	[SerializeField]
+	MenuCharacter m_MenuCharacter;
+	[SerializeField]
 	PlayerCamera m_PlayerCamera;
 	[SerializeField]
 	Camera m_Camera;
@@ -28,7 +30,8 @@ public class Player : MonoBehaviour
 	void Awake()
 	{
 		m_PlayerInput = GetComponent<PlayerInput>();
-		m_PauseCharacter.Init(new PauseCharacterInitData());
+		m_PauseCharacter.Init(new PauseCharacterInitData() { Player = this });
+		m_MenuCharacter.Init(new MenuCharacterInitData() { Player = this });
 		ChangeCharacter(m_StartingPlayerCharacter);
 		m_PlayerCamera.Init(m_PlayerSettings.CameraSettings, m_PlayerCharacter.CameraTarget);
 		m_CameraInput = new CameraInput();
@@ -76,7 +79,8 @@ public class Player : MonoBehaviour
 		TarotCharacter => new TarotCharacterInitData() { PauseCharacter = m_PauseCharacter },
 		RuneCharacter => new RuneCharacterInitData() { PauseCharacter = m_PauseCharacter },
 		OuijaCharacter => new OuijaCharacterInitData() { PauseCharacter = m_PauseCharacter },
-		PauseCharacter => new PauseCharacterInitData(),
+		PauseCharacter => new PauseCharacterInitData() { Player = this },
+		MenuCharacter => new MenuCharacterInitData() { Player = this },
 		_ => null
 	};
 
@@ -86,6 +90,7 @@ public class Player : MonoBehaviour
 		TarotCharacter => new TarotCharacterUpdateData(),
 		OuijaCharacter => new OuijaCharacterUpdateData(),
 		PauseCharacter => new PauseCharacterUpdateData(),
+		MenuCharacter => new MenuCharacterUpdateData(),
 		_ => null
 	};
 

@@ -19,8 +19,8 @@ public interface IPlayerCharacterUpdateData
 
 public abstract class PlayerCharacter : MonoBehaviour
 {
-    [field: SerializeField]
-    public Transform CameraTarget { get; protected set; }
+	[field: SerializeField]
+	public Transform CameraTarget { get; protected set; }
 	[field: SerializeField]
 	public LayerMask MouseHitLayer { get; protected set; }
 	[field: SerializeField]

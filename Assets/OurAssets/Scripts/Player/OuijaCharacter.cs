@@ -57,13 +57,13 @@ public class OuijaCharacter : PlayerCharacter
 		}
 	}
 
-    public override void OnPausePressed()
-    {
-        if (!HasBeenInitialised)
+	public override void OnPausePressed()
+	{
+		if (!HasBeenInitialised)
 		{
 			Debug.LogError("OuijaCharacter hasn't been initialised!");
 			return;
 		}
 		m_PauseCharacter.PauseGame(this);
-    }
+	}
 }
