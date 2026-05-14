@@ -33,6 +33,11 @@ public class Player : MonoBehaviour
 		m_PauseCharacter.Init(new PauseCharacterInitData() { Player = this });
 		m_MenuCharacter.Init(new MenuCharacterInitData() { Player = this });
 		ChangeCharacter(m_StartingPlayerCharacter);
+		if (PlayerSceneDataManager.Instance)
+		{
+			PlayerSceneData playerSceneData = PlayerSceneDataManager.Instance.LoadPlayerSceneData();
+			if (playerSceneData != null) m_StartingPlayerCharacter.LoadSceneData(playerSceneData);
+		}
 		m_PlayerCamera.Init(m_PlayerSettings.CameraSettings, m_PlayerCharacter.CameraTarget);
 		m_CameraInput = new CameraInput();
 		m_MouseInfo = new MouseInfo();

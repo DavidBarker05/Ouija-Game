@@ -467,3 +467,11 @@ This file tracks the Unity + Ollama integration work completed so far.
   - AI assisted: no (David).
   - Will contain any utility functions I add
   - Right now only has an exit function that can exit function that can be used to exit the in editor or build
+
+- Added `Assets/OurAssets/Scripts/Interaction/TarotInteraction.cs`, `Assets/OurAssets/Scripts/Interaction/RuneInteraction.cs`, `Assets/OurAssets/Scripts/Interaction/EndInteraction.cs`, and `Assets/OurAssets/Scripts/Player/PlayerSceneDataManager.cs`
+  - Date: 14/05/2026.
+  - AI assisted: no (David).
+  - PlayerSceneDataManager is used to save and load scene data so the player returns back to their original spot they were
+  - Upated `Assets/OurAssets/Scripts/Player/Player.cs` to use this scene data if available
+  - TarotInteraction and RuneInteraction check if the player can play their minigames and if they can then they save the scene data and load the corresponding scene
+  - EndInteraction checks if the player can move to the end level and if they can then it loads the corresponding scene

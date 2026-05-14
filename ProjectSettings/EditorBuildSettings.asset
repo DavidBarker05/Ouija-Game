@@ -14,5 +14,14 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/HouseScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Scenes/TarotScene.unity
+    guid: 87c2cbe060662274abc6ab9842a7f249
+  - enabled: 1
+    path: Assets/Scenes/RuneScene.unity
+    guid: 874f8f90ba86a674e91c5a8da98af8b8
+  - enabled: 1
+    path: Assets/Scenes/EndScene.unity
+    guid: 4022195f93567564e8ffc8370ea23752
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
