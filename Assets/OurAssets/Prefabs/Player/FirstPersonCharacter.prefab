@@ -33,6 +33,7 @@ Transform:
   m_Children:
   - {fileID: 8761883034611320249}
   - {fileID: 5946639030083133765}
+  - {fileID: 4674627092417059145}
   - {fileID: 3752166469607678833}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -162,7 +163,19 @@ MonoBehaviour:
     m_ActionId: 8f956ef3-fb54-462a-851b-1af5b790e93c
     m_ActionName: UI/TrackedDeviceOrientation
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4110039158585201587}
+        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+        m_MethodName: HandlePauseToggleInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: eb0eaffc-59b9-4b59-8314-44e5e04d0e34
     m_ActionName: 'TarotPlayer/LeftClick[/Mouse/leftButton]'
   - m_PersistentCalls:
@@ -182,11 +195,35 @@ MonoBehaviour:
     m_ActionId: 2841dfe3-72a3-4913-8045-189c70e2b105
     m_ActionName: 'Player/TogglePause[/Keyboard/escape]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4110039158585201587}
+        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+        m_MethodName: HandleLeftClickInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 9e85bd6d-4aa1-4dcd-9d94-27fbfbc4c405
     m_ActionName: 'TarotPlayer/TogglePause[/Keyboard/escape]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4110039158585201587}
+        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+        m_MethodName: HandlePauseToggleInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 7ec36609-0d3c-4e55-ac18-dec853c1e9f1
     m_ActionName: 'RunePlayer/TogglePause[/Keyboard/escape]'
   - m_PersistentCalls:
@@ -221,6 +258,38 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 56bcc8b9-e052-49d9-8652-0c80d8927442
     m_ActionName: 'PausePlayer/TogglePause[/Keyboard/escape]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4110039158585201587}
+        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+        m_MethodName: HandlePauseToggleInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: d349728d-3b1d-454e-8c10-27375c7e7d2b
+    m_ActionName: 'CryptexPlayer/TogglePause[/Keyboard/escape]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4110039158585201587}
+        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+        m_MethodName: HandleLeftClickInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 5b067e9c-9f47-4570-9741-d6642bdf8c92
+    m_ActionName: 'CryptexPlayer/LeftClick[/Mouse/leftButton]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -241,8 +310,58 @@ MonoBehaviour:
   m_PlayerSettings: {fileID: 11400000, guid: 75d7bd69a6da12e4c8f63d074f6ce2d3, type: 2}
   m_StartingPlayerCharacter: {fileID: 8444355186628466975}
   m_PauseCharacter: {fileID: 4362469819772692984}
+  m_MenuCharacter: {fileID: 6266681419863583000}
   m_PlayerCamera: {fileID: 6997698293445084034}
   m_Camera: {fileID: 8173381940565030777}
+--- !u!1 &967064421431141712
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4674627092417059145}
+  - component: {fileID: 6266681419863583000}
+  m_Layer: 3
+  m_Name: MenuCharacter
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4674627092417059145
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 967064421431141712}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1882861717338282236}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6266681419863583000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 967064421431141712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e4373199113ac543ac74bbcd86f4237, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MenuCharacter
+  <CameraTarget>k__BackingField: {fileID: 0}
+  <MouseHitLayer>k__BackingField:
+    serializedVersion: 2
+    m_Bits: 0
+  <MouseHitDistance>k__BackingField: 100
 --- !u!1 &2767127084616395272
 GameObject:
   m_ObjectHideFlags: 0
@@ -519,7 +638,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 119
+    m_Bits: 503
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0

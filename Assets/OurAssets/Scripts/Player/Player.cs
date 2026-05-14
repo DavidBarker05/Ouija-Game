@@ -79,6 +79,7 @@ public class Player : MonoBehaviour
 		TarotCharacter => new TarotCharacterInitData() { PauseCharacter = m_PauseCharacter },
 		RuneCharacter => new RuneCharacterInitData() { PauseCharacter = m_PauseCharacter },
 		OuijaCharacter => new OuijaCharacterInitData() { PauseCharacter = m_PauseCharacter },
+		CryptexCharacter => new CryptexCharacterInitData() { PauseCharacter = m_PauseCharacter },
 		PauseCharacter => new PauseCharacterInitData() { Player = this },
 		MenuCharacter => new MenuCharacterInitData() { Player = this },
 		_ => null
@@ -88,7 +89,9 @@ public class Player : MonoBehaviour
 	{
 		FirstPersonCharacter => new FirstPersonCharacterUpdateData(),
 		TarotCharacter => new TarotCharacterUpdateData(),
+		RuneCharacter => new RuneCharacterUpdateData(),
 		OuijaCharacter => new OuijaCharacterUpdateData(),
+		CryptexCharacter => new CryptexCharacterUpdateData(),
 		PauseCharacter => new PauseCharacterUpdateData(),
 		MenuCharacter => new MenuCharacterUpdateData(),
 		_ => null
@@ -126,7 +129,7 @@ public class Player : MonoBehaviour
 
 	public void GetMouseInfo(ref MouseInfo mouseInfo, LayerMask layerToHit, float maxDistance = 100f)
 	{
-		mouseInfo.IsOverUI = EventSystem.current?.IsPointerOverGameObject() ?? false;
+		mouseInfo.IsOverUI = false;//EventSystem.current?.IsPointerOverGameObject() ?? false; // This doesn't work because of panels so just defaulting to false I don't feel like getting rid of it or figuring out how to do it properly
 		Ray ray = m_Camera.ScreenPointToRay(mouseInfo.MouseScreenPosition);
 		mouseInfo.DidHitObject = Physics.Raycast(ray, out RaycastHit hit, maxDistance, layerToHit);
 		if (mouseInfo.DidHitObject) mouseInfo.HitInfo = hit;

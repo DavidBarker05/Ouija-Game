@@ -49,9 +49,11 @@ public class Cryptex : MonoBehaviour
             RingNextLetterRotation.NegZ => new Vector3(0f, 0f, -angle),
             _ => throw new System.NotSupportedException($"{m_RingUpRotationAxis} is not supported")
         };
-        m_CryptexRings[index].Transform.localEulerAngles += eulerRotation;
+        m_CryptexRings[index].Transform.Rotate(eulerRotation, Space.Self);
         m_CryptexRings[index].Letter = (char)(char.ToUpper(m_CryptexRings[index].Letter) + rot);
         if (m_CryptexRings[index].Letter < 'A') m_CryptexRings[index].Letter = 'Z';
         else if (m_CryptexRings[index].Letter > 'Z') m_CryptexRings[index].Letter = 'A';
     }
+
+    public void TestName() => CryptexManager.Instance.CheckNameMatches(m_CryptexRings);
 }

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6722928183293338903}
   - component: {fileID: 2279653580602796271}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,7 +101,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4891639092329364716}
   - component: {fileID: 6325430849212958148}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -193,7 +193,7 @@ GameObject:
   - component: {fileID: 3922218847218444640}
   - component: {fileID: 1549161859562308523}
   - component: {fileID: 2327602507503952997}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -284,7 +284,7 @@ GameObject:
   - component: {fileID: 7646233815545347526}
   - component: {fileID: 5734276276034094983}
   - component: {fileID: 3561948166341429722}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CryptexRingButtonNext (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -354,7 +354,7 @@ GameObject:
   - component: {fileID: 1236698865627937334}
   - component: {fileID: 2237725738850863363}
   - component: {fileID: 4943079023464376961}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CryptexRingButtonNext (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -423,7 +423,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9175186309079874289}
   - component: {fileID: 4831898947856167545}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -514,7 +514,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5876129553016368206}
   - component: {fileID: 7245428550301804515}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -606,7 +606,7 @@ GameObject:
   - component: {fileID: 6337104535555777731}
   - component: {fileID: 3871545902760649335}
   - component: {fileID: 2437671909803198186}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CryptexRingButtonPrevious (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -676,7 +676,7 @@ GameObject:
   - component: {fileID: 965625889733190449}
   - component: {fileID: 1524682633798804797}
   - component: {fileID: 5164149768747152181}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -766,7 +766,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6360787404640791201}
   - component: {fileID: 4726671699050667301}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -858,7 +858,7 @@ GameObject:
   - component: {fileID: 2330657779022149016}
   - component: {fileID: 8353120221335014616}
   - component: {fileID: 5165734325605303268}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CryptexRingButtonPrevious (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -928,7 +928,7 @@ GameObject:
   - component: {fileID: 7529946094251807921}
   - component: {fileID: 7166433596997094882}
   - component: {fileID: 177160162050963289}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CryptexRingButtonPrevious
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -997,7 +997,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7473068578009818706}
   - component: {fileID: 6821813558049215212}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1149,7 +1149,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4537760523406142638}
   - component: {fileID: 5032238709125946172}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1241,7 +1241,7 @@ GameObject:
   - component: {fileID: 2275388781149852056}
   - component: {fileID: 2732852700779310989}
   - component: {fileID: 6091286398820816876}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1332,7 +1332,7 @@ GameObject:
   - component: {fileID: 5790104391004174860}
   - component: {fileID: 3719674059245216978}
   - component: {fileID: 7061553583634219131}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CryptexRingButtonNext (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1402,7 +1402,7 @@ GameObject:
   - component: {fileID: 2796706428755369995}
   - component: {fileID: 6718183016554562431}
   - component: {fileID: 3816644445097479371}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CryptexRingButtonNext (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1472,7 +1472,7 @@ GameObject:
   - component: {fileID: 4696069719907315965}
   - component: {fileID: 8216923854328219453}
   - component: {fileID: 4956863662747327873}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1563,7 +1563,7 @@ GameObject:
   - component: {fileID: 8536452026686132154}
   - component: {fileID: 6641945130073614428}
   - component: {fileID: 8439198983546419269}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CryptexRingButtonNext
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1632,7 +1632,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8667665776454598480}
   - component: {fileID: 4567510725291700042}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1724,7 +1724,7 @@ GameObject:
   - component: {fileID: 1053747865112824748}
   - component: {fileID: 4372204996558136253}
   - component: {fileID: 8806120464471819814}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1815,7 +1815,7 @@ GameObject:
   - component: {fileID: 2852299522999962389}
   - component: {fileID: 1333627464662715839}
   - component: {fileID: 8164659163671099935}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1943,7 +1943,7 @@ GameObject:
   - component: {fileID: 2197741221525112755}
   - component: {fileID: 6603231445289348081}
   - component: {fileID: 8879059157474250953}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2034,7 +2034,7 @@ GameObject:
   - component: {fileID: 535610504789796646}
   - component: {fileID: 843397505120317446}
   - component: {fileID: 598336937079923198}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CryptexRingButtonNext (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2104,7 +2104,7 @@ GameObject:
   - component: {fileID: 8096123589177214890}
   - component: {fileID: 1346695228477219299}
   - component: {fileID: 8306863157175491858}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2195,7 +2195,7 @@ GameObject:
   - component: {fileID: 7887645960384461572}
   - component: {fileID: 8295878219739079027}
   - component: {fileID: 5385320045627640004}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2286,7 +2286,7 @@ GameObject:
   - component: {fileID: 7331433729898710537}
   - component: {fileID: 1862797310499865554}
   - component: {fileID: 6497824548979634690}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CryptexRingButtonPrevious (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2356,7 +2356,7 @@ GameObject:
   - component: {fileID: 7932908458751637015}
   - component: {fileID: 1961246203600321071}
   - component: {fileID: 2755086582994155512}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2446,7 +2446,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6745866051548357717}
   - component: {fileID: 6999824926887739803}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2538,7 +2538,7 @@ GameObject:
   - component: {fileID: 995990579851376474}
   - component: {fileID: 6548688504999264915}
   - component: {fileID: 3145490911448724120}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CryptexRingButtonPrevious (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2644,7 +2644,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1336825236524143315}
   - component: {fileID: 7672219220749529378}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2736,7 +2736,7 @@ GameObject:
   - component: {fileID: 8845989218428831948}
   - component: {fileID: 4325415394226625579}
   - component: {fileID: 3342630214171288016}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2826,7 +2826,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5785321917053525325}
   - component: {fileID: 3679021904287399814}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2918,7 +2918,7 @@ GameObject:
   - component: {fileID: 6817701157235449431}
   - component: {fileID: 6619692988096554226}
   - component: {fileID: 122283997662948770}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CryptexRingButtonPrevious (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2987,7 +2987,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8694298282454330001}
   - component: {fileID: 7668653355417377315}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3079,7 +3079,7 @@ GameObject:
   - component: {fileID: 2393845253185436897}
   - component: {fileID: 6795138644558258482}
   - component: {fileID: 3466788826188630151}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
