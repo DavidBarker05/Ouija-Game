@@ -285,7 +285,7 @@ GameObject:
   - component: {fileID: 5734276276034094983}
   - component: {fileID: 3561948166341429722}
   m_Layer: 0
-  m_Name: CryptexRingButtonPrevious (4)
+  m_Name: CryptexRingButtonNext (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -355,7 +355,7 @@ GameObject:
   - component: {fileID: 2237725738850863363}
   - component: {fileID: 4943079023464376961}
   m_Layer: 0
-  m_Name: CryptexRingButtonPrevious (2)
+  m_Name: CryptexRingButtonNext (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1333,7 +1333,7 @@ GameObject:
   - component: {fileID: 3719674059245216978}
   - component: {fileID: 7061553583634219131}
   m_Layer: 0
-  m_Name: CryptexRingButtonPrevious (3)
+  m_Name: CryptexRingButtonNext (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1403,7 +1403,7 @@ GameObject:
   - component: {fileID: 6718183016554562431}
   - component: {fileID: 3816644445097479371}
   m_Layer: 0
-  m_Name: CryptexRingButtonPrevious (5)
+  m_Name: CryptexRingButtonNext (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1564,7 +1564,7 @@ GameObject:
   - component: {fileID: 6641945130073614428}
   - component: {fileID: 8439198983546419269}
   m_Layer: 0
-  m_Name: CryptexRingButtonPrevious
+  m_Name: CryptexRingButtonNext
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2035,7 +2035,7 @@ GameObject:
   - component: {fileID: 843397505120317446}
   - component: {fileID: 598336937079923198}
   m_Layer: 0
-  m_Name: CryptexRingButtonPrevious (1)
+  m_Name: CryptexRingButtonNext (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
