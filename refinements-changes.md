@@ -445,3 +445,8 @@ This file tracks the Unity + Ollama integration work completed so far.
   - AI assisted: no (David).
   - Allows to open certain menus in game that aren't the pause menu and also ignores the pause button input
   - Updated `Assets/OurAssets/Scripts/Tarot/TarotManager.cs`, `Assets/OurAssets/Scripts/Rune/RuneMatchManager.cs` and `Assets/OurAssets/Scripts/EndMinigame/EndSurvivalMinigame.cs` to use this for menus on win and lose
+
+- Added `Assets/OurAssets/Scripts/UI/LoadingScreen.cs`
+  - Date: 14/05/2026.
+  - AI assisted: no (David).
+  - Loads scene asynchronously and updates progress bar when  enabled
