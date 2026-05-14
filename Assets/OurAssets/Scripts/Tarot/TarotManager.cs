@@ -27,6 +27,16 @@ public class TarotManager : MonoBehaviour
 	public Material CardBack { get; private set; }
 	[SerializeField]
 	CardFront[] m_CardFrontMaterials;
+	[SerializeField]
+	GameObject m_WinScreen;
+	[SerializeField]
+	GameObject m_LoseScreen;
+	[SerializeField]
+	GameObject m_HUD;
+	[SerializeField]
+	MenuCharacter m_MenuCharacter;
+	[SerializeField]
+	TarotCharacter m_TarotCharacter;
 
 	public bool CanFlipCard { get; private set; }
 
@@ -201,12 +211,13 @@ public class TarotManager : MonoBehaviour
 		CanFlipCard = false;
 		m_bDontUpdate = true;
 		MinigameManager.Instance.OnMinigameBeaten(Minigames.Tarot);
+		m_MenuCharacter.OnMenuOpen(m_TarotCharacter, m_HUD, m_WinScreen);
 	}
 
 	void DoLose()
 	{
 		CanFlipCard = false;
 		m_bDontUpdate = true;
-		RestartGame();
+		m_MenuCharacter.OnMenuOpen(m_TarotCharacter, m_HUD, m_LoseScreen);
 	}
 }

@@ -46,7 +46,7 @@ public class TarotCharacter : PlayerCharacter
 		if (playerSceneData == null) return;
 	}
 
-    public override void UpdateCharacter(ref IPlayerCharacterUpdateData playerCharacterUpdateData)
+	public override void UpdateCharacter(ref IPlayerCharacterUpdateData playerCharacterUpdateData)
 	{
 		if (playerCharacterUpdateData is not TarotCharacterUpdateData updateData)
 		{
@@ -70,12 +70,12 @@ public class TarotCharacter : PlayerCharacter
 	}
 
 	public override void OnPausePressed()
-    {
-        if (!HasBeenInitialised)
+	{
+		if (!HasBeenInitialised)
 		{
 			Debug.LogError("TarotCharacter hasn't been initialised!");
 			return;
 		}
 		m_PauseCharacter.PauseGame(this);
-    }
+	}
 }

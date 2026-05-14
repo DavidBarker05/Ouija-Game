@@ -43,7 +43,11 @@ public class EndSurvivalMinigame : MonoBehaviour
 	[SerializeField]
 	GameObject m_LoseScreen;
 	[SerializeField]
-	Player m_Player;
+	GameObject m_HUD;
+	[SerializeField]
+	MenuCharacter m_MenuCharacter;
+	[SerializeField]
+	FirstPersonCharacter m_FirstPersonCharacter;
 
 	float m_CurrentTime;
 	float m_CandleBlowTimer;
@@ -85,15 +89,7 @@ public class EndSurvivalMinigame : MonoBehaviour
 		}
 	}
 
-	void DoWin()
-	{
-		m_WinScreen.SetActive(true);
-		Time.timeScale = 0f; // Don't forget to make 1f if player clicks button in win screen
-	}
+	void DoWin() => m_MenuCharacter.OnMenuOpen(m_FirstPersonCharacter, m_HUD, m_WinScreen);
 
-	void DoLose()
-	{
-		m_LoseScreen.SetActive(true);
-		Time.timeScale = 0f; // Don't forget to make 1f if player clicks button in lose screen
-	}
+	void DoLose() => m_MenuCharacter.OnMenuOpen(m_FirstPersonCharacter, m_HUD, m_LoseScreen);
 }

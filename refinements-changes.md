@@ -439,3 +439,9 @@ This file tracks the Unity + Ollama integration work completed so far.
   - Updated `Assets/Resources/Prompts/StoryPrompt.j2` — opens with a canon block (`player_name`, `wife_name`, `wife_left_reason`, `wife_sad_reason`) so the story pass does not contradict the lore pass.
   - Updated `Assets/OurAssets/Scripts/GameManager.cs` — `StartNewGame` calls `GenerateSessionLoreAsync` before `GenerateStoryContextAsync`, with progress strings for each phase.
   - Updated `Assets/OurAssets/Scripts/Chat/OuijaGateResponseResolver.cs` — resolves gated `responseId` values `player_name`, `wife_name`, `wife_left_reason`, and `wife_sad_reason` from cached session lore (alongside existing `spirit_name`).
+
+- Added `Assets/OurAssets/Scripts/Player/MenuCharacter.cs`
+  - Date: 14/05/2026.
+  - AI assisted: no (David).
+  - Allows to open certain menus in game that aren't the pause menu and also ignores the pause button input
+  - Updated `Assets/OurAssets/Scripts/Tarot/TarotManager.cs`, `Assets/OurAssets/Scripts/Rune/RuneMatchManager.cs` and `Assets/OurAssets/Scripts/EndMinigame/EndSurvivalMinigame.cs` to use this for menus on win and lose
