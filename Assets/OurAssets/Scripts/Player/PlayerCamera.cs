@@ -29,8 +29,12 @@ public class PlayerCamera : MonoBehaviour
 	{
 		float lY = input.LookInput.y;
 		float lX = input.LookInput.x;
-		float vSens = input.LookDevice is Mouse ? m_CameraSettings.MouseVerticalSensitivity : (m_CameraSettings.ControllerVerticalSensitivity * deltaTime);
-		float hSens = input.LookDevice is Mouse ? m_CameraSettings.MouseHorizontalSensitivity : (m_CameraSettings.ControllerHorizontalSensitivity * deltaTime);
+		float vSens = input.LookDevice is Mouse ?
+			(m_CameraSettings.MouseVerticalSensitivity * UserSettingsManager.Instance?.UserSettings?.MouseVerticalSensitivityMultiplier ?? 1f) :
+			((m_CameraSettings.ControllerVerticalSensitivity * UserSettingsManager.Instance?.UserSettings?.ControllerVerticalSensitivityMultiplier ?? 1f) * deltaTime);
+		float hSens = input.LookDevice is Mouse ?
+			(m_CameraSettings.MouseHorizontalSensitivity * UserSettingsManager.Instance?.UserSettings?.MouseHorizontalSensitivityMultiplier ?? 1f) :
+			((m_CameraSettings.ControllerHorizontalSensitivity * UserSettingsManager.Instance?.UserSettings?.ControllerHorizontalSensitivityMultiplier ?? 1f) * deltaTime);
 		float pitch = lY * vSens;
 		float yaw = lX * hSens;
 		m_EulerAngles.x = Mathf.Clamp(m_EulerAngles.x - pitch, m_CameraSettings.MinVerticalAngle, m_CameraSettings.MaxVerticalAngle);
