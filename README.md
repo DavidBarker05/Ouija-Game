@@ -127,8 +127,9 @@ Part 2 submission assets (PDFs, schedule) are linked from the top of the previou
 | Role | Name |
 |------|------|
 | **Design & programming** | David Barker |
-| **Institution / module** | [INSERT PROGRAMME / MODULE] |
-| **Supervision / feedback** | [INSERT IF APPLICABLE] |
+| **Design & art** | Tiyah Singh |
+| **Institution / module** | [GADS7331] |
+
 
 Third-party assets include environment/audio packs under `Assets/ThirdPartyAssets/` (see in-editor licenses and `Code_References_Bibliography_P2.pdf` where cited).
 
