@@ -130,6 +130,7 @@ public class TarotManager : MonoBehaviour
 
 	public void RestartGame()
 	{
+		m_MenuCharacter.OnMenuExit();
 		ClearValues();
 		RecreateCards();
 		ShuffleCards();
