@@ -20,24 +20,25 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public bool CanMoveToFinalLevel => MinigameManager.Instance.AreAllMinigamesBeaten;
+    public bool CanMoveToFinalLevel => MinigameManager.Instance.AreAllMinigamesBeaten && StoryManager.Instance.KnowsAllAnswers;
 
-	void Awake()
-	{
+    void Awake()
+    {
         if (s_Instance && s_Instance != this) Destroy(gameObject);
         else
         {
             s_Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-	}
+    }
 
     public async Task<string> StartNewGame(IProgress<string> progress)
     {
         progress.Report("Clearing Any Previous Game Data");
         TempCacheManager.Instance.ClearTempCache();
-		progress.Report("Cleared Previous Game Data");
-		progress.Report("Choosing a Random Spirit Name");
+        StoryManager.Instance.StartNewGame();
+        progress.Report("Cleared Previous Game Data");
+        progress.Report("Choosing a Random Spirit Name");
         SpiritNameManager.Instance.StartNewGame();
         progress.Report("Chose a Random Spirit Name");
         progress.Report("Randomly Assigning Challenges");

@@ -29,26 +29,29 @@ public class MinigameManager : MonoBehaviour
     List<Minigames> m_MinigameOrder = new List<Minigames>();
 
     public bool AreAllMinigamesBeaten => m_MinigamesBeaten.Count > 0 && m_MinigamesBeaten.Count == m_MinigameOrder.Count;
+    public int NumMinigamesBeaten => m_CurrentMinigameIndexToBeat;
 
     int m_CurrentMinigameIndexToBeat = 0;
     public Minigames CurrentMinigameToBeat => m_MinigameOrder.Count > 0 ? m_MinigameOrder[Mathf.Clamp(m_CurrentMinigameIndexToBeat, 0, m_MinigameOrder.Count - 1)] : Minigames.Cryptex;
 
-	void Awake()
-	{
+    public Minigames WhichMinigame(int index) => m_MinigameOrder[index];
+
+    void Awake()
+    {
         if (s_Instance && s_Instance != this) Destroy(gameObject);
         else
         {
             s_Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-	}
+    }
 
-	public void StartNewGame()
+    public void StartNewGame()
     {
         m_MinigamesBeaten.Clear();
         m_MinigameOrder.Clear();
-		m_MinigameOrder.Add(Minigames.Cryptex);
-		RandomiseMinigames();
+        m_MinigameOrder.Add(Minigames.Cryptex);
+        RandomiseMinigames();
         m_CurrentMinigameIndexToBeat = 0;
     }
 
@@ -65,8 +68,8 @@ public class MinigameManager : MonoBehaviour
             minigames[i] = minigames[j];
             minigames[j] = _temp;
         }
-		for (int i = 1; i < minigames.Length; ++i) // Start at 1 so skip 
-		{
+        for (int i = 1; i < minigames.Length; ++i) // Start at 1 so skip 
+        {
             m_MinigameOrder.Add(minigames[i]);
         }
     }
@@ -80,4 +83,12 @@ public class MinigameManager : MonoBehaviour
         m_MinigamesBeaten.Add(minigame);
         ++m_CurrentMinigameIndexToBeat;
     }
+
+    public static string MinigameToString(Minigames minigame) => minigame switch
+    {
+        Minigames.Cryptex => "CRYPTEX",
+        Minigames.Tarot => "TAROT CARDS",
+        Minigames.Rune => "BLOOD RUNES",
+        _ => throw new System.NotImplementedException()
+    };
 }

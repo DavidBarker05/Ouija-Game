@@ -11,4 +11,20 @@ public class UserSettings
     public float MouseVerticalSensitivityMultiplier = 1f;
     public float ControllerHorizontalSensitivityMultiplier = 1f;
     public float ControllerVerticalSensitivityMultiplier = 1f;
+
+    public UserSettings() { }
+
+    public UserSettings(UserSettings other)
+    {
+        HorizontalResolution = other.HorizontalResolution;
+        VerticalResolution = other.VerticalResolution;
+        VSyncCount = other.VSyncCount;
+        MasterVolume = other.MasterVolume;
+        MusicAmbientVolume = other.MusicAmbientVolume;
+        SoundEffectsVolume = other.SoundEffectsVolume;
+        MouseHorizontalSensitivityMultiplier = other.MouseHorizontalSensitivityMultiplier;
+        MouseVerticalSensitivityMultiplier = other.MouseVerticalSensitivityMultiplier;
+        ControllerHorizontalSensitivityMultiplier = other.ControllerHorizontalSensitivityMultiplier;
+        ControllerVerticalSensitivityMultiplier = other.ControllerVerticalSensitivityMultiplier;
+    }
 }
