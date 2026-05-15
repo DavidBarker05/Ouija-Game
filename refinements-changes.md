@@ -514,20 +514,4 @@ efinements-changes.md
 
 ---
 
-## How to extend this log
-
-When making a submission-worthy change, add a row to the **summary table** with:
-
-1. Date (DD Mon YYYY)  
-2. Area (AI, UI, gameplay, docs, …)  
-3. What was wrong or missing before  
-4. What you changed (files optional)  
-5. Why (player experience, rubric, bug)  
-6. Whether Cursor / ChatGPT / none helped  
-7. Result (works / partial / reverted)
-
-Commit to Git with a message that references the same change for traceability.
-
----
-
-*This log complements Git history and `ollama-plan.md`. For install steps see `setup.md`; for overview see `readme.md`.*
+.md`. For install steps see `setup.md`; for overview see `readme.md`.*
