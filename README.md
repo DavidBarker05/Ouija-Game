@@ -1,6 +1,6 @@
 Part 2
 -------------------------------------------------------------------------------------------------------------------------------------------------------
-High Concept Document - 
+High Concept Document - [HighConceptDocument_P2.pdf](https://github.com/user-attachments/files/27807988/HighConceptDocument_P2.pdf)
 
 LLM Integration Report -
 
