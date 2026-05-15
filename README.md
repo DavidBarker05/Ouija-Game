@@ -223,8 +223,3 @@ The AI-generated dialogue systems implemented within the project are powered thr
 
 This project does **not** promote harmful occult practices, self-harm, violence, or illegal activity. All supernatural and ritualistic content is presented as **fictional horror material** intended for **mature audiences only**.
 
----
-
-## Licence
-
-[INSERT LICENCE IF APPLICABLE — e.g. educational use only for GADS submission]
