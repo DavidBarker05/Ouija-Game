@@ -8,6 +8,8 @@ Technical Demonstration Video -
 
 Showcase Video - 
 
+Game Code Reference & Bibliography List - [Code_References_Bibliography_P2.pdf](https://github.com/user-attachments/files/27813592/Code_References_Bibliography_P2.pdf)
+
 Project Schedule & Scheduled Feedback Sessions -[ProjectSchedule_ScheduledFeedbackSessions_GADS_P2_v40.xlsx](https://github.com/user-attachments/files/27811504/ProjectSchedule_ScheduledFeedbackSessions_GADS_P2_v40.xlsx)
 
 setup.md -
