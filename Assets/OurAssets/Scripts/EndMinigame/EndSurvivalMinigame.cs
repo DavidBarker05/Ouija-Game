@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 [System.Serializable]
@@ -35,6 +36,8 @@ public class EndSurvivalMinigame : MonoBehaviour
 	[SerializeField, Range(60f, 600f)]
 	float m_TimeToSurvive = 300f; // Maybe 180s
 	[SerializeField]
+	TMP_Text m_Timer;
+	[SerializeField]
 	CandleBlowOutSettings m_CandleBlowOutSettings;
 	[SerializeField]
 	BigPentagram m_Pentagram;
@@ -67,6 +70,7 @@ public class EndSurvivalMinigame : MonoBehaviour
 	void Update()
 	{
 		m_CurrentTime -= Time.deltaTime;
+		m_Timer.text = $"Time Remaining: {Mathf.Max(Mathf.CeilToInt(m_CurrentTime), 0)}s";
 		if (m_CurrentTime <= 0f) DoWin();
 		m_CandleBlowTimer += Time.deltaTime;
 		CandleBlowOutTimeFrame currentBlowOutFrame = CurrentCandleBlowOutFrame;
