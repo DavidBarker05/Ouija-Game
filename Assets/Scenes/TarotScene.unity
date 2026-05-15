@@ -2171,7 +2171,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f26b2b4956f02e948b06d5a9b32d8761, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LoadingScreen
-  <SceneIndexToLoad>k__BackingField: 1
+  <SceneIndexToLoad>k__BackingField: 2
   m_LoadingBar: {fileID: 1393856151}
 --- !u!114 &1683924427
 MonoBehaviour:
