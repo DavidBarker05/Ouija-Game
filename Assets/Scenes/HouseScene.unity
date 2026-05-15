@@ -3491,7 +3491,7 @@ MonoBehaviour:
   keepAliveSeconds: 120
   warmRequestTimeoutSeconds: 20
   coldStartTimeoutSeconds: 90
-  enableRegularDebugLogs: 1
+  enableRegularDebugLogs: 0
   enableQuestionGate: 1
   gatedQuestions:
   - questionId: goodbye
@@ -3507,6 +3507,34 @@ MonoBehaviour:
     responseWhenBlocked: 
     responseIdWhenEligible: 
     responseWhenEligible: GOODBYE
+  - questionId: player_name
+    enabled: 1
+    matchPhrases:
+    - What is my name?
+    - Do you know who I am?
+    - Do you know my name?
+    - Say my name
+    conditionIdsRequired: []
+    responseIdWhenBlocked: 
+    responseWhenBlocked: 
+    responseIdWhenEligible: player_name
+    responseWhenEligible: UNKNOWN
+  - questionId: wife_name
+    enabled: 1
+    matchPhrases:
+    - What is my wife's name?
+    - What is her name name?
+    - Do you know who my wife is?
+    - Do you know who she is?
+    - Do you know my wife's name?
+    - Do you know her name?
+    - Say my wife's name
+    - Say her name
+    conditionIdsRequired: []
+    responseIdWhenBlocked: 
+    responseWhenBlocked: 
+    responseIdWhenEligible: wife_name
+    responseWhenEligible: UNKNOWN
   - questionId: spirit_name
     enabled: 1
     matchPhrases:
@@ -3527,7 +3555,163 @@ MonoBehaviour:
     responseWhenBlocked: 
     responseIdWhenEligible: spirit_name
     responseWhenEligible: JOHNNY
-  gateConditionEvaluator: {fileID: 2032960085}
+  - questionId: wife_left_reason
+    enabled: 1
+    matchPhrases:
+    - Why did my wife leave me?
+    - Why did my wife leave?
+    - What's the reason my wife left me?
+    - Why did she leave me?
+    - Why did she leave?
+    - Why did my wife go?
+    - Why did she go?
+    - Why did my wife run away?
+    - Why did she run away?
+    - Why did my wife leave me behind?
+    - Why did she leave me behind?
+    conditionIdsRequired: []
+    responseIdWhenBlocked: 
+    responseWhenBlocked: 
+    responseIdWhenEligible: wife_left_reason
+    responseWhenEligible: SHE STOPPED LOVING YOU
+  - questionId: wife_sad_reason
+    enabled: 1
+    matchPhrases:
+    - Why was my wife sad?
+    - Why was she sad?
+    - Why was my wife unhappy?
+    - Why was she unhappy?
+    - Why was my wife never happy?
+    - Why was she never happy?
+    - Why was my wife depressed?
+    - Why was she depressed?
+    conditionIdsRequired: []
+    responseIdWhenBlocked: 
+    responseWhenBlocked: 
+    responseIdWhenEligible: wife_sad_reason
+    responseWhenEligible: DEPRESSION
+  - questionId: more_information
+    enabled: 1
+    matchPhrases:
+    - How do I get you to answer more of my questions?
+    - How do I get more information?
+    - How do I get more answers?
+    - How do I learn more about my wife?
+    - How do I get more answers about my wife?
+    - Tell me more about my wife.
+    conditionIdsRequired: []
+    responseIdWhenBlocked: 
+    responseWhenBlocked: 
+    responseIdWhenEligible: 
+    responseWhenEligible: DO MY TASKS
+  - questionId: tasks_where
+    enabled: 1
+    matchPhrases:
+    - Where do I do your tasks?
+    - Where do I do your challenges?
+    - Where are your tasks?
+    - Where are your challenges?
+    - How do I do your tasks?
+    - How do I do your challenges?
+    conditionIdsRequired: []
+    responseIdWhenBlocked: 
+    responseWhenBlocked: 
+    responseIdWhenEligible: 
+    responseWhenEligible: PAST THE DOOR
+  - questionId: open_door
+    enabled: 1
+    matchPhrases:
+    - How do I open the door?
+    - How do I get past the door?
+    - How do I unlock the door?
+    - What is the door's password?
+    - What is the password for the door?
+    - What is the password?
+    conditionIdsRequired: []
+    responseIdWhenBlocked: 
+    responseWhenBlocked: 
+    responseIdWhenEligible: 
+    responseWhenEligible: MY NAME
+  - questionId: first_task
+    enabled: 1
+    matchPhrases:
+    - What is the first task?
+    - What is the first challenge?
+    - What is my first task?
+    - What is my first challenge?
+    - What is your first task for me?
+    - What is your first challenge for me?
+    - What must I do first?
+    - What should I do first?
+    - Which task should I do first?
+    - Which challenge should I do first?
+    - What do I do first?
+    conditionIdsRequired: []
+    responseIdWhenBlocked: 
+    responseWhenBlocked: 
+    responseIdWhenEligible: first_task
+    responseWhenEligible: GUESS 50 50
+  - questionId: wife_what_happened
+    enabled: 1
+    matchPhrases:
+    - What happened to my wife?
+    - What happened to her?
+    - Why is my wife not here?
+    - Why is she not here?
+    - Why is my wife missing?
+    - Why is she missing?
+    - Why is my wife not in the house?
+    - Why is she not in the house?
+    conditionIdsRequired:
+    - wife_what_condition
+    responseIdWhenBlocked: 
+    responseWhenBlocked: DO MY FIRST TASK
+    responseIdWhenEligible: 
+    responseWhenEligible: SUICIDE
+  - questionId: second_task
+    enabled: 1
+    matchPhrases:
+    - What is the second task?
+    - What is the last task?
+    - What is the second challenge?
+    - What is the last challenge?
+    - What is my second task?
+    - What is my last task?
+    - What is my second challenge?
+    - What is my last challenge?
+    - What is your second task for me?
+    - What is your last task for me?
+    - What is your second challenge for me?
+    - What is your last challenge for me?
+    - What must I do last?
+    - What should I do last?
+    - Which task should I do second?
+    - Which task should I do last?
+    - Which challenge should I do second
+    - Which challenge should I do last?
+    - What do I do last?
+    conditionIdsRequired: []
+    responseIdWhenBlocked: 
+    responseWhenBlocked: 
+    responseIdWhenEligible: second_task
+    responseWhenEligible: GUESS 50 50
+  - questionId: wife_where
+    enabled: 1
+    matchPhrases:
+    - Where is my wife?
+    - Where is she?
+    - Where can I find my wife?
+    - Where can I find her?
+    - Where is my wife's body?
+    - Where is her body?
+    - Where is the body?
+    conditionIdsRequired:
+    - wife_where_condition
+    responseIdWhenBlocked: wife_where_blocked
+    responseWhenBlocked: DO MY SECOND TASK
+    responseIdWhenEligible: 
+    responseWhenEligible: CEMETARY
+  gateConditionEvaluator: {fileID: 2032960087}
   gateResponseResolver: {fileID: 1659840230}
   gateClassifierInstructions: {fileID: 0}
   gateClassifierModelOverride: 
@@ -3537,7 +3721,7 @@ MonoBehaviour:
   gatedMaxClassifierCandidates: 5
   gatedClassifierMinConfidence: 0.62
   gateClassifierTimeoutSeconds: 25
-  enableGateDebugLogs: 1
+  enableGateDebugLogs: 0
   gateClassifierLexicalExactFallback: 0
   gateClassifierMaxFuzzyLeaderGap: 0.14
   gateClassifierTemperature: 0.25
@@ -15655,7 +15839,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2032960086}
-  - component: {fileID: 2032960085}
+  - component: {fileID: 2032960087}
   m_Layer: 0
   m_Name: OuijaGateConditionEvaluator
   m_TagString: Untagged
@@ -15663,20 +15847,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2032960085
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2032960084}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d3294e0dbe5d80441944201e1660705b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OurAssets.Scripts.Chat.OuijaGateConditionEvaluatorStub
-  treatAllConditionsAsMet: 1
-  gatedResponseOverrides: []
 --- !u!4 &2032960086
 Transform:
   m_ObjectHideFlags: 0
@@ -15692,6 +15862,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1862473644}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2032960087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2032960084}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54a626a6edab3e94a85c2741b20d57fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OurAssets.Scripts.Chat.OuijaGateConditionEvaluator
 --- !u!1 &2032974002
 GameObject:
   m_ObjectHideFlags: 0

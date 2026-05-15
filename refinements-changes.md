@@ -481,3 +481,19 @@ This file tracks the Unity + Ollama integration work completed so far.
   - AI assisted: no (David).
   - Added music and sound effects
   - Also updated FirstPersonCharacter to play footstep sounds
+
+- Added `Assets/OurAssets/Scripts/StoryManager.cs`
+  - Date: 15/05/2026.
+  - AI assisted: no (David).
+  - Manages which questions have been answered to beat the game
+  - GameManager uses it in the exit condition
+
+- Added `Assets/OurAssets/Scripts/Chat/OuijaGateConditionEvaluator.cs`
+  - Date: 15/05/2026.
+  - AI assisted: no (David).
+  - Does condition tests to see if can answer questions
+
+- Updated `Assets/OurAssets/Scripts/Chat/OuijaGateResponseResolver.cs`
+  - Date: 15/05/2026.
+  - AI assisted: no (David).
+  - Resolve more answers to different questions related to the story
