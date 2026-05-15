@@ -29,7 +29,7 @@ public class RuneMatchManager : MonoBehaviour
     [SerializeField]
     RuneCharacter m_RuneCharacter;
 
-    Sprite[] m_CurrentRunes;
+    int[] m_CurrentRunesIndices;
     int m_CurrentRound;
     Coroutine m_RuneMatchRound;
     int m_CurrentRuneIndex;
@@ -67,7 +67,7 @@ public class RuneMatchManager : MonoBehaviour
     void StartGame()
     {
         if (m_RuneMatchRound != null) StopCoroutine(m_RuneMatchRound);
-        m_CurrentRunes = new Sprite[m_StartingRunes + m_Rounds - 1];
+        m_CurrentRunesIndices = new int[m_StartingRunes + m_Rounds - 1];
         RandomiseRunes();
         m_CurrentRound = 0;
         m_RuneMatchRound = StartCoroutine(StartRound(m_CurrentRound));
@@ -81,10 +81,9 @@ public class RuneMatchManager : MonoBehaviour
 
     void RandomiseRunes()
     {
-        for (int i = 0; i < m_CurrentRunes.Length; ++i)
+        for (int i = 0; i < m_CurrentRunesIndices.Length; ++i)
         {
-            int index = Random.Range(0, m_Runes.Length);
-            m_CurrentRunes[i] = m_Runes[index];
+            m_CurrentRunesIndices[i] = Random.Range(0, m_Runes.Length);
         }
     }
 
@@ -94,7 +93,7 @@ public class RuneMatchManager : MonoBehaviour
         yield return new WaitForSeconds(m_TimeBeforeRoundStart);
         for (int rune = 0; rune < m_StartingRunes + roundNumber; ++rune)
         {
-            m_RuneDisplayer.sprite = m_Runes[rune];
+            m_RuneDisplayer.sprite = m_Runes[m_CurrentRunesIndices[rune]];
             if (!m_RuneDisplayer.gameObject.activeSelf) m_RuneDisplayer.gameObject.SetActive(true);
             yield return new WaitForSeconds(m_RuneDisplayDuration);
         }
@@ -105,13 +104,11 @@ public class RuneMatchManager : MonoBehaviour
 
     public void PressRune(int index)
     {
-        Sprite rune = m_Runes[index];
-        Sprite currentRune = m_CurrentRunes[m_CurrentRuneIndex];
-        if (rune != currentRune) DoLose(); // Doesn't match so lose
-        else if (++m_CurrentRuneIndex == m_CurrentRunes.Length) // They match so increase index for next rune press, but also check if that was last rune index
+        if (index != m_CurrentRunesIndices[m_CurrentRuneIndex]) DoLose(); // Doesn't match so lose
+        else if (++m_CurrentRuneIndex == m_CurrentRunesIndices.Length - 1) // They match so increase index for next rune press, but also check if that was last rune index
         {
             // Last rune index
-            if (++m_CurrentRound == m_Rounds) DoWin(); // Increase to the next round, but also check if that was the last round and if it is then win
+            if (++m_CurrentRound == m_Rounds - 1) DoWin(); // Increase to the next round, but also check if that was the last round and if it is then win
             else m_RuneMatchRound = StartCoroutine(StartRound(m_CurrentRound)); // Not the last round so start the next round
         }
     }

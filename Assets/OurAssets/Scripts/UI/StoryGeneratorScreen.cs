@@ -13,8 +13,10 @@ public class StoryGeneratorScreen : MonoBehaviour
 
     async void OnEnable()
     {
+        if (!Application.isPlaying) return;
         Progress<string> progress = new Progress<string>(step => m_ProgressText.text = step);
         string story = await GameManager.Instance.StartNewGame(progress);
+        if (!Application.isPlaying) return;
         m_ProgressText.gameObject.SetActive(false);
         m_StoryText.text = story;
         m_StoryPanel.SetActive(true);
