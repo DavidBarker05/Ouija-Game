@@ -15,6 +15,12 @@ public class CryptexManager : MonoBehaviour
     Vector3 m_DoorRotation = new Vector3(0f, -90f, 0f);
     [SerializeField]
     CryptexInteraction m_CryptexInteraction;
+    [SerializeField]
+    GameObject m_HUD;
+    [SerializeField]
+    GameObject m_CryptexUI;
+    [SerializeField]
+    Cryptex m_Cryptex;
 
     void Awake()
     {
@@ -38,6 +44,9 @@ public class CryptexManager : MonoBehaviour
             m_CryptexInteraction.gameObject.SetActive(false);
             MinigameManager.Instance.OnMinigameBeaten(Minigames.Cryptex);
             m_Player.ChangeCharacter(m_FirstPersonCharacter);
+            m_CryptexUI.SetActive(false);
+            m_HUD.SetActive(true);
+            Destroy(m_Cryptex.gameObject);
         }
     }
 }
