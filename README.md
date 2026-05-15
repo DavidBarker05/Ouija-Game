@@ -2,7 +2,7 @@ Part 2
 -------------------------------------------------------------------------------------------------------------------------------------------------------
 High Concept Document - [HighConceptDocument_P2.pdf](https://github.com/user-attachments/files/27807988/HighConceptDocument_P2.pdf)
 
-LLM Integration Report -
+LLM Integration Report - [LLMReport_P2.pdf](https://github.com/user-attachments/files/27808012/LLMReport_P2.pdf)
 
 Technical Demonstration Video - 
 
