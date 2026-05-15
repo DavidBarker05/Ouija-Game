@@ -64,13 +64,19 @@ public class RuneMatchManager : MonoBehaviour
         }
     }
 
-    public void StartGame()
+    void StartGame()
     {
         if (m_RuneMatchRound != null) StopCoroutine(m_RuneMatchRound);
         m_CurrentRunes = new Sprite[m_StartingRunes + m_Rounds - 1];
         RandomiseRunes();
         m_CurrentRound = 0;
         m_RuneMatchRound = StartCoroutine(StartRound(m_CurrentRound));
+    }
+
+    public void RestartGame()
+    {
+        m_MenuCharacter.OnMenuExit();
+        StartGame();
     }
 
     void RandomiseRunes()
