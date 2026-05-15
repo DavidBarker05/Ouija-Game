@@ -20,6 +20,11 @@ public class FirstPersonCharacterUpdateData : IPlayerCharacterUpdateData
 [RequireComponent(typeof(CharacterController))]
 public class FirstPersonCharacter : PlayerCharacter
 {
+	[SerializeField]
+	AudioSource m_FootstepAudioSource;
+	[SerializeField, Min(1f)]
+	float m_FootstepFrequency = 2f;
+
 	public override bool HasBeenInitialised { get; protected set; }
 
 	public override string ActionMap => "Player";
@@ -36,6 +41,8 @@ public class FirstPersonCharacter : PlayerCharacter
 	CharacterController m_CharacterController;
 
 	Vector3 m_Velocity;
+
+	float m_CurrentTime = 0f;
 
 	public override void Init(IPlayerCharacterInitData playerCharacterInitData)
 	{
@@ -84,6 +91,15 @@ public class FirstPersonCharacter : PlayerCharacter
 		}
 		HandleMovement(ref updateData);
 		HandleInteraction(ref updateData);
+		if (updateData.MovementInput.sqrMagnitude < s_SqrEpsilon)
+		{
+			m_CurrentTime = 1f / m_FootstepFrequency;
+			return;
+		}
+		m_CurrentTime += updateData.DeltaTime;
+		if (m_CurrentTime < 1f / m_FootstepFrequency) return;
+		m_CurrentTime = 0f;
+		m_FootstepAudioSource.Play();
 	}
 
 	public override void OnPausePressed()
