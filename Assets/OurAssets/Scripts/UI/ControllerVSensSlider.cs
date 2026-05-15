@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class ControllerVSensSlider : MonoBehaviour
 {
     [SerializeField]
-    MouseVSensInputField m_SensInput;
+    ControllerVSensInputField m_SensInput;
 
     Slider m_Slider;
     public Slider Slider
