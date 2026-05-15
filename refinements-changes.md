@@ -475,3 +475,9 @@ This file tracks the Unity + Ollama integration work completed so far.
   - Upated `Assets/OurAssets/Scripts/Player/Player.cs` to use this scene data if available
   - TarotInteraction and RuneInteraction check if the player can play their minigames and if they can then they save the scene data and load the corresponding scene
   - EndInteraction checks if the player can move to the end level and if they can then it loads the corresponding scene
+
+- Added sounds
+  - Date: 15/05/2026.
+  - AI assisted: no (David).
+  - Added music and sound effects
+  - Also updated FirstPersonCharacter to play footstep sounds
