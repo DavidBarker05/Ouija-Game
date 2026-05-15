@@ -33,6 +33,8 @@ public class RuneMatchManager : MonoBehaviour
     int m_CurrentRound;
     Coroutine m_RuneMatchRound;
     int m_CurrentRuneIndex;
+    bool m_bAcceptingInput; // Cursor fixed: only accept presses after the display phase finishes
+    bool m_bGameEnded; // Cursor fixed: ignore input after win/lose
 
     void Awake()
     {
@@ -67,6 +69,7 @@ public class RuneMatchManager : MonoBehaviour
     void StartGame()
     {
         if (m_RuneMatchRound != null) StopCoroutine(m_RuneMatchRound);
+        m_bGameEnded = false; // Cursor fixed: allow input again on restart
         m_CurrentRunesIndices = new int[m_StartingRunes + m_Rounds - 1];
         RandomiseRunes();
         m_CurrentRound = 0;
@@ -89,9 +92,11 @@ public class RuneMatchManager : MonoBehaviour
 
     IEnumerator StartRound(int roundNumber)
     {
+        m_bAcceptingInput = false; // Cursor fixed: block presses while runes are shown
         foreach (Button b in m_RuneButtons) b.interactable = false; // Stop all button clicking while displaying
         yield return new WaitForSeconds(m_TimeBeforeRoundStart);
-        for (int rune = 0; rune < m_StartingRunes + roundNumber; ++rune)
+        int runesToShow = m_StartingRunes + roundNumber; // Cursor fixed: how many runes belong to this round (round 0 => 3, round 4 => 7)
+        for (int rune = 0; rune < runesToShow; ++rune)
         {
             m_RuneDisplayer.sprite = m_Runes[m_CurrentRunesIndices[rune]];
             if (!m_RuneDisplayer.gameObject.activeSelf) m_RuneDisplayer.gameObject.SetActive(true);
@@ -99,25 +104,52 @@ public class RuneMatchManager : MonoBehaviour
         }
         m_RuneDisplayer.gameObject.SetActive(false); // Stop displaying the final rune
         m_CurrentRuneIndex = 0;
-        foreach (Button b in m_RuneButtons) b.interactable = true; // Re-enable all button clicking after displaying
+        if (!m_bGameEnded)
+        {
+            m_bAcceptingInput = true; // Cursor fixed: player may enter the sequence they just saw
+            foreach (Button b in m_RuneButtons) b.interactable = true; // Re-enable all button clicking after displaying
+        }
     }
 
     public void PressRune(int index)
     {
-        if (index != m_CurrentRunesIndices[m_CurrentRuneIndex]) DoLose(); // Doesn't match so lose
-        else if (++m_CurrentRuneIndex == m_CurrentRunesIndices.Length - 1) // They match so increase index for next rune press, but also check if that was last rune index
+        if (m_bGameEnded || !m_bAcceptingInput) return; // Cursor fixed: ignore stray clicks during display or after end
+
+        if (index != m_CurrentRunesIndices[m_CurrentRuneIndex])
         {
-            // Last rune index
-            if (++m_CurrentRound == m_Rounds - 1) DoWin(); // Increase to the next round, but also check if that was the last round and if it is then win
-            else m_RuneMatchRound = StartCoroutine(StartRound(m_CurrentRound)); // Not the last round so start the next round
+            DoLose(); // Doesn't match so lose
+            return;
         }
+
+        ++m_CurrentRuneIndex;
+        int runesThisRound = m_StartingRunes + m_CurrentRound; // Cursor fixed: presses required for this round only, not whole array length
+
+        if (m_CurrentRuneIndex < runesThisRound) return; // Cursor fixed: more runes left to enter this round
+
+        // Cursor fixed: finished this round — advance or win (was comparing to m_CurrentRunesIndices.Length - 1 and m_Rounds - 1)
+        m_bAcceptingInput = false;
+        foreach (Button b in m_RuneButtons) b.interactable = false;
+
+        if (++m_CurrentRound >= m_Rounds)
+            DoWin();
+        else
+            m_RuneMatchRound = StartCoroutine(StartRound(m_CurrentRound));
     }
 
     void DoWin()
     {
+        m_bGameEnded = true; // Cursor fixed
+        if (m_RuneMatchRound != null) StopCoroutine(m_RuneMatchRound);
+        foreach (Button b in m_RuneButtons) b.interactable = false;
         MinigameManager.Instance.OnMinigameBeaten(Minigames.Rune);
         m_MenuCharacter.OnMenuOpen(m_RuneCharacter, m_HUD, m_WinScreen);
     }
 
-    void DoLose() => m_MenuCharacter.OnMenuOpen(m_RuneCharacter, m_HUD, m_LoseScreen);
+    void DoLose()
+    {
+        m_bGameEnded = true; // Cursor fixed
+        if (m_RuneMatchRound != null) StopCoroutine(m_RuneMatchRound);
+        foreach (Button b in m_RuneButtons) b.interactable = false;
+        m_MenuCharacter.OnMenuOpen(m_RuneCharacter, m_HUD, m_LoseScreen);
+    }
 }
