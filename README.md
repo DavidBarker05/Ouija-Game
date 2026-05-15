@@ -15,8 +15,7 @@ Game Code Reference & Bibliography List - [Code_References_Bibliography_P2.pdf](
 Project Schedule & Scheduled Feedback Sessions -[ProjectSchedule_ScheduledFeedbackSessions_GADS_P2_v40.xlsx](https://github.com/user-attachments/files/27811504/ProjectSchedule_ScheduledFeedbackSessions_GADS_P2_v40.xlsx)
 
 **Genre:** First-person narrative horror / puzzle adventure  
-**Platform:** Windows PC (Unity 6 standalone); local AI via Ollama  
-**Repository:** [INSERT GITHUB LINK]  
+**Platform:** Windows PC (Unity 6 standalone); local AI via Ollama   
 **Unity version:** 6000.4.1f1  
 
 ---
