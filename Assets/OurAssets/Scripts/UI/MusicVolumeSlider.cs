@@ -2,10 +2,10 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Slider))]
-public class MasterVolumeSlider : MonoBehaviour
+public class MusicVolumeSlider : MonoBehaviour
 {
     [SerializeField]
-    MasterVolumeInputField m_VolumeInput;
+    MusicVolumeInputField m_VolumeInput;
 
     Slider m_Slider;
     public Slider Slider
@@ -21,7 +21,7 @@ public class MasterVolumeSlider : MonoBehaviour
     {
         Slider.onValueChanged.RemoveAllListeners();
         m_VolumeInput.InputField.onSubmit.RemoveAllListeners();
-        float volume = UserSettingsManager.Instance?.MasterVolume ?? 1f;
+        float volume = UserSettingsManager.Instance?.MusicAmbientVolume ?? 1f;
         int volume0100 = Mathf.RoundToInt(volume * 100f);
         Slider.value = Mathf.Clamp(volume0100, Slider.minValue, Slider.maxValue);
         m_VolumeInput.InputField.text = $"{volume0100}";
@@ -34,7 +34,7 @@ public class MasterVolumeSlider : MonoBehaviour
         if (!UserSettingsManager.Instance) return;
         m_VolumeInput.InputField.onSubmit.RemoveAllListeners();
         float volume01 = value / 100f;
-        UserSettingsManager.Instance.MasterVolume = volume01;
+        UserSettingsManager.Instance.MusicAmbientVolume = volume01;
         int volume0100 = Mathf.RoundToInt(value);
         m_VolumeInput.InputField.text = $"{volume0100}";
         m_VolumeInput.InputField.onSubmit.AddListener(m_VolumeInput.ChangeVolume);
