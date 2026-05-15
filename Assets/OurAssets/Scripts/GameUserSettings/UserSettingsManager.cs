@@ -4,6 +4,9 @@ using UnityEngine.Audio;
 
 public class UserSettingsManager : MonoBehaviour
 {
+    public const float MIN_SENS_MULT_UI = 0.5f;
+    public const float MAX_SENS_MULT_UI = 2f;
+
     const string FILE_NAME = "user_settings.json";
 
     public static UserSettingsManager Instance { get; private set; }

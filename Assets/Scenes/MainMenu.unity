@@ -2882,6 +2882,7 @@ GameObject:
   - component: {fileID: 328778447}
   - component: {fileID: 328778446}
   - component: {fileID: 328778445}
+  - component: {fileID: 328778448}
   m_Layer: 5
   m_Name: MouseVerticalSensitivityInput
   m_TagString: Untagged
@@ -3048,6 +3049,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 328778443}
   m_CullTransparentMesh: 1
+--- !u!114 &328778448
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 328778443}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a507a900c26c3524bae623123327a0bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MouseVSensInputField
+  m_SensSlider: {fileID: 1150688592}
 --- !u!1 &332491972
 GameObject:
   m_ObjectHideFlags: 0
@@ -4271,6 +4285,7 @@ GameObject:
   m_Component:
   - component: {fileID: 508446472}
   - component: {fileID: 508446473}
+  - component: {fileID: 508446474}
   m_Layer: 5
   m_Name: MouseHorizontalSensitivitySlider
   m_TagString: Untagged
@@ -4344,13 +4359,26 @@ MonoBehaviour:
   m_FillRect: {fileID: 226416488}
   m_HandleRect: {fileID: 959991290}
   m_Direction: 0
-  m_MinValue: 0.5
-  m_MaxValue: 2
-  m_WholeNumbers: 0
-  m_Value: 1
+  m_MinValue: 0
+  m_MaxValue: 15
+  m_WholeNumbers: 1
+  m_Value: 5
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &508446474
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 508446471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89c565fdf95f1604abdc59a998f75201, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MouseHSensSlider
+  m_SensInput: {fileID: 910045293}
 --- !u!1 &521939003
 GameObject:
   m_ObjectHideFlags: 0
@@ -4763,6 +4791,7 @@ GameObject:
   m_Component:
   - component: {fileID: 543019258}
   - component: {fileID: 543019259}
+  - component: {fileID: 543019260}
   m_Layer: 5
   m_Name: ControllerVerticalSensitivitySlider
   m_TagString: Untagged
@@ -4836,13 +4865,26 @@ MonoBehaviour:
   m_FillRect: {fileID: 1406447786}
   m_HandleRect: {fileID: 1472726259}
   m_Direction: 0
-  m_MinValue: 0.5
-  m_MaxValue: 2
-  m_WholeNumbers: 0
-  m_Value: 1
+  m_MinValue: 0
+  m_MaxValue: 15
+  m_WholeNumbers: 1
+  m_Value: 5
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &543019260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 543019257}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb00de27d6f80dc4480254951e9b11a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ControllerVSensSlider
+  m_SensInput: {fileID: 328778448}
 --- !u!1 &580357458
 GameObject:
   m_ObjectHideFlags: 0
@@ -5289,6 +5331,7 @@ GameObject:
   - component: {fileID: 678459491}
   - component: {fileID: 678459490}
   - component: {fileID: 678459489}
+  - component: {fileID: 678459492}
   m_Layer: 5
   m_Name: ControllerVerticalSensitivityInput
   m_TagString: Untagged
@@ -5455,6 +5498,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 678459487}
   m_CullTransparentMesh: 1
+--- !u!114 &678459492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 678459487}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e2ed87753833aa47bfe2e8fa4cf346a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ControllerVSensInputField
+  m_SensSlider: {fileID: 543019260}
 --- !u!1 &685163582
 GameObject:
   m_ObjectHideFlags: 0
@@ -6898,6 +6954,7 @@ GameObject:
   - component: {fileID: 910045292}
   - component: {fileID: 910045291}
   - component: {fileID: 910045290}
+  - component: {fileID: 910045293}
   m_Layer: 5
   m_Name: MouseHorizontalSensitivityInput
   m_TagString: Untagged
@@ -7064,6 +7121,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 910045288}
   m_CullTransparentMesh: 1
+--- !u!114 &910045293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910045288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01fcbda075a5b6e4085853ebd35d370c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MouseHSensInputField
+  m_SensSlider: {fileID: 508446474}
 --- !u!1 &930808691
 GameObject:
   m_ObjectHideFlags: 0
@@ -8979,6 +9049,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1150688590}
   - component: {fileID: 1150688591}
+  - component: {fileID: 1150688592}
   m_Layer: 5
   m_Name: MouseVerticalSensitivitySlider
   m_TagString: Untagged
@@ -9052,13 +9123,26 @@ MonoBehaviour:
   m_FillRect: {fileID: 2059957460}
   m_HandleRect: {fileID: 951160642}
   m_Direction: 0
-  m_MinValue: 0.5
-  m_MaxValue: 2
-  m_WholeNumbers: 0
-  m_Value: 1
+  m_MinValue: 0
+  m_MaxValue: 15
+  m_WholeNumbers: 1
+  m_Value: 5
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1150688592
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1150688589}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d8f29ba0b8b8b5478bea446f3630d94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MouseVSensSlider
+  m_SensInput: {fileID: 328778448}
 --- !u!1 &1151205587
 GameObject:
   m_ObjectHideFlags: 0
@@ -9959,8 +10043,9 @@ GameObject:
   - component: {fileID: 1232306602}
   - component: {fileID: 1232306601}
   - component: {fileID: 1232306600}
+  - component: {fileID: 1232306603}
   m_Layer: 5
-  m_Name: Input
+  m_Name: ControllerHorizontalSensitivityInput
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10125,6 +10210,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1232306598}
   m_CullTransparentMesh: 1
+--- !u!114 &1232306603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1232306598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9110893660eb11846bd5b9e68a5a4b10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ControllerHSensInputField
+  m_SensSlider: {fileID: 1642278473}
 --- !u!1 &1241599568
 GameObject:
   m_ObjectHideFlags: 0
@@ -12096,6 +12194,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1642278471}
   - component: {fileID: 1642278472}
+  - component: {fileID: 1642278473}
   m_Layer: 5
   m_Name: ControllerHorizontalSensitivitySlider
   m_TagString: Untagged
@@ -12169,13 +12268,26 @@ MonoBehaviour:
   m_FillRect: {fileID: 2134082357}
   m_HandleRect: {fileID: 391785811}
   m_Direction: 0
-  m_MinValue: 0.5
-  m_MaxValue: 2
-  m_WholeNumbers: 0
-  m_Value: 1
+  m_MinValue: 0
+  m_MaxValue: 15
+  m_WholeNumbers: 1
+  m_Value: 5
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1642278473
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1642278470}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ae2165916425c34289aad7b325a2210, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ControllerHSensSlider
+  m_SensInput: {fileID: 1232306603}
 --- !u!1 &1645601562
 GameObject:
   m_ObjectHideFlags: 0
