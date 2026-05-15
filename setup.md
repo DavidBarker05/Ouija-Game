@@ -22,32 +22,48 @@ This guide is written so a moderator, teammate, or future student can install de
 
 ## 2. System requirements
 
-### 2.1 Minimum (development / CPU-only inference)
+Estimates below are for **Unity 6 + Ollama + Llama 3.2** on a student/dev machine. Actual performance depends on quantisation, background apps, and whether Ollama uses GPU acceleration.
 
-| Item | Specification |
-|------|----------------|
-| **OS** | Windows 10/11 64-bit (primary); Linux supported for Ollama via included helpers |
-| **CPU** | [INSERT CPU MODEL] — e.g. 6+ cores recommended |
-| **RAM** | 16 GB minimum; **32 GB recommended** for Llama 3.2 8B + Unity |
-| **GPU** | Optional; integrated graphics works but story generation is slow |
-| **Storage** | ~10 GB free (Unity Library + Ollama models) |
+### 2.1 Minimum (playable — CPU inference, slower AI)
+
+| Item | Estimated specification |
+|------|-------------------------|
+| **OS** | **Windows 10/11** 64-bit (primary target) or **Linux** (64-bit, glibc-based distro) |
+| **CPU** | **Intel Core i5-8400** / **AMD Ryzen 5 2600** (or equivalent: **6 physical cores**, 2.8 GHz+) |
+| **RAM** | **16 GB** system memory (Llama 3.2 ~4–8 GB + Unity/editor overhead) |
+| **GPU** | **Integrated graphics** or any DirectX 11–compatible GPU (**2 GB VRAM**+) — sufficient for the game; Ollama may run on **CPU only** |
+| **Storage** | **~12 GB** free (Unity `Library/`, Llama 3.2 model, build cache) |
 | **Unity** | **6000.4.1f1** (see `ProjectSettings/ProjectVersion.txt`) |
 
-### 2.2 Recommended (smooth local AI)
+**Expected experience at minimum:** Story generation and first Ollama reply may take **30–90+ seconds** on cold start; acceptable for testing, not ideal for live demos.
 
-| Item | Specification |
-|------|----------------|
-| **GPU** | [INSERT GPU MODEL] — NVIDIA with 8+ GB VRAM preferred |
-| **RAM** | 32 GB |
-| **SSD** | Model load and project import faster on SSD |
+### 2.2 Recommended (smooth play + local AI)
 
-### 2.3 Developer machine (fill in for submission)
+| Item | Estimated specification |
+|------|-------------------------|
+| **OS** | **Windows 11** 64-bit or **Linux** (Ubuntu 22.04+ / similar) |
+| **CPU** | **Intel Core i7-10700** / **AMD Ryzen 7 5800X** (or equivalent: **8+ cores**, 3.0 GHz+) |
+| **RAM** | **32 GB** |
+| **GPU** | **NVIDIA GeForce RTX 3060** (**8 GB VRAM**) or better — Ollama can offload Llama 3.2 for much faster story/Ouija responses |
+| **Storage** | **SSD** with **20 GB+** free |
+
+**Expected experience at recommended:** Warm Ollama replies often **2–15 s**; cold story pass may still take **15–45 s** depending on GPU drivers and load.
+
+### 2.3 macOS (manual setup only)
+
+| Item | Notes |
+|------|--------|
+| **OS** | macOS 12+ (Apple Silicon or Intel) — **not** covered by bundled installers in this repo |
+| **CPU / RAM** | Apple M1 with **16 GB** unified memory minimum; **M1 Pro / M2 with 32 GB** recommended for comfortable local inference |
+| **GPU** | Apple Silicon uses Metal/GPU via Ollama when supported — follow manual install in [Section 4.3](#43-macos-manual-install-no-bundled-executable) |
+
+### 2.4 Developer machine (optional — replace with your test PC)
 
 ```
-CPU:    [INSERT SYSTEM SPECS]
-GPU:    [INSERT SYSTEM SPECS]
-RAM:    [INSERT SYSTEM SPECS]
-OS:     [INSERT SYSTEM SPECS]
+CPU:    [INSERT YOUR CPU — e.g. AMD Ryzen 7 5800X]
+GPU:    [INSERT YOUR GPU — e.g. NVIDIA RTX 3060 8 GB]
+RAM:    [INSERT YOUR RAM — e.g. 32 GB]
+OS:     [INSERT YOUR OS — e.g. Windows 11 64-bit]
 Unity:  6000.4.1f1
 ```
 
@@ -56,74 +72,101 @@ Unity:  6000.4.1f1
 ## 3. Required software
 
 1. **Unity Hub** + Editor **6000.4.1f1** (Unity 6)  
-   - Install modules: Windows Build Support (IL2CPP/Mono as needed), Visual Studio integration optional.
+   - Install modules: Windows Build Support (and Linux/macOS modules only if you build for those targets).
 
-2. **Git**  
-   - Clone: `git clone [INSERT GITHUB LINK]`
+2. **Git** — clone: `git clone [INSERT GITHUB LINK]`
 
-3. **Ollama**  
-   - Download: https://ollama.com  
-   - Windows installer or Linux install per Ollama docs.
+3. **Ollama + Llama 3.2** — use the **bundled setup tools** on Windows/Linux ([Section 4](#4-install-ollama-and-llama-32)) or install manually.
 
-4. **Llama 3.2 model** (see Section 5).
-
-5. **Optional:** Python 3 — only if using `Ollama_Setup.py` wrapper in repo root helpers.
+4. **Python 3** (optional) — only needed to run `Ollama_Setup.py`, which launches the platform executable for you.
 
 ---
 
-## 4. Step-by-step: Install Ollama
+## 4. Install Ollama and Llama 3.2
 
-### Windows
+The repository includes helper programs at the **project root** (also copied next to standalone builds via `PostBuildCopy.cs`):
 
-1. Download and run the Ollama installer from https://ollama.com.
-2. After install, Ollama usually runs as a background service.
-3. Open **PowerShell** or **Command Prompt** and verify:
+| File | Platform | Purpose |
+|------|----------|---------|
+| **`Windows_Ollama_Setup.exe`** | Windows | Installs Ollama and pulls required models |
+| **`Linux_Ollama_Setup`** | Linux | Same for Linux (executable; may need `chmod +x`) |
+| **`Ollama_Setup.py`** | Windows / Linux | Detects OS and runs the correct executable above |
+| **`OuijaSetup/`** | Developer | C++ source + CMake to rebuild the setup tools if missing |
+
+> **macOS:** There is **no** bundled Apple installer in this repo (building for macOS requires Apple hardware). Use [Section 4.3](#43-macos-manual-install-no-bundled-executable) and type the commands yourself.
+
+### 4.1 Windows (recommended — bundled installer)
+
+1. Open the project root folder (same level as `Assets/`).
+2. **Either:**
+   - Double-click **`Windows_Ollama_Setup.exe`**, **or**
+   - Run: `python Ollama_Setup.py` (requires Python 3 on PATH).
+3. Wait for the installer to finish (downloads Ollama and pulls models — requires internet).
+4. Verify in **PowerShell** or **Command Prompt**:
 
    ```bash
    ollama --version
+   ollama list
    ```
 
-4. If the command is not found, restart the terminal or add Ollama to PATH per installer notes.
+   You should see **`llama3.2`** in the list.
 
-### Linux
+5. Confirm the API: open **http://localhost:11434** in a browser.
 
-1. Use Ollama’s official install script or package, **or** run the bundled `Linux_Ollama_Setup` binary from the project root (after build from `OuijaSetup/` if needed).
-2. Verify `ollama --version`.
+**Manual fallback (Windows):** install from https://ollama.com, then run `ollama pull llama3.2`.
 
-### macOS
+### 4.2 Linux (bundled installer)
 
-- The repo includes C++ setup tooling that could target macOS, but primary testing is on **Windows**. Use https://ollama.com for Mac if demonstrating on Apple hardware.
+1. Open a terminal in the **project root**.
+2. Make the binary executable (first time only):
+
+   ```bash
+   chmod +x Linux_Ollama_Setup
+   ```
+
+3. **Either:**
+   - Run: `./Linux_Ollama_Setup`, **or**
+   - Run: `python3 Ollama_Setup.py`
+4. Verify:
+
+   ```bash
+   ollama --version
+   ollama list
+   ```
+
+**Manual fallback (Linux):** follow https://ollama.com download instructions, then `ollama pull llama3.2`.
+
+### 4.3 macOS (manual install — no bundled executable)
+
+Apple builds are **not** shipped with this project. Install and pull the model **manually**:
+
+1. Install Ollama from **https://ollama.com** (macOS download).
+2. Open **Terminal** and run:
+
+   ```bash
+   ollama pull llama3.2
+   ollama list
+   ```
+
+3. Confirm **http://localhost:11434** responds.
+4. Ensure project root files match the model name:
+   - `StoryModel.txt` → `llama3.2`
+   - `OuijaModel.txt` → `llama3.2`
+
+Developers with a Mac can rebuild a setup app from `OuijaSetup/` using CMake (see `Ollama_Setup.py` messages if a `MacOS_Ollama_Setup.app` is added locally).
+
+### 4.4 Align Unity with the model name
+
+At the **project root** (same folder as `Assets/`):
+
+- **`StoryModel.txt`** — single line: `llama3.2`
+- **`OuijaModel.txt`** — single line: `llama3.2`
+
+Only the **first word** on each line is read by the game. These files are copied beside player builds automatically.
 
 ---
 
-## 5. Pull the model
-
-Target model for documentation and design:
-
-```bash
-ollama pull llama3.2
-```
-
-Confirm it appears in the local library:
-
-```bash
-ollama list
-```
-
-You should see `llama3.2` (or similar tag) in the list.
-
-### Align Unity with the model name
-
-At the **project root** (same folder as `Assets/`), edit:
-
-- `StoryModel.txt` — single line: `llama3.2`
-- `OuijaModel.txt` — single line: `llama3.2`
-
-Only the **first word** on each line is read by code. These files are copied next to the build via `Assets/Editor/PostBuildCopy.cs`.
-
----
-
-## 6. Confirm Ollama is running
+## 5. Confirm Ollama is running
 
 1. Ensure the Ollama app/service is running.
 2. In a browser, open:
@@ -142,7 +185,7 @@ Only the **first word** on each line is read by code. These files are copied nex
 
 ---
 
-## 7. Open and run the Unity project
+## 6. Open and run the Unity project
 
 1. **Clone the repository** (if not already):
 
@@ -175,7 +218,7 @@ Only the **first word** on each line is read by code. These files are copied nex
 
 ---
 
-## 8. Scene setup (what each scene does)
+## 7. Scene setup (what each scene does)
 
 | Scene | Role |
 |-------|------|
@@ -193,7 +236,7 @@ For AI testing, place or confirm `OllamaGameSession` and `StoryAiService` exist 
 
 ---
 
-## 9. Voice input (optional)
+## 8. Voice input (optional)
 
 Ouija questions support **typing** and **microphone** (`OuijaPlayerInputController` + Whisper).
 
@@ -203,9 +246,9 @@ Ouija questions support **typing** and **microphone** (`OuijaPlayerInputControll
 
 ---
 
-## 10. Troubleshooting
+## 9. Troubleshooting
 
-### 10.1 Ollama not running
+### 9.1 Ollama not running
 
 | Symptom | Fix |
 |---------|-----|
@@ -213,14 +256,15 @@ Ouija questions support **typing** and **microphone** (`OuijaPlayerInputControll
 | Game hangs on “Generating…” | Open http://localhost:11434 in browser; confirm service up |
 | Firewall prompt | Allow Ollama on private networks |
 
-### 10.2 Model not found
+### 9.2 Model not found
 
 | Symptom | Fix |
 |---------|-----|
-| Error mentioning unknown model | Run `ollama pull llama3.2` (or match exact name in `StoryModel.txt` / `OuijaModel.txt`) |
+| Error mentioning unknown model | Re-run `Windows_Ollama_Setup.exe` / `Linux_Ollama_Setup`, or `ollama pull llama3.2` |
+| Setup executable missing | Clone full repo; or build from `OuijaSetup/` with CMake |
 | Typo in model file | One word per file, no spaces — e.g. `llama3.2` not `llama 3.2` |
 
-### 10.3 Slow responses
+### 9.3 Slow responses
 
 | Symptom | Fix |
 |---------|-----|
@@ -228,7 +272,7 @@ Ouija questions support **typing** and **microphone** (`OuijaPlayerInputControll
 | Every message slow | Use GPU if available; close browsers; try smaller quant if you add one in Ollama |
 | Story scene long wait | Expected on CPU-only; show machine specs in report |
 
-### 10.4 Unity compile errors
+### 9.4 Unity compile errors
 
 | Symptom | Fix |
 |---------|-----|
@@ -236,7 +280,7 @@ Ouija questions support **typing** and **microphone** (`OuijaPlayerInputControll
 | Wrong Unity version | Use **6000.4.1f1** per `ProjectVersion.txt` |
 | Library corrupt | Close Unity; delete `Library/` folder; reopen project to reimport |
 
-### 10.5 Missing references in scenes
+### 9.5 Missing references in scenes
 
 | Symptom | Fix |
 |---------|-----|
@@ -244,7 +288,7 @@ Ouija questions support **typing** and **microphone** (`OuijaPlayerInputControll
 | Ouija orchestrator unassigned | Open HouseScene; assign `OuijaAiOrchestrator` on scene UI object |
 | Null `m_AudioMixer` on settings | Open MainMenu; wire AudioMixer on `UserSettingsManager` |
 
-### 10.6 Connection / API errors
+### 9.6 Connection / API errors
 
 | Symptom | Fix |
 |---------|-----|
@@ -252,14 +296,14 @@ Ouija questions support **typing** and **microphone** (`OuijaPlayerInputControll
 | Empty model response | Check Console; verify prompt templates exist under `Assets/Resources/Prompts/` |
 | Timeout | Increase warm/cold timeouts on `StoryAiService` / `OuijaAiOrchestrator` inspectors |
 
-### 10.7 DontDestroyOnLoad / Play mode errors
+### 9.7 DontDestroyOnLoad / Play mode errors
 
 | Symptom | Fix |
 |---------|-----|
 | `DontDestroyOnLoad can only be used in play mode` after stopping Play | Story generation still running — stop Play after generation completes; see `StoryGeneratorScreen` async lifecycle |
 | Duplicate singletons | Only one `UserSettingsManager` / session host per run; restart Play mode |
 
-### 10.8 Scrollbar / UI
+### 9.8 Scrollbar / UI
 
 | Symptom | Fix |
 |---------|-----|
@@ -267,7 +311,7 @@ Ouija questions support **typing** and **microphone** (`OuijaPlayerInputControll
 
 ---
 
-## 11. Quick verification checklist
+## 10. Quick verification checklist
 
 Use this before a demo or submission build:
 
@@ -281,14 +325,15 @@ Use this before a demo or submission build:
 
 ---
 
-## 12. Build notes
+## 11. Build notes
 
-- `PostBuildCopy.cs` copies Ollama helper executables and model txt files beside the player build.
-- End users still need Ollama installed and the model pulled unless you ship a custom installer (`Windows_Ollama_Setup.exe` in repo).
+- `PostBuildCopy.cs` copies **`Windows_Ollama_Setup.exe`**, **`Linux_Ollama_Setup`**, **`Ollama_Setup.py`**, **`StoryModel.txt`**, and **`OuijaModel.txt`** next to the player executable.
+- Players on **Windows/Linux** can run those helpers from the build folder before first launch.
+- **macOS** players must install Ollama manually (Section 4.3).
 
 ---
 
-## 13. Getting help
+## 12. Getting help
 
 1. Check Unity **Console** (stack trace).
 2. Check Ollama logs / terminal where `ollama serve` runs.
