@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 [System.Serializable]
@@ -17,6 +18,8 @@ public class TarotManager : MonoBehaviour
 
 	[SerializeField, Min(30f)]
 	float m_TimeLimit = 180f;
+	[SerializeField]
+	TMP_Text m_Timer;
 	[SerializeField, Min(0.1f)]
 	float m_RemainFlippedTime = 0.5f;
 	[SerializeField]
@@ -114,6 +117,7 @@ public class TarotManager : MonoBehaviour
 			return;
 		}
 		m_CurrentTime -= Time.deltaTime;
+		m_Timer.text = $"Time Remaining: {Mathf.Max(Mathf.CeilToInt(m_CurrentTime), 0)}s";
 		if (m_CurrentTime <= 0) DoLose();
 	}
 
