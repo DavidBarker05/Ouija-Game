@@ -4884,7 +4884,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb00de27d6f80dc4480254951e9b11a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ControllerVSensSlider
-  m_SensInput: {fileID: 328778448}
+  m_SensInput: {fileID: 678459492}
 --- !u!1 &580357458
 GameObject:
   m_ObjectHideFlags: 0
