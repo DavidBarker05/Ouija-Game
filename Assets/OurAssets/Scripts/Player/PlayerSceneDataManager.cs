@@ -12,18 +12,20 @@ public class PlayerSceneDataManager : MonoBehaviour
         else Instance = this;
     }
 
+    // Cursor - Persists FPS body pose + camera rig euler angles before loading a minigame scene; FirstPersonCharacter.LoadSceneData restores them on house reload.
     public void SaveSceneData(PlayerCharacter playerCharacter)
     {
         PlayerSceneData playerSceneData = new PlayerSceneData()
         {
             Position = playerCharacter.transform.position,
             EulerAngles = playerCharacter.transform.eulerAngles,
-            CameraEulerAngles = playerCharacter.CameraTarget.eulerAngles
+            CameraEulerAngles = playerCharacter.CameraTarget != null ? playerCharacter.CameraTarget.eulerAngles : default
         };
         string json = JsonUtility.ToJson(playerSceneData.Serialized, prettyPrint: false);
         TempCacheManager.Instance.WriteFile(FILE_NAME, json);
     }
 
+    // Cursor - Reads JSON written by SaveSceneData; returns null if missing or corrupt so Player spawns at scene default.
     public PlayerSceneData LoadPlayerSceneData()
     {
         try
