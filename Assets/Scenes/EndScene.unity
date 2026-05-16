@@ -6123,24 +6123,24 @@ MonoBehaviour:
       <MinCandles>k__BackingField: 0
       <MaxCandles>k__BackingField: 1
     <FirstQuarter>k__BackingField:
-      <BlowOutTime>k__BackingField: 3.5
-      <MinCandles>k__BackingField: 0
+      <BlowOutTime>k__BackingField: 4
+      <MinCandles>k__BackingField: 1
       <MaxCandles>k__BackingField: 1
     <FirstHalf>k__BackingField:
-      <BlowOutTime>k__BackingField: 3
+      <BlowOutTime>k__BackingField: 3.5
       <MinCandles>k__BackingField: 1
       <MaxCandles>k__BackingField: 1
     <LastHalf>k__BackingField:
-      <BlowOutTime>k__BackingField: 3
+      <BlowOutTime>k__BackingField: 3.5
       <MinCandles>k__BackingField: 1
       <MaxCandles>k__BackingField: 2
     <LastQuarter>k__BackingField:
-      <BlowOutTime>k__BackingField: 2.5
+      <BlowOutTime>k__BackingField: 3
       <MinCandles>k__BackingField: 2
       <MaxCandles>k__BackingField: 2
     <LastEighth>k__BackingField:
-      <BlowOutTime>k__BackingField: 2
-      <MinCandles>k__BackingField: 2
+      <BlowOutTime>k__BackingField: 2.5
+      <MinCandles>k__BackingField: 1
       <MaxCandles>k__BackingField: 3
   m_Pentagram: {fileID: 1853548696}
   m_WinScreen: {fileID: 1750618068}
@@ -19646,15 +19646,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
-  m_RaycastTarget: 0
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 0f9f9daf311775e44bed2c1b39dabc7c, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -23581,15 +23581,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
-  m_RaycastTarget: 0
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 0f9f9daf311775e44bed2c1b39dabc7c, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
