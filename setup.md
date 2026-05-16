@@ -31,7 +31,7 @@ Estimates below are for **Unity 6 + Ollama + Llama 3.2** on a student/dev machin
 | **OS** | **Windows 10/11** 64-bit (primary target) or **Linux** (64-bit, glibc-based distro) |
 | **CPU** | **Intel Core i5-8400** / **AMD Ryzen 5 2600** (or equivalent: **6 physical cores**, 2.8 GHz+) |
 | **RAM** | **16 GB** system memory (Llama 3.2 ~4–8 GB + Unity/editor overhead) |
-| **GPU** | **Integrated graphics** or any DirectX 11–compatible GPU (**2 GB VRAM**+) — sufficient for the game; Ollama may run on **CPU only** |
+| **GPU** | **NVIDIA GeForce GTX 1060** (6 GB VRAM) or **AMD Radeon RX 580** (8 GB VRAM) or better — discrete GPU required for the Unity client; **integrated graphics are not sufficient** based on playtesting. Ollama inference may still run on **CPU** |
 | **Storage** | **~12 GB** free (Unity `Library/`, Llama 3.2 model, build cache) |
 | **Unity** | **6000.4.1f1** (see `ProjectSettings/ProjectVersion.txt`) |
 
