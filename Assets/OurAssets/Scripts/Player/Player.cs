@@ -33,6 +33,7 @@ public class Player : MonoBehaviour
 		m_PauseCharacter.Init(new PauseCharacterInitData() { Player = this });
 		m_MenuCharacter.Init(new MenuCharacterInitData() { Player = this });
 		ChangeCharacter(m_StartingPlayerCharacter);
+		// Cursor - Restore pose saved before Tarot/Rune (etc.); runs after ChangeCharacter so FirstPersonCharacter is initialised.
 		if (PlayerSceneDataManager.Instance)
 		{
 			PlayerSceneData playerSceneData = PlayerSceneDataManager.Instance.LoadPlayerSceneData();
@@ -71,7 +72,8 @@ public class Player : MonoBehaviour
 		if (!string.IsNullOrWhiteSpace(m_PlayerCharacter.ActionMap)) m_PlayerInput.SwitchCurrentActionMap(m_PlayerCharacter.ActionMap);
 		m_PlayerCharacterUpdateData = PlayerCharacterUpdateData;
 		m_PlayerCamera.ChangeCameraTarget(m_PlayerCharacter.CameraTarget);
-		if (m_PauseCharacter.MouseVisible) ShowCursor();
+		// Cursor fixed - sync lock/visibility to the active character (PauseCharacter.MouseVisible was always true and broke FPS mode).
+		if (m_PlayerCharacter.MouseVisible) ShowCursor();
 		else HideCursor();
 	}
 

@@ -67,8 +67,19 @@ public class FirstPersonCharacter : PlayerCharacter
 			return;
 		}
 		if (playerSceneData == null) return;
+
+		// Cursor - CharacterController ignores Transform.position writes unless disabled briefly (teleport after minigame scene load).
+		bool hadController = m_CharacterController != null;
+		if (hadController) m_CharacterController.enabled = false;
+
 		transform.position = playerSceneData.Position;
 		transform.eulerAngles = playerSceneData.EulerAngles;
+
+		// Cursor - PlayerSceneDataManager saves vertical look on CameraTarget; apply so PlayerCamera.Init reads correct pitch/yaw after returning to the house.
+		if (CameraTarget != null)
+			CameraTarget.eulerAngles = playerSceneData.CameraEulerAngles;
+
+		if (hadController) m_CharacterController.enabled = true;
 	}
 
 	public override void UpdateCharacter(ref IPlayerCharacterUpdateData playerCharacterUpdateData)

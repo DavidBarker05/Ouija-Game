@@ -2,7 +2,7 @@
 
 **Project:** Don't Forget to Say GOODBYE  
 **Purpose:** Continuous record of scope changes, limitations addressed, and AI-assisted development decisions for moderation and version tracking.  
-**Last updated:** 16 May 2026
+**Last updated:** 16 May 2026 (house return + Cryptex door persistence)
 
 ---
 
@@ -34,6 +34,8 @@
 | May 2026 | Story / session lore | Same names and story text every new game | `run_variant_id` in `SessionLorePrompt.j2` and `StoryPrompt.j2`; Ollama `options` (temperature, top_p, top_k, fresh seed) on lore + story requests in `StoryAiService`; `global::System.Environment.TickCount` avoids clash with `Jinja2.NET.Environment` | Replay variety + builds clean | Cursor AI | Per-run prompt + sampling diversity |
 | May 2026 | Opening narrative prompts | Spec drift vs design (board word budget, opener beats) | Rewrote `SessionLorePrompt.j2` (male PC, ≤7-word gate answers) and `StoryPrompt.j2` (70–100 word search/occult/Ouija setup; no spoil of why she left) | Match session flow: facts only on board | Cursor AI + design | Lore/story prompts aligned |
 | May 2026 | Documentation | Scattered notes | `ollama-plan.md`, `setup.md`, `readme.md`, this log | Exemplary rubric submission | Cursor AI | Single source for moderators |
+| May 2026 | House ↔ minigames | Saved position but view/walk broke after reload; cursor lock leaked from FPS | `FirstPersonCharacter.LoadSceneData` applies `CameraEulerAngles`, CharacterController-safe teleport; `Player.ChangeCharacter` uses `MouseVisible` on active character | Correct spawn + look after Tarot/Rune; FPS cursor hidden again | Cursor AI | Return-to-house matches pre-minigame pose |
+| May 2026 | Cryptex persistence | Cryptex beaten then Tarot/Rune reload reset closed door | `CryptexManager` restores door open + hides puzzle when `MinigameManager.IsMinigameBeaten(Cryptex)` on house `Start` | World matches solved state across scene reload | Cursor AI | Door stays open after rituals |
 
 ---
 
@@ -86,7 +88,9 @@ Detailed file history from implementation (chronological). Use with Git commit h
 - `Assets/OurAssets/Scripts/StoryManager.cs` — answered-question flags  
 - `Assets/OurAssets/Scripts/OuijaBoard.cs` — planchette spelling  
 - `Assets/OurAssets/Scripts/UI/StoryGeneratorScreen.cs` — story scene generation UI  
-- `Assets/OurAssets/Scripts/Cryptex/*`, `Tarot/*`, `Rune/*`, `EndMinigame/*`  
+- `Assets/OurAssets/Scripts/Cryptex/CryptexManager.cs` — door open pose cached; restore after reload if Cryptex beaten (`MinigameManager`)  
+- `Assets/OurAssets/Scripts/Player/FirstPersonCharacter.cs`, `Player.cs`, `PlayerSceneDataManager.cs` — scene data restore (body + camera rig), cursor sync on character swap  
+- `Assets/OurAssets/Scripts/Cryptex/*` (other), `Tarot/*`, `Rune/*`, `EndMinigame/*`  
 - `Assets/OurAssets/Scripts/GameUserSettings/UserSettingsManager.cs`  
 
 ### Build / setup helpers
@@ -141,6 +145,15 @@ Detailed file history from implementation (chronological). Use with Git commit h
 - End survival minigame (candles / pentagrams).  
 - Interactions for tarot, rune, end, cryptex; `PlayerSceneDataManager`.  
 - `LoadingScreen`, `StoryGeneratorScreen`, audio mixer routing.  
+
+### May 2026 — House return after minigames + Cryptex door (16 May)
+
+- AI assisted: yes (Cursor).  
+- **`FirstPersonCharacter.LoadSceneData`** — Applies saved **`CameraEulerAngles`** to **`CameraTarget`** (was saved but previously ignored); disables **`CharacterController`** briefly when teleporting so position applies reliably after async scene load.  
+- **`Player.Awake`** — Comment clarifies load order: **`ChangeCharacter`** then **`LoadSceneData`** so FirstPerson is initialised before restore.  
+- **`Player.ChangeCharacter`** — Cursor visibility follows **`m_PlayerCharacter.MouseVisible`** (was incorrectly tied to **`PauseCharacter.MouseVisible`**, always true, breaking FPS lock).  
+- **`PlayerSceneDataManager.SaveSceneData`** — Null-safe **`CameraTarget`**; comment on load path behaviour.  
+- **`CryptexManager`** — Caches door closed **`localRotation`** in **`Awake`**; on **`Start`**, if **`MinigameManager.Instance.IsMinigameBeaten(Minigames.Cryptex)`**, applies same open rotation as solve (`initial * Quaternion.Euler(m_DoorRotation)`), disables interaction, destroys cryptex object — no duplicate **`OnMinigameBeaten`**. Solve path uses shared **`ApplyCryptexDoorOpenRotation()`**.
 
 ---
 
