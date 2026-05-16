@@ -6378,6 +6378,11 @@ MonoBehaviour:
     - Where are your challenges?
     - How do I do your tasks?
     - How do I do your challenges?
+    - Where is the first task?
+    - Where is the first challenge?
+    - Where are the tasks?
+    - Where are the challenges?
+    - Where are my challenges?
     conditionIdsRequired: []
     responseIdWhenBlocked: 
     responseWhenBlocked: 
