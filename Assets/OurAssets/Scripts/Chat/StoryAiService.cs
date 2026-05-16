@@ -53,6 +53,12 @@ namespace OurAssets.Scripts.Chat
         [SerializeField] private int warmRequestTimeoutSeconds = 20;
         [SerializeField] private int coldStartTimeoutSeconds = 90;
 
+        [Header("Narrative sampling (session lore + story)")]
+        [Tooltip("Higher values diversify model output; 0 is greedy / often identical rerolls for the same prompt.")]
+        [SerializeField, Range(0.1f, 1.5f)] private float narrativeTemperature = 0.88f;
+        [SerializeField, Range(0.5f, 1f)] private float narrativeTopP = 0.92f;
+        [SerializeField, Range(1, 100)] private int narrativeTopK = 48;
+
         [Header("Debug")]
         [SerializeField] private bool enableRegularDebugLogs = true;
 
@@ -173,7 +179,11 @@ namespace OurAssets.Scripts.Chat
         {
             await Session.EnsureServerReadyAsync(cancellationToken);
 
-            string lorePrompt = RenderPromptTemplate(sessionLorePromptTemplate, SessionLorePromptResourcePath, null);
+            Dictionary<string, object> loreVars = new Dictionary<string, object>
+            {
+                ["run_variant_id"] = Guid.NewGuid().ToString("N"),
+            };
+            string lorePrompt = RenderPromptTemplate(sessionLorePromptTemplate, SessionLorePromptResourcePath, loreVars);
             if (string.IsNullOrWhiteSpace(lorePrompt))
             {
                 throw new ArgumentException("Session lore prompt is empty.");
@@ -184,6 +194,7 @@ namespace OurAssets.Scripts.Chat
                 model = _storyModelName,
                 keep_alive = ConvertKeepAliveSeconds(keepAliveSeconds),
                 stream = false,
+                options = BuildNarrativeInferenceOptions(),
                 messages = new List<OllamaMessage>
                 {
                     new OllamaMessage("user", lorePrompt),
@@ -225,6 +236,7 @@ namespace OurAssets.Scripts.Chat
                 model = _storyModelName,
                 keep_alive = ConvertKeepAliveSeconds(keepAliveSeconds),
                 stream = false,
+                options = BuildNarrativeInferenceOptions(),
                 messages = new List<OllamaMessage>
                 {
                     new OllamaMessage("user", prompt),
@@ -320,7 +332,14 @@ namespace OurAssets.Scripts.Chat
                 lore = fromDisk;
             }
 
-            return RenderPromptTemplate(storyPromptTemplate, StoryPromptResourcePath, lore.ToJinjaBindings());
+            Dictionary<string, object> storyVars = new Dictionary<string, object>();
+            foreach (KeyValuePair<string, object> kv in lore.ToJinjaBindings())
+            {
+                storyVars[kv.Key] = kv.Value;
+            }
+
+            storyVars["run_variant_id"] = Guid.NewGuid().ToString("N");
+            return RenderPromptTemplate(storyPromptTemplate, StoryPromptResourcePath, storyVars);
         }
 
         private static string RenderPromptTemplate(
@@ -349,6 +368,34 @@ namespace OurAssets.Scripts.Chat
             Template template = new Template(templateAsset.text);
             string rendered = template.Render(dict);
             return rendered ?? string.Empty;
+        }
+
+        private OllamaChatInferenceOptions BuildNarrativeInferenceOptions()
+        {
+            return new OllamaChatInferenceOptions
+            {
+                temperature = narrativeTemperature,
+                top_p = narrativeTopP,
+                top_k = Mathf.Max(1, narrativeTopK),
+                seed = NextNarrativeSeed(),
+            };
+        }
+
+        /// <summary>
+        /// Ollama repeats identical completions for identical prompts when sampling is effectively greedy.
+        /// A fresh seed each request keeps session lore and story diverging between runs.
+        /// </summary>
+        private static int NextNarrativeSeed()
+        {
+            unchecked
+            {
+                int h = Guid.NewGuid().GetHashCode();
+                int t = global::System.Environment.TickCount;
+                int x = (h * 397) ^ t;
+                if (x == 0) x = 1;
+                if (x == int.MinValue) x = 2;
+                return x;
+            }
         }
 
         private static string ConvertKeepAliveSeconds(int seconds)

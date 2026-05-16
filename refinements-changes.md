@@ -2,7 +2,7 @@
 
 **Project:** Don't Forget to Say GOODBYE  
 **Purpose:** Continuous record of scope changes, limitations addressed, and AI-assisted development decisions for moderation and version tracking.  
-**Last updated:** May 2026
+**Last updated:** 16 May 2026
 
 ---
 
@@ -31,7 +31,8 @@
 | May 2026 | Menus / loading | Scene loads froze frame | `LoadingScreen` async load + progress bar | UX during scene change | No (David) | Smoother transitions |
 | May 2026 | User settings | Volume not applied on boot | `UserSettingsManager` + mixer; apply after audio ready | Hear saved master volume | Debug + design | Settings persist |
 | May 2026 | Ethics / safety | Open LLM could give harmful text | Prompt rules; gates; teen tone; fiction framing | GADS duty-of-care | Cursor AI + design doc | Documented in `ollama-plan.md` |
-| May 2026 | Rune minigame | Rounds never advanced; win never triggered | Fixed RuneMatchManager round/win logic and input gating | Minigame progression broken | Cursor AI | Rune ritual completable |
+| May 2026 | Story / session lore | Same names and story text every new game | `run_variant_id` in `SessionLorePrompt.j2` and `StoryPrompt.j2`; Ollama `options` (temperature, top_p, top_k, fresh seed) on lore + story requests in `StoryAiService`; `global::System.Environment.TickCount` avoids clash with `Jinja2.NET.Environment` | Replay variety + builds clean | Cursor AI | Per-run prompt + sampling diversity |
+| May 2026 | Opening narrative prompts | Spec drift vs design (board word budget, opener beats) | Rewrote `SessionLorePrompt.j2` (male PC, ≤7-word gate answers) and `StoryPrompt.j2` (70–100 word search/occult/Ouija setup; no spoil of why she left) | Match session flow: facts only on board | Cursor AI + design | Lore/story prompts aligned |
 | May 2026 | Documentation | Scattered notes | `ollama-plan.md`, `setup.md`, `readme.md`, this log | Exemplary rubric submission | Cursor AI | Single source for moderators |
 
 ---
@@ -48,458 +49,98 @@
 
 ---
 
+## Technical milestones (file-level index)
+
+Detailed file history from implementation (chronological). Use with Git commit hashes for verification.
+
+### AI / Ollama stack
+
+- `Assets/OurAssets/Scripts/AI/OllamaProcessManager.cs` — probe/start `ollama serve`, owned-process tracking  
+- `Assets/OurAssets/Scripts/AI/OllamaClient.cs` — `UnityWebRequest` chat + unload  
+- `Assets/OurAssets/Scripts/AI/OllamaDtos.cs` — request/response types, optional inference options  
+- `Assets/OurAssets/Scripts/AI/OllamaGameSession.cs` — shared session, warm/cold timeouts, lifecycle  
+- `Assets/OurAssets/Scripts/AI/UnityMainThread.cs` — sync context for async callbacks  
+
+### Chat / narrative
+
+- `Assets/OurAssets/Scripts/Chat/OuijaConversationState.cs` — constants + player/AI transcript  
+- `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs` — gates + Ouija send path  
+- `Assets/OurAssets/Scripts/Chat/StoryAiService.cs` — lore + story generation, cache I/O; `run_variant_id` in Jinja; Ollama narrative sampling per lore/story request  
+- `Assets/OurAssets/Scripts/Chat/StorySessionLore.cs` — JSON lore DTO + parser  
+- `Assets/OurAssets/Scripts/Chat/OuijaQuestionGateResolver.cs` — fuzzy + classifier  
+- `Assets/OurAssets/Scripts/Chat/OuijaGatedQuestionEntry.cs` — inspector gate definitions  
+- `Assets/OurAssets/Scripts/Chat/OuijaGateResponseResolver.cs` — `spirit_name`, `player_name`, `wife_*` ids  
+- `Assets/OurAssets/Scripts/Chat/OuijaGateConditionEvaluator.cs` — minigame-linked conditions  
+- `Assets/OurAssets/Scripts/Chat/OuijaPlayerInputController.cs` — text, voice, send block  
+- `Assets/OurAssets/Scripts/Chat/OuijaGameCachePaths.cs` — `session_lore.json`, `story_context.txt`  
+
+### Prompts
+
+- `Assets/Resources/Prompts/SessionLorePrompt.j2`  
+- `Assets/Resources/Prompts/StoryPrompt.j2`  
+- `Assets/Resources/Prompts/OuijaSystemPrompt.j2`  
+
+### Gameplay / UI
+
+- `Assets/OurAssets/Scripts/GameManager.cs` — `StartNewGame` pipeline  
+- `Assets/OurAssets/Scripts/StoryManager.cs` — answered-question flags  
+- `Assets/OurAssets/Scripts/OuijaBoard.cs` — planchette spelling  
+- `Assets/OurAssets/Scripts/UI/StoryGeneratorScreen.cs` — story scene generation UI  
+- `Assets/OurAssets/Scripts/Cryptex/*`, `Tarot/*`, `Rune/*`, `EndMinigame/*`  
+- `Assets/OurAssets/Scripts/GameUserSettings/UserSettingsManager.cs`  
+
+### Build / setup helpers
+
+- `OuijaSetup/`, `Windows_Ollama_Setup.exe`, `Ollama_Setup.py`  
+- `Assets/Editor/PostBuildCopy.cs`  
+
 ---
 
-## Completed so far (detailed chronological log)
+## Completed so far (detailed entries)
 
-- Added `Assets/OurAssets/Scripts/AI/OllamaProcessManager.cs`
-  - Date: 29/04/2026
-  - AI assisted: yes.
-  - Checks whether Ollama is reachable via localhost.
-  - Attempts to start `ollama serve` when Ollama is not running.
-  - Polls readiness until startup timeout expires.
+### April 2026 — Ollama foundation
 
-- Added `Assets/OurAssets/Scripts/AI/OllamaDtos.cs`
-  - Date: 29/04/2026
-  - AI assisted: yes.
-  - Defines request/response DTOs for Ollama `/api/chat`.
-  - Includes support for `model`, `messages`, `stream`, and `keep_alive`.
+- Added `OllamaProcessManager.cs` — reachability check, optional `ollama serve`, startup timeout.  
+- Added `OllamaDtos.cs` — `/api/chat` payload types, `keep_alive`, streaming flag.  
+- Added `OllamaClient.cs` — send chat, parse errors, unload model.  
+- Added `OuijaConversationState.cs` — constants + interleaved history.  
+- Added `OuijaAiOrchestrator.cs` — story + Ouija roles (later split).  
+- Lifecycle: unload on pause/focus loss/quit; respect pre-existing Ollama process.  
+- Model names from `StoryModel.txt` / `OuijaModel.txt` with inspector fallbacks.  
 
-- Added `Assets/OurAssets/Scripts/AI/OllamaClient.cs`
-  - Date: 29/04/2026
-  - AI assisted: yes.
-  - Sends chat requests to the local Ollama server using `UnityWebRequest`.
-  - Date: 30/04/2026
-  - Parses responses and reports structured failure details.
+### May 2026 — Gates and classifier
 
-- Added `Assets/OurAssets/Scripts/Chat/OuijaConversationState.cs`
-  - Date: 29/04/2026
-  - AI assisted: yes.
-  - Stores message history in three blocks:
-    - constants (system + generated context),
-    - player messages,
-    - AI messages.
-  - Composes outgoing context in this order:
-    - constants first,
-    - then interleaved `player -> ai -> player -> ai ...`.
+- `IOuijaGateConditionEvaluator`, `IOuijaGateResponseResolver`, gated question entries.  
+- Two-stage gate: fuzzy instant (threshold) → optional classifier on top-K candidates.  
+- Classifier JSON: `matched_id`, `confidence`; camelCase/snake_case parsing.  
+- Gate replies do not append to conversation history.  
+- Inference options (temperature, seed) **only** on classifier requests.  
 
-- Added `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs`
-  - Date: 29/04/2026
-  - AI assisted: yes.
-  - Orchestrates two AI roles:
-    - Story generator model,
-    - Ouija board model.
-  - Sends story output into the constants block for the Ouija model.
-  - Supports inspector-configured keep-alive seconds conversion to Ollama format (e.g. `120s`).
-  - Applies warm vs cold timeout behavior based on keep-alive expiry.
+### May 2026 — Story pipeline split
 
-- Updated `Assets/OurAssets/Scripts/AI/OllamaClient.cs` and `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs`
-  - Date: 29/04/2026
-  - AI assisted: yes.
-  - Added explicit model unload calls to Ollama (`/api/generate` with `keep_alive: "0s"`).
-  - Triggers unload when app is paused, loses focus/minimized, or quits.
-  - Clears warm-state timestamps immediately so the next model request uses cold-start timeout behavior.
+- `StoryAiService` DontDestroyOnLoad; temp cache for story text.  
+- `OllamaGameSession` shared client and warm state.  
+- `GameManager.StartNewGame` orchestrates cache clear, spirit, minigames, AI steps.  
 
-- Updated `Assets/OurAssets/Scripts/AI/OllamaClient.cs` and `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs`
-  - Date: 29/04/2026
-  - AI assisted: yes.
-  - Moved Ollama server readiness/startup responsibility into `OllamaClient`.
-  - `OuijaAiOrchestrator` now delegates server readiness checks to client layer.
+### May 2026 — Session lore (14 May)
 
-- Updated `Assets/OurAssets/Scripts/AI/OllamaProcessManager.cs`, `Assets/OurAssets/Scripts/AI/OllamaClient.cs`, and `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs`
-  - Date: 29/04/2026
-  - AI assisted: yes.
-  - Tracks whether the current game session started `ollama serve`.
-  - On game quit, only stops Ollama if this session started it.
-  - If Ollama was already running before launch, game quit leaves it running.
+- `GenerateSessionLoreAsync` before story; writes `session_lore.json`.  
+- Story Jinja uses session names (full lore still drives gated Ouija answers for leave/sad reasons).  
+- Gate response IDs: `player_name`, `wife_name`, `wife_left_reason`, `wife_sad_reason`.  
 
-- Updated `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs`
-  - Date: 29/04/2026
-  - AI assisted: yes.
-  - On quit, attempts to stop owned Ollama server first.
-  - If owned server is stopped, skip model unload on quit.
-  - If server is not stopped (pre-existing server), still unload models on quit.
+### May 2026 — Story prompts and sampling (16 May)
 
-- Updated `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs`
-  - Date: 29/04/2026
-  - AI assisted: yes.
-  - Added quit guard for Unity lifecycle ordering (`_isQuitting`).
-  - Prevents `OnApplicationPause` / `OnApplicationFocus` from triggering unload logic during quit.
+- **`Assets/Resources/Prompts/SessionLorePrompt.j2`** — Male player character; `wifeLeftReason` / `wifeSadReason` as single short sentences (≤7 words for Ouija); `{{ run_variant_id }}` appended so each generation request is not identical to the last.  
+- **`Assets/Resources/Prompts/StoryPrompt.j2`** — Short opening hook: search for wife, occult house, missing wife, nearby board; 70–100 words, teen (16+); explicit rule not to reveal why she left yet; `{{ run_variant_id }}` for variation.  
+- **`Assets/OurAssets/Scripts/Chat/StoryAiService.cs`** — Passes `run_variant_id` into session lore Jinja render; merges lore bindings with a new `run_variant_id` for story render; sets `OllamaChatRequest.options` for both lore and story calls (inspector: narrative temperature / top_p / top_k + random seed per request); `NextNarrativeSeed` uses `global::System.Environment.TickCount` to fix `CS0104` vs Jinja2.NET.  
 
-- Added `OuijaSetup/OuijaSetp.cpp`
-  - Date: 30/04/2026
-  - AI assisted: no (David).
-  - Used to be able to install Ollama and AI models for any system, just needs to be compiled
+### May 2026 — Gameplay polish (12–15 May)
 
-- Added `StoryModel.txt` and `OuijaModel.txt`
-  - Date: 30/04/2026
-  - AI assisted: no (David).
-  - Stores the models to be used for the game
-
-- Updated `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs`
-  - Date: 30/04/2026
-  - AI assisted: no (David).
-  - Read the AI models from the text files instead of inspector
-  - Inspector models are now used as fallbacks if the text files are missing or empty
-
-- Added `OuijaSetup/CMakeLists.txt`
-  - Date: 30/04/2026
-  - AI assisted: no (David).
-  - Allows the cpp file to be built on any system
-
-- Added `Windows_Ollama_Setup.exe`, `Linux_Ollama_Setup`, and `Ollama_Setup.py`
-  - Date: 30/04/2026
-  - AI assisted: no (David).
-  - Allows Ollama and the models to be installed on Windows and Linux
-  - The cpp file does work for MacOS but they require me to own a Mac or illegally download a VM for MacOS which I didn't feel like doing
-  - The py file checks the system and runs the correct executable, and the executables are there in case the person running them doesn't have python
-
-- Added `Assets/Editor/PostBuildCopy.cs`
-  - Date: 30/04/2026
-  - AI assissted: no (David).
-  - Copies the Ollama setup files from the project folder to the executable folder on build
-
-- Forked [Jinja2.NET](https://github.com/AlexNek/Jinja2.NET) to create my own package that works with Unity called [Jinja2.NET.Unity](https://github.com/DavidBarker05/Jinja2.NET.Unity)
-  - Date: 07/05/2026
-  - AI assisted: no (David).
-  - Used to read prompts stored in Jinja2 files in Unity C# without python
-
-- Added `Jinja2.NET.Unity` as a package
-  - Date: 07/05/2026
-  - AI assisted: no (David)
-  - See above
-
-- Updated `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs` and added prompt assets in `Assets/Resources/Prompts/`
-  - Date: 07/05/2026
-  - AI assisted: yes.
-  - Replaced serialized string prompt fields with serialized `TextAsset` prompt templates.
-  - Added prompt rendering via `Jinja2.NET.Template` before sending requests to Ollama.
-  - Added fallback loading from Unity `Resources` paths:
-    - `Prompts/OuijaSystemPrompt`
-    - `Prompts/StoryPrompt`
-  - Story context generation now renders the story template file first, then sends the rendered text to the story model.
-  - Ouija system constants now render from the system template file before being added to conversation context.
-
-- Updated `Jinja2.NET.Unity`
-  - Date: 07/05/2026
-  - AI assisted: no (David)
-  - Now .j2 files are read as TextAssets by Unity which makes them easier to work with
-
-- Updated `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs`
-  - Date: 07/05/2026
-  - AI assisted: yes.
-  - Added inspector toggle `enableRegularDebugLogs` to control non-critical `Debug.Log` output.
-  - Wrapped regular logs with inline `if` checks to preserve original callsite stack traces.
-  - Kept `Debug.LogError` and `Debug.LogWarning` always-on for troubleshooting.
-
-- Added `whisper.unity` package (`com.whisper.unity`) to `Packages/manifest.json`
-  - Date: 09/05/2026
-  - AI assisted: no (David).
-  - Provides on-device speech-to-text via whisper.cpp bindings.
-  - Used to transcribe player voice input into the Ouija message box.
-
-- Added `Assets/OurAssets/Scripts/Chat/OuijaPlayerInputController.cs`
-  - Date: 09/05/2026
-  - AI assisted: yes.
-  - Drives the on-screen Ouija chat input UI.
-  - Text input path:
-    - Serialized `TMP_InputField` whose `characterLimit` is set from a serialized `maxMessageCharacters` (default 200) so typing/transcription is capped.
-    - Send button (also triggers on `onSubmit` / Enter) calls `OuijaAiOrchestrator.SendPlayerMessageToOuijaAsync`.
-    - Send button auto-disables while empty, transcribing, recording, or sending.
-    - Optional `clearInputAfterSend` toggle.
-  - Voice input path:
-    - Toggle button starts/stops recording via `MicrophoneRecord` from whisper.unity.
-    - Serialized `maxRecordingSeconds` (default 30) is pushed into `MicrophoneRecord.maxLengthSec` and additionally enforced in `Update()` so the cap is authoritative.
-    - On record stop, audio is sent to `WhisperManager.GetTextAsync`; the transcription overwrites the input field text (clamped to the character limit) so the player can edit before sending.
-    - Optional UI hooks for record-button label swap, indicator color, status label, and recording-time countdown label.
-  - Robustness:
-    - `CancellationTokenSource` cancels any in-flight send on disable / re-send.
-    - Stops the microphone in `OnDisable` so scene unload / quit doesn't leak the input device.
-    - Public events `AiResponseReceived(string)` and `SendFailed(Exception)` for downstream UI to subscribe to.
-
-- Added `Assets/StreamingAssets/Whisper/ggml-tiny.bin` (whisper model weights)
-  - Date: 09/05/2026
-  - AI assisted: no (David).
-  - Shipped under `StreamingAssets` so `WhisperManager` can resolve it via `Application.streamingAssetsPath` in editor and builds.
-  - Tracked through Git LFS (see `.gitattributes` change below).
-
-- Updated `.gitattributes`
-  - Date: 09/05/2026
-  - AI assisted: yes.
-  - Added Git LFS tracking for AI/ML model weights: `*.bin`, `*.gguf`, `*.onnx`, `*.safetensors`.
-  - Ensures whisper / future ML model files are not committed as plain blobs.
-
-- Updated `Assets/Scenes/SampleScene.unity`
-  - Date: 09/05/2026
-  - AI assisted: no (David).
-  - Added a Canvas with the Ouija chat UI (input field, send button, record button, status / countdown labels).
-  - Added GameObjects hosting `WhisperManager`, `MicrophoneRecord`, and `OuijaPlayerInputController`, with serialized references wired up.
-
-- Added `Assets/OurAssets/Scripts/OuijaBoard.cs`
-  - Date: 09/05/2026
-  - AI assisted: no (David).
-  - Basic logic for the Ouija Board that moves a planchette and displays characters to the screen based on the response from the AI
-
-- Added scripted **gated Ouija questions** (preset answers + optional progression conditions, no conversation-history pollution)
-  - Date: 10/05/2026
-  - AI assisted: yes.
-
-- Added `Assets/OurAssets/Scripts/Chat/IOuijaGateConditionEvaluator.cs`
-  - Interface: `bool IsConditionMet(string conditionId)` for minigames, flags, inventory, door state, etc.
-  - Wired from `OuijaAiOrchestrator` via a serialized `Component` reference that implements this interface.
-
-- Added `Assets/OurAssets/Scripts/Chat/OuijaGatedQuestionEntry.cs`
-  - Inspector-friendly entry per special question:
-    - Stable `questionId` (also used when the classifier returns JSON).
-    - `matchPhrases[]` — paraphrases to fuzzy-match player wording locally.
-    - `conditionIdsRequired[]` — if non-empty, all must pass evaluator checks for the **eligible** response; otherwise **blocked** response. Empty list means always **eligible**.
-    - `responseWhenBlocked` / `responseWhenEligible` preset lines (spirit voice is still up to wording).
-
-- Added `Assets/OurAssets/Scripts/Chat/OuijaGateConditionEvaluatorStub.cs`
-  - MonoBehaviour stub: toggle “treat all conditions as met” for testing before real gameplay hooks exist.
-
-- Added `Assets/OurAssets/Scripts/Chat/OuijaQuestionGateResolver.cs`
-  - **Stage 1 (no AI):** normalizes text, scores similarity per gate (token Jaccard, directional overlap, compact bigram Dice), auto-resolves if best score ≥ `gatedFuzzyStrongThreshold`.
-  - **Stage 2 (minimal Ollama call):** if not auto-resolved, sends only **top-K** fuzzy candidates (`gatedMaxClassifierCandidates`, floor `gatedFuzzyMinAiCandidateScore`) to a **single-shot** chat — system rules + candidate ids/phrases + player line — **no** story or `OuijaConversationState` history. Expects JSON `{ "matched_id":"...", "confidence":0.0 }`; `confidence` must be ≥ `gatedClassifierMinConfidence` and `matched_id` must be one of the candidates.
-
-- Updated `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs`
-  - New inspector block **“Gated scripted questions”**: `enableQuestionGate`, `gatedQuestions[]`, optional `gateConditionEvaluator`, optional `gateClassifierInstructions` (`TextAsset`), optional `gateClassifierModelOverride` (blank = same model as normal Ouija chat), thresholds/timeouts/`enableGateDebugLogs`.
-  - `SendPlayerMessageToOuijaAsync` resolves gates **before** `_conversationState.AddPlayerMessage`; successful gate replies **never** add player or AI turns to conversation state.
-  - When the classifier path runs (`InvokedClassifier`), marks the classifier model warm for timeout bookkeeping (same as ouija unless override set).
-
-- Updated `Assets/OurAssets/Scripts/Chat/OuijaQuestionGateResolver.cs` and `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs`
-  - Date: 10/05/2026
-  - AI assisted: yes.
-  - Added detailed gated-question debug logs behind `enableGateDebugLogs`:
-    - Per-request fuzzy breakdown including normalized player text, thresholds, and per-gate/per-phrase scores.
-    - Similarity component values (`jacc`, token coverage, bigram Dice) for each phrase entry.
-    - Classifier candidate-pool summary and explicit “no candidates above floor” logging.
-    - `enableGateDebugLogs` is now independent of `enableRegularDebugLogs` so gate diagnostics can be enabled by themselves.
-
-- Added `Assets/OurAssets/Scripts/AI/UnityMainThread.cs`
-  - Date: 10/05/2026
-  - AI assisted: yes.
-  - Captures the Unity `SynchronizationContext` and provides `SwitchToMainThreadAsync()` so async continuations can post back to the main thread.
-
-- Updated `Assets/OurAssets/Scripts/AI/OllamaClient.cs`
-  - Date: 10/05/2026
-  - AI assisted: yes.
-  - `SendChatAsync` and `UnloadModelAsync` await `UnityMainThread.SwitchToMainThreadAsync()` before creating `UnityWebRequest` (fixes “Create can only be called from the main thread” when chat code resumes off the main thread after `await`).
-
-- Updated `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs`
-  - Date: 10/05/2026
-  - AI assisted: yes.
-  - Registers the main-thread context in `Awake` via `UnityMainThread.RegisterMainThreadContext` before creating `OllamaClient`.
-
-- Updated `Assets/OurAssets/Scripts/Chat/OuijaQuestionGateResolver.cs`
-  - Date: 10/05/2026
-  - AI assisted: yes.
-  - Classifier JSON parsing hardened for real model outputs: camelCase envelope (`matchedId`), regex fallbacks, `NormalizeClassifierMatchedId` (strip `id=`, list prefixes), numeric / index mapping to `QuestionId`, and flooring `confidence` when it is exactly `0` but a valid gate id was returned (models often misuse zero).
-
-- Updated `Assets/OurAssets/Scripts/AI/OllamaDtos.cs`, `OuijaQuestionGateResolver.cs`, `OuijaAiOrchestrator.cs`
-  - Date: 10/05/2026
-  - AI assisted: yes.
-  - `OllamaChatRequest` supports optional nested `OllamaChatInferenceOptions` (`temperature`, `top_p`, `top_k`, `seed`); only the **gate classifier** sets `options` on its chat request. Main Ouija/story chat omit `options` and keep Ollama defaults.
-  - Inspector fields on `OuijaAiOrchestrator` tune classifier sampling: `gateClassifierTemperature`, `gateClassifierTopP`, `gateClassifierTopK`, `gateClassifierSeed`.
-
-- Further **gated scripted questions / classifier** refinements
-  - Date: 10/05/2026
-  - AI assisted: yes.
-  - **`DefaultClassifierPreamble`:** rewritten around **semantic intent** (last routing step before free-form Ouija): phrases as hints not magic strings; **location** (“where”, place) vs **name/identity**; **player self** (“What is *my* name?”, “Who am I?”) vs **spirit-directed** (“*your* name”, “Who are you?”); thy/your and similar paraphrase; guidance on confidence for borderline vs obvious fits.
-  - **Classifier user prompt:** shows up to **eight** `matchPhrases` per gate in the candidate block (`ClassifierPromptMaxPhrasesPerGate`); header tells the model to match **intent**, not exact wording.
-  - **Inspector defaults** tuned for paraphrase (approx. temperature **0.25**, top_p **0.9**, top_k **40**); **`gatedClassifierMinConfidence`** default **~0.52** so reasonable semantic hits are not always rejected (wrong-but-confident cases addressed by other checks below).
-  - **`gateClassifierLexicalExactFallback`:** if enabled, when the model returns empty or unusable JSON, accept a gate only when the normalized player text equals a configured phrase (**off by default** so routing stays intent-first).
-  - **`gateClassifierMaxFuzzyLeaderGap`:** after the model picks a gate, **reject** that pick if its fuzzy score in the candidate pool falls too far below the **top** fuzzy-scoring gate (reduces false positives such as “Where are you?” classified as a name gate with high confidence).
-  - **`ShouldRejectSelfDirectedNameToSpiritFacingGate`:** blocks routing clear **self**-identity questions into gates whose phrases only ask the **spirit** for identity (unless those gates also include player-self phrasing in `matchPhrases`).
-  - **`ClassifyAmongCandidatesAsync`** takes the **scored** fuzzy pool (`List<ScoredGate>`) for the leader-gap check; resolver constructor wiring extended accordingly.
-  - **`enableGateDebugLogs`:** also logs **full** classifier system text, full user text, full raw model reply, and request meta (model, `keep_alive`, inference options); long payloads split into console-sized chunks. Parse-failure warnings point at that full raw log instead of a short truncated excerpt.
-
-- Updated `Assets/OurAssets/Scripts/Player/Player.cs`
-  - Date: 11/05/2026
-  - AI assisted: no (David).
-  - Only use one character per scene now
-
-- Added `Assets/OurAssets/Scripts/Player/TarotCharacter.cs`
-  - Date: 11/05/2026
-  - AI assisted: no (David).
-  - Character for tarot card flipping minigame
-
-- Added `Assets/OurAssets/Scripts/Player/PlayerSceneData.cs`
-  - Date: 11/05/2026
-  - AI assisted: no (David).
-  - Used for when loading back into the main scene to go back to proper position
-  - Updated `Assets/OurAssets/Scripts/Player/PlayerCharacter.cs` and all derived classes to work with it
-
-- **Story AI vs Ouija AI split + cross-scene handoff via temp cache**
-  - Date: 11/05/2026
-  - AI assisted: yes.
-  - **`StoryAiService`** (`Assets/OurAssets/Scripts/Chat/StoryAiService.cs`): DontDestroyOnLoad singleton (lazy `Instance` or scene-placed). Owns story model name (`StoryModel.txt`), story prompt template, and `GenerateStoryContextAsync` / `WriteStoryContextToCache`. No longer embedded in `OuijaAiOrchestrator`.
-  - **`OuijaGameCachePaths`**: `Application.temporaryCachePath/OuijaGame/` for non-persistent scratch files.
-  - **`story_context.txt`**: story output written here; Ouija scene reads it when building system constants (no in-memory-only coupling).
-  - **`OuijaConversationHistoryStore`** + **`OuijaConversationState.ReplaceTranscript`**: Ouija player/assistant turns persisted as `ouija_conversation.json` in the same folder; orchestrator loads on `Awake` and saves after each turn (gate matches still skip history as before).
-
-- **Shared Ollama session + unified model lifetime**
-  - Date: 11/05/2026
-  - AI assisted: yes.
-  - **`OllamaGameSession`** (`Assets/OurAssets/Scripts/AI/OllamaGameSession.cs`): DontDestroyOnLoad singleton, `[DefaultExecutionOrder(-100)]`, holds the **single** `OllamaClient`, `EnsureServerReadyAsync`, shared **`MarkModelWarm` / `IsModelCold` / `ResolveRequestTimeoutSeconds`** keyed by model name (so story, Ouija, and gate classifier stay in sync when they share a model).
-  - **Pause / unfocus / quit**: only this service runs unload logic; it snapshots all touched model names, dedupes, unloads each once, and owns **`ShutdownOwnedServer`** on quit (or clears warm map if the session-owned server was stopped).
-  - **`OuijaAiOrchestrator`** and **`StoryAiService`**: no per-scene Ollama client or lifecycle handlers; they call `OllamaGameSession.Instance` for readiness, `Client`, warm marks, and request timeouts. Connection URL / startup probe / unload HTTP timeout live on `OllamaGameSession` (inspector on the persistent host in `SampleScene` alongside `StoryAiService`).
-  - **`OuijaAiOrchestrator`**: story generation and story prompt fields removed; still reads Ouija model from `OuijaModel.txt` and keeps per-feature timing (`keepAliveSeconds`, warm/cold timeouts) for API `keep_alive` and timeout heuristics.
-
-- Added `Assets/OurAssets/Scripts/Tarot/TarotCard.cs` and `Assets/OurAssets/Scripts/Tarot/TarotManager.cs`
-  - Date: 11/05/2026
-  - AI assisted: no (David).
-  - All the different tarot card types
-  - Can flip cards, two cards that flip if add up to 21 stay flipped
-  - Win when all cards flipped
-  - Lose when run out of time then have to restart
-  - Updated `Assets/OurAssets/Scripts/Player/TarotCharacter.cs` to flip the card
-
-- Added `Assets/OurAssets/Scripts/Rune/RuneMatchManager.cs`
-  - Date: 11/05/2026
-  - AI assisted: no (David).
-  - Press buttons in the correct order of runes displayed
-  - Each rune shows for limited time
-  - Runes increase over time
-  - Make mistake = restart
-
-- Updated `Assets/OurAssets/Scripts/Player/Player.cs` and `Assets/OurAssets/Scripts/Player/PlayerCharacter.cs`
-  - Date: 11/05/2026
-  - AI assisted: no (David).
-  - Allow to switch to a different player
-  - Allows us to start with one main character and not have whole list of characters just to swtich
-  - Classes that derive from PlayerCharacter specify their action map they use
-  - This allows us to keep some of the minigames in the same scene without having to switch (like the cryptex and ouija board which the player will have to keep going in and out of)
-  - Allows other minigames to still have their own scene (like the tarot cards which the player is stuck in until completion)
-
-- Added `Assets/OurAssets/Scripts/TempCacheManager.cs`
-  - Date: 11/05/2026
-  - AI assisted: no (David).
-  - Allows easier managing files in temp cache path
-  - Deletes all files in temp cache path on quit
-
-- Added `Assets/OurAssets/Scripts/SpiritNameManager.cs`
-  - Date: 11/05/2026
-  - AI assisted: no (David).
-  - Generates a random name from 10 names for the spirit
-
-- Updated `Assets/OurAssets/Scripts/Chat/StoryAiService.cs`
-  - Date: 11/05/2026
-  - AI assisted: no (David).
-  - Allow to generate story without having to provide the prompt or cancellation token and just use the prompt defined in the service
-
-- Added `Assets/OurAssets/Scripts/Cryptex/Cryptex.cs`, `Assets/OurAssets/Scripts/Cryptex/CryptexButton.cs` and `Assets/OurAssets/Scripts/Tarot/CryptexManager.cs`
-  - Date: 11/05/2026
-  - AI assisted: no (David).
-  - Used for the puzzle lock for the door
-  - Answer to the puzzle is the ghost name
-  - Cryptex rotates the rings
-  - Cryptex button tells the cryptex which ring to rotate and which direction
-  - Cryptex manager checks if the name matches
-
-- Added `Assets/OurAssets/Scripts/MinigameManager.cs`
-  - Date: 11/05/2026
-  - AI assisted: no (David).
-  - Keeps the order that minigames need to be beaten in
-  - Keeps track of what minigames have been beaten
-  - Updated TarotManager, RuneMatchManager and CyptexManager to update the MinigameManager when those minigames are beaten
-
-- Added `Assets/OurAssets/Scripts/GameManager.cs`
-  - Date: 11/05/2026
-  - AI assisted: no (David).
-  - Used to start new game
-
-- Added `Assets/OurAssets/Scripts/Player/OuijaCharacter.cs`
-  - Date: 12/05/2026
-  - AI assisted: no (David).
-  - Used when talking to the ouija board
-  - Also updated Player to not try to change action map if string is empty
-
-- Updated `Assets/OurAssets/Scripts/OuijaBoard.cs`
-  - Date: 11/05/2026
-  - AI assisted: no (David).
-  - When saying goodbye go back to normal character
-  - Also wait for a few seconds after saying the final character now
-
-- Added `Assets/OurAssets/Scripts/Interaction/OuijaInteraction.cs`
-  - Date: 12/05/2026
-  - AI assisted: no (David).
-  - Used to start the ouija board when interacting
-
-- Updated `Assets/OurAssets/Scripts/Chat/OuijaPlayerInputController.cs`
-  - Date: 12/05/2026
-  - AI assisted: yes.
-  - External code can block send (send button + input submit / Enter) via ref-counted `PushSendBlock` / `PopSendBlock`, or `AcquireSendBlock()` for a disposable `using` scope. `CanSend()` treats a positive block count like other busy states so the UI stays consistent.
-
-- **Gated question responses: optional runtime ids (story-dependent lines)**
-  - Date: 12/05/2026
-  - AI assisted: yes.
-  - Added `Assets/OurAssets/Scripts/Chat/IOuijaGateResponseResolver.cs` — `GetGatedResponseText(responseId)`; non-empty return wins, otherwise falls back to inspector `responseWhenBlocked` / `responseWhenEligible`.
-  - Updated `Assets/OurAssets/Scripts/Chat/OuijaGatedQuestionEntry.cs` — optional `responseIdWhenBlocked` / `responseIdWhenEligible` alongside the existing response strings.
-  - Updated `Assets/OurAssets/Scripts/Chat/OuijaQuestionGateResolver.cs` — snapshots carry the new ids; `TryResolveAsync` takes the resolver; `ComposeReply` resolves each branch through the resolver first.
-  - Updated `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs` — optional `gateResponseResolver` component; if unset, uses `gateConditionEvaluator` when it also implements `IOuijaGateResponseResolver`.
-  - Updated `Assets/OurAssets/Scripts/Chat/OuijaGateConditionEvaluatorStub.cs` — implements the response resolver with optional inspector `gatedResponseOverrides` (id + text) for testing.
-
-- Added `Assets/OurAssets/Scripts/Chat/OuijaGateResponseResolver.cs`
-  - Date: 12/05/2026.
-  - AI assisted: no (David).
-  - Replaces id with text at runtime, rn just replace the name
-
-- Added `Assets/OurAssets/Scripts/EndMinigame/Candle.cs`, `Assets/OurAssets/Scripts/EndMinigame/SmallPentagram.cs`, `Assets/OurAssets/Scripts/EndMinigame/BigPentagram.cs`, and `Assets/OurAssets/Scripts/EndMinigame/EndSurvivalMinigame.cs`
-  - Date: 12/05/2026.
-  - AI assisted: no (David).
-  - Started working on the code for the final minigame
-  - Time limit that they have to survive in while candles blow out (all candles blow out they lose)
-  - One large pentagram that contains 5 small pentagrams at each point
-  - At the point of each small pentagram is a candle
-
-- Updated `Assets/OurAssets/Scripts/EndMinigame/BigPentagram.cs`
-  - Date: 13/05/2026.
-  - AI assisted: no (David).
-  - Blow out random number of candles for each small pentagram meaning player runs around more
-
-- Added `Assets/OurAssets/Scripts/Player/PauseCharacter.cs` and `Assets/OurAssets/Scripts/Player/RuneCharacter.cs`
-  - Date: 13/05/2026.
-  - AI assisted: no (David).
-  - PauseCharacter allows for the game to be paused and unpaused
-  - Updated PlayerCharacter to handle pause press
-  - Updated FirstPersonCharacter, TarotCharacter, OuijaCharacter and Player and added RuneCharacter to be able to handle the pause toggle and switch between PauseCharacter and last character
-
-- Updated `Assets/OurAssets/Scripts/EndMinigame/EndSurvivalMinigame.cs`
-  - Date: 13/05/2026.
-  - AI assisted: no (David).
-  - Add how often candles blow out and how many
-  - Also start on win and lose a bit
-
-- Added `Assets/OurAssets/Scripts/Interaction/CryptexInteraction.cs` and `Assets/OurAssets/Scripts/UI/CryptexExitButton.cs`
-  - Date: 13/05/2026.
-  - AI assisted: no (David).
-  - CryptexInteraction allows to start interacting with the cryptex
-  - CryptexExitButton allows to stop interacting with the cryptex
-
-- **Session lore: pre-story AI step (consistent player/wife facts per run)**
-  - Date: 14/05/2026
-  - AI assisted: yes.
-  - Added `Assets/OurAssets/Scripts/Chat/StorySessionLore.cs` — holds `playerName`, `wifeName`, `wifeLeftReason`, `wifeSadReason`; builds Jinja bindings; parses model JSON (strips markdown fences; accepts camelCase or snake_case keys).
-  - Added `Assets/Resources/Prompts/SessionLorePrompt.j2` — instructs the model to return a single JSON object with those four keys only.
-  - Updated `Assets/OurAssets/Scripts/Chat/OuijaGameCachePaths.cs` — `SessionLoreFilePath` (`session_lore.json` next to `story_context.txt`).
-  - Updated `Assets/OurAssets/Scripts/Chat/StoryAiService.cs` — `GenerateSessionLoreAsync` (same story model as narrative); writes/reads session lore cache; `BuildStoryPromptWithSessionBindings` passes lore into the story Jinja template; context menu to generate session lore from the inspector.
-  - Updated `Assets/Resources/Prompts/StoryPrompt.j2` — opens with a canon block (`player_name`, `wife_name`, `wife_left_reason`, `wife_sad_reason`) so the story pass does not contradict the lore pass.
-  - Updated `Assets/OurAssets/Scripts/GameManager.cs` — `StartNewGame` calls `GenerateSessionLoreAsync` before `GenerateStoryContextAsync`, with progress strings for each phase.
-  - Updated `Assets/OurAssets/Scripts/Chat/OuijaGateResponseResolver.cs` — resolves gated `responseId` values `player_name`, `wife_name`, `wife_left_reason`, and `wife_sad_reason` from cached session lore (alongside existing `spirit_name`).
-
-- Updated Assets/OurAssets/Scripts/Rune/RuneMatchManager.cs
-  - Date: 15/05/2026.
-  - AI assisted: yes (Cursor).
-  - Fixed round completion comparing m_CurrentRuneIndex to full array length instead of m_StartingRunes + m_CurrentRound per round.
-  - Fixed win condition (++m_CurrentRound >= m_Rounds instead of incorrect m_Rounds - 1 check).
-  - Added input gating during rune display and after win/lose; stop coroutine on game end.
-
-- Restored detailed chronological log in 
-efinements-changes.md
-  - Date: 15/05/2026.
-  - AI assisted: yes (Cursor).
-  - Kept summary table and ethical constraints; reinstated per-file dated entries for moderation audit trail.
+- Player character switching (explore, Ouija, cryptex, tarot, rune, pause, menu).  
+- `MinigameManager` order + completion tracking.  
+- End survival minigame (candles / pentagrams).  
+- Interactions for tarot, rune, end, cryptex; `PlayerSceneDataManager`.  
+- `LoadingScreen`, `StoryGeneratorScreen`, audio mixer routing.  
 
 ---
 
@@ -514,4 +155,20 @@ efinements-changes.md
 
 ---
 
-.md`. For install steps see `setup.md`; for overview see `readme.md`.*
+## How to extend this log
+
+When making a submission-worthy change, add a row to the **summary table** with:
+
+1. Date (DD Mon YYYY)  
+2. Area (AI, UI, gameplay, docs, …)  
+3. What was wrong or missing before  
+4. What you changed (files optional)  
+5. Why (player experience, rubric, bug)  
+6. Whether Cursor / ChatGPT / none helped  
+7. Result (works / partial / reverted)
+
+Commit to Git with a message that references the same change for traceability.
+
+---
+
+*This log complements Git history and `ollama-plan.md`. For install steps see `setup.md`; for overview see `readme.md`.*
