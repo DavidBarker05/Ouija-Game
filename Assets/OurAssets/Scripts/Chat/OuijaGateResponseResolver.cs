@@ -55,6 +55,7 @@ namespace OurAssets.Scripts.Chat
             }
         }
 
+        // m_MinigameOrder: [0]=Cryptex, [1]=first shuffled ritual, [2]=second shuffled ritual (see MinigameManager.StartNewGame).
         string FirstTask
         {
             get
@@ -63,8 +64,9 @@ namespace OurAssets.Scripts.Chat
                 {
                     return MinigameManager.MinigameToString(MinigameManager.Instance.WhichMinigame(1));
                 }
-                catch
+                catch (System.Exception ex)
                 {
+                    Debug.LogWarning($"[OuijaGateResponseResolver] first_task: invalid minigame order index 1 ({ex.Message}).");
                     return string.Empty;
                 }
             }
@@ -78,8 +80,9 @@ namespace OurAssets.Scripts.Chat
                 {
                     return MinigameManager.MinigameToString(MinigameManager.Instance.WhichMinigame(2));
                 }
-                catch
+                catch (System.Exception ex)
                 {
+                    Debug.LogWarning($"[OuijaGateResponseResolver] second_task: invalid minigame order index 2 ({ex.Message}).");
                     return string.Empty;
                 }
             }
