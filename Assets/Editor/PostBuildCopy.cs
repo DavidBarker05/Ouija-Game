@@ -33,7 +33,14 @@ public class PostBuildCopy : IPostprocessBuildWithReport
 			Debug.LogError($"{fileName} doesn't exist within {fromDir}");
 			return;
 		}
-		string fileContents = File.ReadAllText(fromPath);
-		File.WriteAllText(toPath, fileContents);
+		// Binary-safe copy — ReadAllText/WriteAllText corrupts .exe and other non-text payloads next to the player build.
+		try
+		{
+			File.Copy(fromPath, toPath, overwrite: true);
+		}
+		catch (IOException ex)
+		{
+			Debug.LogError($"Post-build copy failed for {fileName}: {ex.Message}");
+		}
 	}
 }
