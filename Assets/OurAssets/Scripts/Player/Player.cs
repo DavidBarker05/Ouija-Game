@@ -71,6 +71,8 @@ public class Player : MonoBehaviour
 		if (!string.IsNullOrWhiteSpace(m_PlayerCharacter.ActionMap)) m_PlayerInput.SwitchCurrentActionMap(m_PlayerCharacter.ActionMap);
 		m_PlayerCharacterUpdateData = PlayerCharacterUpdateData;
 		m_PlayerCamera.ChangeCameraTarget(m_PlayerCharacter.CameraTarget);
+		if (m_PauseCharacter.MouseVisible) ShowCursor();
+		else HideCursor();
 	}
 
 	IPlayerCharacterInitData PlayerCharacterInitData => m_PlayerCharacter switch
