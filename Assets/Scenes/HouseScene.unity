@@ -4041,6 +4041,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Door
       objectReference: {fileID: 0}
+    - target: {fileID: 1398413310623440, guid: ff36c605a739def44ad4a550d4ab7d54, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 4132120386261876, guid: ff36c605a739def44ad4a550d4ab7d54, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.002
@@ -18037,6 +18041,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Door (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 1398413310623440, guid: ff36c605a739def44ad4a550d4ab7d54, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 4132120386261876, guid: ff36c605a739def44ad4a550d4ab7d54, type: 3}
       propertyPath: m_LocalScale.x
       value: -1.002
@@ -19429,7 +19437,7 @@ GameObject:
   - component: {fileID: 1188254908}
   - component: {fileID: 1188254909}
   - component: {fileID: 1188254910}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: DoubleDoor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
