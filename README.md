@@ -6,7 +6,7 @@ High Concept Document - [HighConceptDocument_P2.pdf](https://github.com/user-att
 
 LLM Integration Report - [LLMReport_P2.pdf](https://github.com/user-attachments/files/27808012/LLMReport_P2.pdf)
 
-Technical Demonstration Video - 
+Technical Demonstration Video - https://canva.link/qr6vyuiwfg2ttj5 
 
 Showcase Video - 
 
