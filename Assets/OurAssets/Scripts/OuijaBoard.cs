@@ -5,11 +5,11 @@ using UnityEngine;
 
 public enum BoardResponse
 {
-	Yes, No,
-	A, B, C, D, E, F, G, H, I, J, K, L, M,
-	N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
-	Num1, Num2, Num3, Num4, Num5, Num6, Num7, Num8, Num9, Num0,
-	Goodbye
+    Yes, No,
+    A, B, C, D, E, F, G, H, I, J, K, L, M,
+    N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
+    Num1, Num2, Num3, Num4, Num5, Num6, Num7, Num8, Num9, Num0,
+    Goodbye
 }
 
 [System.Serializable]
@@ -32,7 +32,7 @@ public class OuijaBoard : MonoBehaviour
     [SerializeField, Tooltip("The object that moves showing which letter was said by the spirit")]
     GameObject m_Planchette; // David added
     [SerializeField]
-	BoardResponsePosition[] m_BoardResponsePositionsOnBoard; // David added
+    BoardResponsePosition[] m_BoardResponsePositionsOnBoard; // David added
     [SerializeField, Range(0.001f, 1f), Tooltip("The time it takes for the planchette to move between letters")]
     float m_PlanchetteTravelTime = 0.75f; // David added
     [SerializeField, Range(0.001f, 1f), Tooltip("The time that the planchette will stay on a letter")]
@@ -43,6 +43,8 @@ public class OuijaBoard : MonoBehaviour
     Player m_Player; // David added
     [SerializeField]
     FirstPersonCharacter m_FirstPersonCharacter; // David added
+    [SerializeField]
+    GameObject m_Reticle; // David added
 
     // David added
     Dictionary<BoardResponse, Transform> m_BoardResponsePositions = new Dictionary<BoardResponse, Transform>()
@@ -52,16 +54,16 @@ public class OuijaBoard : MonoBehaviour
         { BoardResponse.E,      null }, { BoardResponse.F,      null }, { BoardResponse.G,          null },
         { BoardResponse.H,      null }, { BoardResponse.I,      null }, { BoardResponse.J,          null },
         { BoardResponse.K,      null }, { BoardResponse.L,      null }, { BoardResponse.M,          null },
-		{ BoardResponse.N,      null }, { BoardResponse.O,      null }, { BoardResponse.P,          null },
-		{ BoardResponse.Q,      null }, { BoardResponse.R,      null }, { BoardResponse.S,          null },
-		{ BoardResponse.T,      null }, { BoardResponse.U,      null }, { BoardResponse.V,          null },
-		{ BoardResponse.W,      null }, { BoardResponse.X,      null }, { BoardResponse.Y,          null },
-		{ BoardResponse.Z,      null }, { BoardResponse.Num1,   null }, { BoardResponse.Num2,       null },
-		{ BoardResponse.Num3,   null }, { BoardResponse.Num4,   null }, { BoardResponse.Num5,       null },
-		{ BoardResponse.Num6,   null }, { BoardResponse.Num7,   null }, { BoardResponse.Num8,       null },
-		{ BoardResponse.Num9,   null }, { BoardResponse.Num0,   null }, { BoardResponse.Goodbye,    null }
-	};
-    
+        { BoardResponse.N,      null }, { BoardResponse.O,      null }, { BoardResponse.P,          null },
+        { BoardResponse.Q,      null }, { BoardResponse.R,      null }, { BoardResponse.S,          null },
+        { BoardResponse.T,      null }, { BoardResponse.U,      null }, { BoardResponse.V,          null },
+        { BoardResponse.W,      null }, { BoardResponse.X,      null }, { BoardResponse.Y,          null },
+        { BoardResponse.Z,      null }, { BoardResponse.Num1,   null }, { BoardResponse.Num2,       null },
+        { BoardResponse.Num3,   null }, { BoardResponse.Num4,   null }, { BoardResponse.Num5,       null },
+        { BoardResponse.Num6,   null }, { BoardResponse.Num7,   null }, { BoardResponse.Num8,       null },
+        { BoardResponse.Num9,   null }, { BoardResponse.Num0,   null }, { BoardResponse.Goodbye,    null }
+    };
+
     public bool DisplayingResponse { get; private set; } = false; // David added
 
     string m_CurrentText = string.Empty; // David added
@@ -72,10 +74,10 @@ public class OuijaBoard : MonoBehaviour
     BoardResponse m_CurrentResponse; // David added
     bool m_bBlockedSendButton = false; // David added
 
-	void Awake() => PopulateDictionaryWithStartingValues();
+    void Awake() => PopulateDictionaryWithStartingValues();
 
-	void OnDestroy()
-	{
+    void OnDestroy()
+    {
         // David - If the controller exists then remove the method from the action
         // we check if it exists because it might not have been assigned in the first
         // place or maybe it got destroyed before this and we don't want to do this
@@ -89,15 +91,15 @@ public class OuijaBoard : MonoBehaviour
             }
             m_OuijaPlayerInputController.AiResponseReceived -= StartDisplayingResponse;
         }
-	}
+    }
 
-	void Start()
+    void Start()
     {
-		// David - If the controller exists then add the method to the action we check
+        // David - If the controller exists then add the method to the action we check
         // if it exists because it might not have been assigned in the first place or
         // maybe it got destroyed before this and we don't want to do this on a null
         // object
-		if (m_OuijaPlayerInputController) m_OuijaPlayerInputController.AiResponseReceived += StartDisplayingResponse;
+        if (m_OuijaPlayerInputController) m_OuijaPlayerInputController.AiResponseReceived += StartDisplayingResponse;
     }
 
     void Update()
@@ -117,14 +119,14 @@ public class OuijaBoard : MonoBehaviour
             m_bWait = true;
             m_CurrentTime = 0f;
             m_PlanchetteStartingPosition = m_BoardResponsePositions[m_CurrentResponse].position;
-			int charsToDisplay = m_CurrentResponse switch
-			{
-				BoardResponse.Yes => 3, // David - Length of "yes"
-				BoardResponse.No => 2, // David - Length of "no"
-				BoardResponse.Goodbye => 7, // David - Length of "goodbye"
-				_ => (m_CurrentCharacter < m_CurrentText.Length - 1 ? (m_CurrentText[m_CurrentCharacter + 1] == ' ' ? 2 : 1) : 1) // David - If next character is a space go to character after space, otherwise go to next character
-			};
-			m_CurrentCharacter += charsToDisplay;
+            int charsToDisplay = m_CurrentResponse switch
+            {
+                BoardResponse.Yes => 3, // David - Length of "yes"
+                BoardResponse.No => 2, // David - Length of "no"
+                BoardResponse.Goodbye => 7, // David - Length of "goodbye"
+                _ => m_CurrentCharacter < m_CurrentText.Length - 1 ? (m_CurrentText[m_CurrentCharacter + 1] == ' ' ? 2 : 1) : 1 // David - If next character is a space go to character after space, otherwise go to next character
+            };
+            m_CurrentCharacter += charsToDisplay;
             if (m_ResponseDisplayText) m_ResponseDisplayText.maxVisibleCharacters = m_CurrentCharacter;
             if (m_CurrentCharacter < m_CurrentText.Length) m_CurrentResponse = CharacterToResponse(m_CurrentText[m_CurrentCharacter]);
         }
@@ -132,7 +134,7 @@ public class OuijaBoard : MonoBehaviour
         {
             m_bWait = false;
             m_CurrentTime = 0f;
-			DisplayingResponse = m_CurrentCharacter < m_CurrentText.Length;
+            DisplayingResponse = m_CurrentCharacter < m_CurrentText.Length;
             if (!DisplayingResponse && m_bBlockedSendButton)
             {
                 m_OuijaPlayerInputController?.PopSendBlock();
@@ -140,10 +142,12 @@ public class OuijaBoard : MonoBehaviour
             }
             if (m_CurrentResponse == BoardResponse.Goodbye)
             {
-				m_OuijaPlayerInputController.gameObject.SetActive(false);
-				m_Player.ChangeCharacter(m_FirstPersonCharacter);
+                m_Reticle.SetActive(true);
+                m_ResponseDisplayText.text = string.Empty;
+                m_OuijaPlayerInputController.gameObject.SetActive(false);
+                m_Player.ChangeCharacter(m_FirstPersonCharacter);
             }
-		}
+        }
     }
 
     // David - populate the dictionary which is easy to get the positions for a
@@ -172,8 +176,8 @@ public class OuijaBoard : MonoBehaviour
         }
         m_bWait = false;
         m_PlanchetteStartingPosition = m_Planchette.transform.position;
-		m_CurrentCharacter = 0;
-		if (m_CurrentText == "YES") m_CurrentResponse = BoardResponse.Yes;
+        m_CurrentCharacter = 0;
+        if (m_CurrentText == "YES") m_CurrentResponse = BoardResponse.Yes;
         else if (m_CurrentText == "NO") m_CurrentResponse = BoardResponse.No;
         else if (m_CurrentText == "GOODBYE" || m_CurrentText == "GOOD BYE") m_CurrentResponse = BoardResponse.Goodbye;
         else m_CurrentResponse = CharacterToResponse(m_CurrentText[0]);
@@ -185,24 +189,42 @@ public class OuijaBoard : MonoBehaviour
     // David - Convert a char to a BoardResponse value
     BoardResponse CharacterToResponse(char character) => character switch
     {
-        'A' =>  BoardResponse.A,    'B' => BoardResponse.B,
-		'C' =>  BoardResponse.C,    'D' => BoardResponse.D,
-		'E' =>  BoardResponse.E,    'F' => BoardResponse.F,
-		'G' =>  BoardResponse.G,    'H' => BoardResponse.H,
-		'I' =>  BoardResponse.I,    'J' => BoardResponse.J,
-		'K' =>  BoardResponse.K,    'L' => BoardResponse.L,
-		'M' =>  BoardResponse.M,    'N' => BoardResponse.N,
-		'O' =>  BoardResponse.O,    'P' => BoardResponse.P,
-		'Q' =>  BoardResponse.Q,    'R' => BoardResponse.R,
-		'S' =>  BoardResponse.S,    'T' => BoardResponse.T,
-		'U' =>  BoardResponse.U,    'V' => BoardResponse.V,
-		'W' =>  BoardResponse.W,    'X' => BoardResponse.X,
-		'Y' =>  BoardResponse.Y,    'Z' => BoardResponse.Z,
-        '1' =>  BoardResponse.Num1, '2' => BoardResponse.Num2,
-		'3' =>  BoardResponse.Num3, '4' => BoardResponse.Num4,
-		'5' =>  BoardResponse.Num5, '6' => BoardResponse.Num6,
-		'7' =>  BoardResponse.Num7, '8' => BoardResponse.Num8,
-		'9' =>  BoardResponse.Num9, '0' => BoardResponse.Num0,
-		_ => throw new System.ArgumentException($"'{character}' is not a valid character for the board")
+        'A' => BoardResponse.A,
+        'B' => BoardResponse.B,
+        'C' => BoardResponse.C,
+        'D' => BoardResponse.D,
+        'E' => BoardResponse.E,
+        'F' => BoardResponse.F,
+        'G' => BoardResponse.G,
+        'H' => BoardResponse.H,
+        'I' => BoardResponse.I,
+        'J' => BoardResponse.J,
+        'K' => BoardResponse.K,
+        'L' => BoardResponse.L,
+        'M' => BoardResponse.M,
+        'N' => BoardResponse.N,
+        'O' => BoardResponse.O,
+        'P' => BoardResponse.P,
+        'Q' => BoardResponse.Q,
+        'R' => BoardResponse.R,
+        'S' => BoardResponse.S,
+        'T' => BoardResponse.T,
+        'U' => BoardResponse.U,
+        'V' => BoardResponse.V,
+        'W' => BoardResponse.W,
+        'X' => BoardResponse.X,
+        'Y' => BoardResponse.Y,
+        'Z' => BoardResponse.Z,
+        '1' => BoardResponse.Num1,
+        '2' => BoardResponse.Num2,
+        '3' => BoardResponse.Num3,
+        '4' => BoardResponse.Num4,
+        '5' => BoardResponse.Num5,
+        '6' => BoardResponse.Num6,
+        '7' => BoardResponse.Num7,
+        '8' => BoardResponse.Num8,
+        '9' => BoardResponse.Num9,
+        '0' => BoardResponse.Num0,
+        _ => throw new System.ArgumentException($"'{character}' is not a valid character for the board")
     };
 }
