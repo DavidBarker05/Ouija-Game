@@ -2,7 +2,7 @@
 
 **Project:** Don't Forget to Say GOODBYE  
 **Purpose:** Continuous record of scope changes, limitations addressed, and AI-assisted development decisions for moderation and version tracking.  
-**Last updated:** 16 May 2026 (minigame queue fix — `second_task` / Tarot+Rune both playable)
+**Last updated:** 16 May 2026 (post-build binary copy fix for Ollama setup artifacts)
 
 ---
 
@@ -37,6 +37,7 @@
 | May 2026 | House ↔ minigames | Saved position but view/walk broke after reload; cursor lock leaked from FPS | `FirstPersonCharacter.LoadSceneData` applies `CameraEulerAngles`, CharacterController-safe teleport; `Player.ChangeCharacter` uses `MouseVisible` on active character | Correct spawn + look after Tarot/Rune; FPS cursor hidden again | Cursor AI | Return-to-house matches pre-minigame pose |
 | May 2026 | Cryptex persistence | Cryptex beaten then Tarot/Rune reload reset closed door | `CryptexManager` restores door open + hides puzzle when `MinigameManager.IsMinigameBeaten(Cryptex)` on house `Start` | World matches solved state across scene reload | Cursor AI | Door stays open after rituals |
 | May 2026 | Minigame queue | `RandomiseMinigames` loop started at index 1 — only one of Tarot/Rune appended | Loop `i = 0 .. Length-1`; append full shuffled pair after Cryptex | `WhichMinigame(2)` valid for `second_task`; both rituals reachable via `CanPlayMinigame` | Cursor AI | `first_task` / `second_task` gated lines populate |
+| May 2026 | Windows build extras | `PostBuildCopy` used `ReadAllText` / `WriteAllText` for all files | `File.Copy(..., overwrite: true)` + try/catch for `IOException` | Ship valid `Windows_Ollama_Setup.exe` / Linux binary beside player | Cursor AI | Binaries match repo; clearer copy failures in Console |
 
 ---
 
@@ -98,7 +99,7 @@ Detailed file history from implementation (chronological). Use with Git commit h
 ### Build / setup helpers
 
 - `OuijaSetup/`, `Windows_Ollama_Setup.exe`, `Ollama_Setup.py`  
-- `Assets/Editor/PostBuildCopy.cs`  
+- `Assets/Editor/PostBuildCopy.cs` — `IPostprocessBuildWithReport`; **`File.Copy(..., overwrite: true)`** for model txt + Ollama setup binaries (no text round-trip)  
 
 ---
 
@@ -162,6 +163,11 @@ Detailed file history from implementation (chronological). Use with Git commit h
 - AI assisted: yes (Cursor).  
 - **`MinigameManager.RandomiseMinigames`** — Off-by-one append: loop began at **`i = 1`**, so with a length-2 Tarot/Rune array only **`minigames[1]`** was added. Queue was **`[Cryptex, single ritual]`** — **`WhichMinigame(2)`** threw → **`OuijaGateResponseResolver`** **`second_task`** returned empty; the omitted ritual never became **`CurrentMinigameToBeat`**. Fixed by appending **`i = 0 .. minigames.Length - 1`**.  
 - **`OuijaGateResponseResolver`** — Documented index map (0=Cryptex, 1/2 optional rituals); **`Debug.LogWarning`** on resolver failure instead of silent empty catch.
+
+### May 2026 — Post-build copy binary safety (16 May)
+
+- AI assisted: yes (Cursor).  
+- **`Assets/Editor/PostBuildCopy.cs`** — Replaced **`ReadAllText` / `WriteAllText`** with **`File.Copy`** so **`Windows_Ollama_Setup.exe`**, **`Linux_Ollama_Setup`**, and other non-UTF8 payloads are not corrupted beside the player executable; **`IOException`** logged if copy fails (e.g. file locked).
 
 ---
 
