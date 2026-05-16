@@ -2,7 +2,7 @@
 
 **Project:** Don't Forget to Say GOODBYE  
 **Purpose:** Continuous record of scope changes, limitations addressed, and AI-assisted development decisions for moderation and version tracking.  
-**Last updated:** 16 May 2026 (house return + Cryptex door persistence)
+**Last updated:** 16 May 2026 (minigame queue fix — `second_task` / Tarot+Rune both playable)
 
 ---
 
@@ -36,6 +36,7 @@
 | May 2026 | Documentation | Scattered notes | `ollama-plan.md`, `setup.md`, `readme.md`, this log | Exemplary rubric submission | Cursor AI | Single source for moderators |
 | May 2026 | House ↔ minigames | Saved position but view/walk broke after reload; cursor lock leaked from FPS | `FirstPersonCharacter.LoadSceneData` applies `CameraEulerAngles`, CharacterController-safe teleport; `Player.ChangeCharacter` uses `MouseVisible` on active character | Correct spawn + look after Tarot/Rune; FPS cursor hidden again | Cursor AI | Return-to-house matches pre-minigame pose |
 | May 2026 | Cryptex persistence | Cryptex beaten then Tarot/Rune reload reset closed door | `CryptexManager` restores door open + hides puzzle when `MinigameManager.IsMinigameBeaten(Cryptex)` on house `Start` | World matches solved state across scene reload | Cursor AI | Door stays open after rituals |
+| May 2026 | Minigame queue | `RandomiseMinigames` loop started at index 1 — only one of Tarot/Rune appended | Loop `i = 0 .. Length-1`; append full shuffled pair after Cryptex | `WhichMinigame(2)` valid for `second_task`; both rituals reachable via `CanPlayMinigame` | Cursor AI | `first_task` / `second_task` gated lines populate |
 
 ---
 
@@ -71,7 +72,7 @@ Detailed file history from implementation (chronological). Use with Git commit h
 - `Assets/OurAssets/Scripts/Chat/StorySessionLore.cs` — JSON lore DTO + parser  
 - `Assets/OurAssets/Scripts/Chat/OuijaQuestionGateResolver.cs` — fuzzy + classifier  
 - `Assets/OurAssets/Scripts/Chat/OuijaGatedQuestionEntry.cs` — inspector gate definitions  
-- `Assets/OurAssets/Scripts/Chat/OuijaGateResponseResolver.cs` — `spirit_name`, `player_name`, `wife_*` ids  
+- `Assets/OurAssets/Scripts/Chat/OuijaGateResponseResolver.cs` — `spirit_name`, `player_name`, `wife_*`, `first_task` / `second_task` (`WhichMinigame` indices); warns on invalid order  
 - `Assets/OurAssets/Scripts/Chat/OuijaGateConditionEvaluator.cs` — minigame-linked conditions  
 - `Assets/OurAssets/Scripts/Chat/OuijaPlayerInputController.cs` — text, voice, send block  
 - `Assets/OurAssets/Scripts/Chat/OuijaGameCachePaths.cs` — `session_lore.json`, `story_context.txt`  
@@ -89,6 +90,7 @@ Detailed file history from implementation (chronological). Use with Git commit h
 - `Assets/OurAssets/Scripts/OuijaBoard.cs` — planchette spelling  
 - `Assets/OurAssets/Scripts/UI/StoryGeneratorScreen.cs` — story scene generation UI  
 - `Assets/OurAssets/Scripts/Cryptex/CryptexManager.cs` — door open pose cached; restore after reload if Cryptex beaten (`MinigameManager`)  
+- `Assets/OurAssets/Scripts/MinigameManager.cs` — Cryptex + **both** shuffled Tarot+Rune in `m_MinigameOrder` (`RandomiseMinigames` append fix)  
 - `Assets/OurAssets/Scripts/Player/FirstPersonCharacter.cs`, `Player.cs`, `PlayerSceneDataManager.cs` — scene data restore (body + camera rig), cursor sync on character swap  
 - `Assets/OurAssets/Scripts/Cryptex/*` (other), `Tarot/*`, `Rune/*`, `EndMinigame/*`  
 - `Assets/OurAssets/Scripts/GameUserSettings/UserSettingsManager.cs`  
@@ -154,6 +156,12 @@ Detailed file history from implementation (chronological). Use with Git commit h
 - **`Player.ChangeCharacter`** — Cursor visibility follows **`m_PlayerCharacter.MouseVisible`** (was incorrectly tied to **`PauseCharacter.MouseVisible`**, always true, breaking FPS lock).  
 - **`PlayerSceneDataManager.SaveSceneData`** — Null-safe **`CameraTarget`**; comment on load path behaviour.  
 - **`CryptexManager`** — Caches door closed **`localRotation`** in **`Awake`**; on **`Start`**, if **`MinigameManager.Instance.IsMinigameBeaten(Minigames.Cryptex)`**, applies same open rotation as solve (`initial * Quaternion.Euler(m_DoorRotation)`), disables interaction, destroys cryptex object — no duplicate **`OnMinigameBeaten`**. Solve path uses shared **`ApplyCryptexDoorOpenRotation()`**.
+
+### May 2026 — Minigame order and `second_task` gate (16 May)
+
+- AI assisted: yes (Cursor).  
+- **`MinigameManager.RandomiseMinigames`** — Off-by-one append: loop began at **`i = 1`**, so with a length-2 Tarot/Rune array only **`minigames[1]`** was added. Queue was **`[Cryptex, single ritual]`** — **`WhichMinigame(2)`** threw → **`OuijaGateResponseResolver`** **`second_task`** returned empty; the omitted ritual never became **`CurrentMinigameToBeat`**. Fixed by appending **`i = 0 .. minigames.Length - 1`**.  
+- **`OuijaGateResponseResolver`** — Documented index map (0=Cryptex, 1/2 optional rituals); **`Debug.LogWarning`** on resolver failure instead of silent empty catch.
 
 ---
 

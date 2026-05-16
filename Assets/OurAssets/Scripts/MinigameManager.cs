@@ -68,7 +68,9 @@ public class MinigameManager : MonoBehaviour
             minigames[i] = minigames[j];
             minigames[j] = _temp;
         }
-        for (int i = 1; i < minigames.Length; ++i) // Start at 1 so skip 
+        // Append every non-Cryptex ritual (Tarot + Rune). Cryptex is already at index 0; gated replies use WhichMinigame(1) / (2) for first/second optional rituals.
+        // BUGFIX: Previously loop started at i=1, which skipped minigames[0] and left only one ritual in the queue — SecondTask / CanPlayMinigame for the other ritual broke.
+        for (int i = 0; i < minigames.Length; ++i)
         {
             m_MinigameOrder.Add(minigames[i]);
         }
