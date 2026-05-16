@@ -309,7 +309,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ScrollRect
   m_Content: {fileID: 524182005}
-  m_Horizontal: 1
+  m_Horizontal: 0
   m_Vertical: 1
   m_MovementType: 1
   m_Elasticity: 0.1
@@ -1335,6 +1335,9 @@ MonoBehaviour:
   keepAliveSeconds: 120
   warmRequestTimeoutSeconds: 20
   coldStartTimeoutSeconds: 90
+  narrativeTemperature: 0.88
+  narrativeTopP: 0.92
+  narrativeTopK: 48
   enableRegularDebugLogs: 0
 --- !u!4 &1098661022
 Transform:
