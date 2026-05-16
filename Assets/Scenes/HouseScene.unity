@@ -6480,7 +6480,7 @@ MonoBehaviour:
     responseIdWhenBlocked: wife_where_blocked
     responseWhenBlocked: DO MY SECOND TASK
     responseIdWhenEligible: 
-    responseWhenEligible: CEMETARY
+    responseWhenEligible: CEMETERY
   gateConditionEvaluator: {fileID: 2032960087}
   gateResponseResolver: {fileID: 1659840230}
   gateClassifierInstructions: {fileID: 0}
