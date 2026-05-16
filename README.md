@@ -8,7 +8,7 @@ LLM Integration Report - [LLMReport_P2.pdf](https://github.com/user-attachments/
 
 Technical Demonstration Video - https://canva.link/qr6vyuiwfg2ttj5 
 
-Showcase Video - 
+Showcase Video - https://canva.link/gj0ke405qwcgs47
 
 Game Code Reference & Bibliography List - [Code_References_Bibliography_P2.pdf](https://github.com/user-attachments/files/27813632/Code_References_Bibliography_P2.pdf)
 
