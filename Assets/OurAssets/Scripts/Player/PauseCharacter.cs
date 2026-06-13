@@ -15,7 +15,7 @@ public class PauseCharacterUpdateData : IPlayerCharacterUpdateData
 public class PauseCharacter : PlayerCharacter
 {
     [SerializeField]
-	GameObject m_PauseScreen;
+    PauseScreen m_PauseScreen;
 
     public override bool HasBeenInitialised { get; protected set; }
 
@@ -43,66 +43,68 @@ public class PauseCharacter : PlayerCharacter
     public override void LoadSceneData(PlayerSceneData playerSceneData)
     {
         if (!HasBeenInitialised)
-		{
-			Debug.LogError("PauseCharacter hasn't been initialised!");
-			return;
-		}
+        {
+            Debug.LogError("PauseCharacter hasn't been initialised!");
+            return;
+        }
     }
 
     public override void UpdateCharacter(ref IPlayerCharacterUpdateData playerCharacterUpdateData)
     {
         if (!HasBeenInitialised)
-		{
-			Debug.LogError("PauseCharacter hasn't been initialised!");
-			return;
-		}
-		if (playerCharacterUpdateData is not PauseCharacterUpdateData)
-		{
-			Debug.LogError($"playerCharacterUpdateData needs to be type PauseCharacterUpdateData! Received {playerCharacterUpdateData.GetType()}");
-			return;
-		}
+        {
+            Debug.LogError("PauseCharacter hasn't been initialised!");
+            return;
+        }
+        if (playerCharacterUpdateData is not PauseCharacterUpdateData)
+        {
+            Debug.LogError($"playerCharacterUpdateData needs to be type PauseCharacterUpdateData! Received {playerCharacterUpdateData.GetType()}");
+            return;
+        }
     }
 
     public override void OnPausePressed() => ResumeGame();
+
     public void PauseGame(PlayerCharacter characterToSwitchBackTo)
     {
         if (!HasBeenInitialised)
-		{
-			Debug.LogError("PauseCharacter hasn't been initialised!");
-			return;
-		}
+        {
+            Debug.LogError("PauseCharacter hasn't been initialised!");
+            return;
+        }
         if (!m_PauseScreen)
-		{
-			Debug.LogWarning("Pause screen is missing");
-			return;
-		}
+        {
+            Debug.LogWarning("Pause screen is missing");
+            return;
+        }
         if (Paused || Time.timeScale == 0f || characterToSwitchBackTo == null) return;
         Paused = true;
         m_LastCharacter = characterToSwitchBackTo;
         CameraTarget = m_LastCharacter.CameraTarget;
         m_Player.ChangeCharacter(this);
-		m_PauseScreen.SetActive(true);
+        m_PauseScreen.Open();
         Time.timeScale = 0f;
     }
 
     void ResumeGame()
     {
         if (!HasBeenInitialised)
-		{
-			Debug.LogError("PauseCharacter hasn't been initialised!");
-			return;
-		}
+        {
+            Debug.LogError("PauseCharacter hasn't been initialised!");
+            return;
+        }
         if (!m_PauseScreen)
-		{
-			Debug.LogWarning("Pause screen is missing");
-			return;
-		}
+        {
+            Debug.LogWarning("Pause screen is missing");
+            return;
+        }
         if (!Paused || Time.timeScale == 1f || m_LastCharacter == null) return;
+        if (!m_PauseScreen.gameObject.activeSelf) return; // This will happen if the player opened the candle htp
         Paused = false;
         m_Player.ChangeCharacter(m_LastCharacter);
         m_LastCharacter = null;
         CameraTarget = null;
-		m_PauseScreen.SetActive(false);
+        m_PauseScreen.Close();
         Time.timeScale = 1f;
     }
 }

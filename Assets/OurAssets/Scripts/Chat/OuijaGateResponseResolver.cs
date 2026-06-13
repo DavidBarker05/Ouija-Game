@@ -11,6 +11,8 @@ namespace OurAssets.Scripts.Chat
             "wife_name" => LoreField(l => l.wifeName),
             "wife_left_reason" => WifeLeft,
             "wife_sad_reason" => WifeSad,
+            "tasks_where" => TasksWhere,
+            "open_door" => OpenDoor,
             "first_task" => FirstTask,
             "second_task" => SecondTask,
             "wife_where_blocked" => WifeWhereBlocked,
@@ -28,11 +30,23 @@ namespace OurAssets.Scripts.Chat
             return string.IsNullOrWhiteSpace(v) ? string.Empty : v.Trim();
         }
 
+        string SpiritName
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(SpiritNameManager.Instance.SpiritName)) SpiritNameManager.Instance.StartNewGame();
+                if (StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.SpiritName) == ExtraQuestionStatus.DoesntKnow)
+                    StoryManager.Instance.SetExtraQuestionStatus(ExtraQuestion.SpiritName, ExtraQuestionStatus.DoesntNeedAsk);
+                else StoryManager.Instance.SetExtraQuestionStatus(ExtraQuestion.SpiritName, ExtraQuestionStatus.Asked);
+                return SpiritNameManager.Instance.SpiritName;
+            }
+        }
+
         string WifeLeft
         {
             get
             {
-                StoryManager.Instance.OnQuestionAnswered(StoryQuestions.WifeLeft);
+                StoryManager.Instance.OnQuestionAnswered(StoryQuestion.WifeLeft);
                 return LoreField(l => l.wifeLeftReason);
             }
         }
@@ -41,17 +55,32 @@ namespace OurAssets.Scripts.Chat
         {
             get
             {
-                StoryManager.Instance.OnQuestionAnswered(StoryQuestions.WifeSad);
+                StoryManager.Instance.OnQuestionAnswered(StoryQuestion.WifeSad);
                 return LoreField(l => l.wifeSadReason);
             }
         }
 
-        string SpiritName
+        string TasksWhere
         {
             get
             {
-                if (string.IsNullOrWhiteSpace(SpiritNameManager.Instance.SpiritName)) SpiritNameManager.Instance.StartNewGame();
-                return SpiritNameManager.Instance.SpiritName;
+                if (StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.WhereTasks) != ExtraQuestionStatus.DoesntNeedAsk)
+                    StoryManager.Instance.SetExtraQuestionStatus(ExtraQuestion.WhereTasks, ExtraQuestionStatus.Asked);
+                return "PAST THE DOOR";
+            }
+        }
+
+        string OpenDoor
+        {
+            get
+            {
+                if (StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.HowOpenDoor) != ExtraQuestionStatus.DoesntNeedAsk)
+                {
+                    StoryManager.Instance.SetExtraQuestionStatus(ExtraQuestion.HowOpenDoor, ExtraQuestionStatus.Asked);
+                    if (StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.SpiritName) != ExtraQuestionStatus.Asked)
+                        StoryManager.Instance.SetExtraQuestionStatus(ExtraQuestion.SpiritName, ExtraQuestionStatus.ShouldAsk);
+                }
+                return "MY NAME";
             }
         }
 
@@ -62,6 +91,8 @@ namespace OurAssets.Scripts.Chat
             {
                 try
                 {
+                    if (StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.FirstTask) != ExtraQuestionStatus.DoesntNeedAsk)
+                        StoryManager.Instance.SetExtraQuestionStatus(ExtraQuestion.FirstTask, ExtraQuestionStatus.Asked);
                     return MinigameManager.MinigameToString(MinigameManager.Instance.WhichMinigame(1));
                 }
                 catch (System.Exception ex)
@@ -78,6 +109,8 @@ namespace OurAssets.Scripts.Chat
             {
                 try
                 {
+                    if (StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.SecondTask) != ExtraQuestionStatus.DoesntNeedAsk)
+                        StoryManager.Instance.SetExtraQuestionStatus(ExtraQuestion.SecondTask, ExtraQuestionStatus.Asked);
                     return MinigameManager.MinigameToString(MinigameManager.Instance.WhichMinigame(2));
                 }
                 catch (System.Exception ex)
@@ -92,7 +125,15 @@ namespace OurAssets.Scripts.Chat
         {
             get
             {
-                if (MinigameManager.Instance.NumMinigamesBeaten < 3) return "DO MY SECOND TASK";
+                if (MinigameManager.Instance.NumMinigamesBeaten < 3)
+                {
+                    if (StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.WhereTasks) != ExtraQuestionStatus.Asked)
+                        StoryManager.Instance.SetExtraQuestionStatus(ExtraQuestion.WhereTasks, ExtraQuestionStatus.ShouldAsk);
+                    if (StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.FirstTask) != ExtraQuestionStatus.Asked)
+                        StoryManager.Instance.SetExtraQuestionStatus(ExtraQuestion.FirstTask, ExtraQuestionStatus.ShouldAsk);
+                    StoryManager.Instance.SetExtraQuestionStatus(ExtraQuestion.SecondTask, ExtraQuestionStatus.ShouldAsk);
+                    return "DO MY SECOND TASK";
+                }
                 return "ASK WHAT HAPPENED FIRST";
             }
         }

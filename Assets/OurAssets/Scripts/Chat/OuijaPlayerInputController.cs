@@ -23,7 +23,7 @@ namespace OurAssets.Scripts.Chat
         [Header("Text Input")]
         [SerializeField] private TMP_InputField messageInputField;
         [Tooltip("Maximum number of characters the player can type or transcribe into the message box. 0 means unlimited.")]
-        [Min(0)] [SerializeField] private int maxMessageCharacters = 200;
+        [Min(0)][SerializeField] private int maxMessageCharacters = 200;
         [SerializeField] private Button sendButton;
         [Tooltip("Clear the input field after a message is successfully sent.")]
         [SerializeField] private bool clearInputAfterSend = true;
@@ -33,7 +33,7 @@ namespace OurAssets.Scripts.Chat
         [SerializeField] private MicrophoneRecord microphoneRecord;
         [SerializeField] private Button recordButton;
         [Tooltip("Maximum length of a single voice recording in seconds. The recording will stop automatically once this elapses.")]
-        [Min(1)] [SerializeField] private int maxRecordingSeconds = 30;
+        [Min(1)][SerializeField] private int maxRecordingSeconds = 30;
 
         [Header("Voice Input - Visuals (Optional)")]
         [SerializeField] private TMP_Text recordButtonLabel;
@@ -235,6 +235,7 @@ namespace OurAssets.Scripts.Chat
             {
                 OnSendClicked();
             }
+            messageInputField.ActivateInputField(); // David - reselect input field when press enter
         }
 
         private void OnRecordClicked()

@@ -141,7 +141,7 @@ public class RuneMatchManager : MonoBehaviour
         m_bGameEnded = true; // Cursor fixed
         if (m_RuneMatchRound != null) StopCoroutine(m_RuneMatchRound);
         foreach (Button b in m_RuneButtons) b.interactable = false;
-        MinigameManager.Instance.OnMinigameBeaten(Minigames.Rune);
+        MinigameManager.Instance.OnMinigameBeaten(Minigame.Rune);
         m_MenuCharacter.OnMenuOpen(m_RuneCharacter, m_HUD, m_WinScreen);
     }
 

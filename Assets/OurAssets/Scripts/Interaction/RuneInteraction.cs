@@ -18,7 +18,7 @@ public class RuneInteraction : Interactable
             Debug.LogWarning($"RuneInteraction expects 0 args. Received {args.Length} args");
 #endif
         }
-        else if (MinigameManager.Instance.CanPlayMinigame(Minigames.Rune))
+        else if (MinigameManager.Instance.CanPlayMinigame(Minigame.Rune))
         {
             PlayerSceneDataManager.Instance?.SaveSceneData(m_FirstPersonCharacter);
             m_LoadingScreen.SceneIndexToLoad = m_RuneSceneIndex;

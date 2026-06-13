@@ -28,6 +28,8 @@ public class CryptexInteraction : Interactable
             m_CryptexUI?.SetActive(true);
             foreach (CryptexRingButton b in m_CryptexRingButtons) b.gameObject.SetActive(true);
             m_Player.ChangeCharacter(m_CryptexCharacter);
+            if (StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.HowOpenDoor) != ExtraQuestionStatus.Asked)
+                StoryManager.Instance.SetExtraQuestionStatus(ExtraQuestion.HowOpenDoor, ExtraQuestionStatus.ShouldAsk);
         }
         return null;
     }
