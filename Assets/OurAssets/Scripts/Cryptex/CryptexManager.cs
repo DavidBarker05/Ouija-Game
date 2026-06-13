@@ -53,12 +53,14 @@ public class CryptexManager : MonoBehaviour
         CacheDoorInitialLocalRotationIfNeeded();
         if (!m_HasCachedDoorInitialRotation) return;
         m_Door.transform.localRotation = m_DoorInitialLocalRotation * Quaternion.Euler(m_DoorRotation);
+        if (StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.HowOpenDoor) != ExtraQuestionStatus.Asked)
+            StoryManager.Instance.SetExtraQuestionStatus(ExtraQuestion.HowOpenDoor, ExtraQuestionStatus.DoesntNeedAsk);
     }
 
     // Cursor - Same visuals as solving Cryptex without calling OnMinigameBeaten again (used after reloading the house scene).
     void RestoreCryptexBeatWorldStateIfNeeded()
     {
-        if (MinigameManager.Instance == null || !MinigameManager.Instance.IsMinigameBeaten(Minigames.Cryptex)) return;
+        if (MinigameManager.Instance == null || !MinigameManager.Instance.IsMinigameBeaten(Minigame.Cryptex)) return;
 
         ApplyCryptexDoorOpenRotation();
 
@@ -83,7 +85,7 @@ public class CryptexManager : MonoBehaviour
         {
             ApplyCryptexDoorOpenRotation();
             m_CryptexInteraction.gameObject.SetActive(false);
-            MinigameManager.Instance.OnMinigameBeaten(Minigames.Cryptex);
+            MinigameManager.Instance.OnMinigameBeaten(Minigame.Cryptex);
             m_Player.ChangeCharacter(m_FirstPersonCharacter);
             m_CryptexUI.SetActive(false);
             m_HUD.SetActive(true);

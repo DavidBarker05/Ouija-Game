@@ -18,7 +18,7 @@ public class TarotInteraction : Interactable
             Debug.LogWarning($"TarotInteraction expects 0 args. Received {args.Length} args");
 #endif
         }
-        else if (MinigameManager.Instance.CanPlayMinigame(Minigames.Tarot))
+        else if (MinigameManager.Instance.CanPlayMinigame(Minigame.Tarot))
         {
             PlayerSceneDataManager.Instance?.SaveSceneData(m_FirstPersonCharacter);
             m_LoadingScreen.SceneIndexToLoad = m_TarotSceneIndex;

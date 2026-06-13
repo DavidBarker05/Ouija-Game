@@ -369,7 +369,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 11914801}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1066487353}
+        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &11914801
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3204,7 +3216,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 118596449}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1066487353}
+        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &118596449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4204,7 +4228,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 185387115}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1066487353}
+        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &185387115
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6036,7 +6072,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1066487353}
         m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
         m_MethodName: Play
         m_Mode: 1
@@ -6403,10 +6439,19 @@ MonoBehaviour:
     - Where are the tasks?
     - Where are the challenges?
     - Where are my challenges?
+    - Where is your first task?
+    - Where is the second task?
+    - Where is the second challege?
+    - Where is my second task?
+    - Where is my second challenge?
+    - Where is your second task?
+    - Where is your second challenge?
+    - Where are your tasks?
+    - Where are your challenges?
     conditionIdsRequired: []
     responseIdWhenBlocked: 
     responseWhenBlocked: 
-    responseIdWhenEligible: 
+    responseIdWhenEligible: tasks_where
     responseWhenEligible: PAST THE DOOR
   - questionId: open_door
     enabled: 1
@@ -6420,7 +6465,7 @@ MonoBehaviour:
     conditionIdsRequired: []
     responseIdWhenBlocked: 
     responseWhenBlocked: 
-    responseIdWhenEligible: 
+    responseIdWhenEligible: open_door
     responseWhenEligible: MY NAME
   - questionId: first_task
     enabled: 1
@@ -6436,6 +6481,8 @@ MonoBehaviour:
     - Which task should I do first?
     - Which challenge should I do first?
     - What do I do first?
+    - What is your first task?
+    - What is your first challenge?
     conditionIdsRequired: []
     responseIdWhenBlocked: 
     responseWhenBlocked: 
@@ -7007,6 +7054,7 @@ GameObject:
   - component: {fileID: 363633433}
   - component: {fileID: 363633432}
   - component: {fileID: 363633431}
+  - component: {fileID: 363633434}
   m_Layer: 5
   m_Name: SaveButton
   m_TagString: Untagged
@@ -7078,21 +7126,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1066487353}
         m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
         m_MethodName: Play
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UserSettingsManager, Assembly-CSharp
-        m_MethodName: SaveSettings
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -7140,6 +7176,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 363633429}
   m_CullTransparentMesh: 1
+--- !u!114 &363633434
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 363633429}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c9547d8d341bf9428499f52fd76b0b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SettingsSaveButton
 --- !u!1001 &366228493
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12722,6 +12770,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
+      - m_Target: {fileID: 1066487353}
+        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
       - m_Target: {fileID: 730106279}
         m_TargetAssemblyTypeName: PauseCharacter, Assembly-CSharp
         m_MethodName: OnPausePressed
@@ -13434,7 +13494,7 @@ PrefabInstance:
     - target: {fileID: 4362469819772692984, guid: 4b27a692ea31da848b58f5470592d745, type: 3}
       propertyPath: m_PauseScreen
       value: 
-      objectReference: {fileID: 1633765966}
+      objectReference: {fileID: 1633765970}
     - target: {fileID: 8444355186628466975, guid: 4b27a692ea31da848b58f5470592d745, type: 3}
       propertyPath: m_FootstepAudioSource
       value: 
@@ -13666,7 +13726,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 754243113}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1066487353}
+        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &754243113
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14748,7 +14820,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 842058733}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1066487353}
+        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &842058733
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15083,7 +15167,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 851842832}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1066487353}
+        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &851842832
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16866,7 +16962,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1066487353}
         m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
         m_MethodName: Play
         m_Mode: 1
@@ -20706,7 +20802,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1066487353}
         m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
         m_MethodName: Play
         m_Mode: 1
@@ -24342,7 +24438,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1445899357}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1066487353}
+        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1445899357
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24464,6 +24572,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
+      - m_Target: {fileID: 1066487353}
+        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
       - m_Target: {fileID: 730106280}
         m_TargetAssemblyTypeName: MenuCharacter, Assembly-CSharp
         m_MethodName: OnMenuExit
@@ -27523,6 +27643,7 @@ GameObject:
   - component: {fileID: 1618066751}
   - component: {fileID: 1618066750}
   - component: {fileID: 1618066749}
+  - component: {fileID: 1618066752}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -27594,7 +27715,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1066487353}
         m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
         m_MethodName: Play
         m_Mode: 1
@@ -27622,18 +27743,6 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
         m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UserSettingsManager, Assembly-CSharp
-        m_MethodName: ClearTempSettings
-        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -27680,6 +27789,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1618066747}
   m_CullTransparentMesh: 1
+--- !u!114 &1618066752
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1618066747}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 369f9d61243a40545ad995e811b41d02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SettingsBackButton
 --- !u!1 &1621512286
 GameObject:
   m_ObjectHideFlags: 0
@@ -28089,6 +28210,7 @@ GameObject:
   - component: {fileID: 1633765967}
   - component: {fileID: 1633765969}
   - component: {fileID: 1633765968}
+  - component: {fileID: 1633765970}
   m_Layer: 5
   m_Name: PauseScreen
   m_TagString: Untagged
@@ -28157,6 +28279,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1633765966}
   m_CullTransparentMesh: 1
+--- !u!114 &1633765970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1633765966}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b014d0f997af9f479b937ed1b7dca6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PauseScreen
+  m_PausePanel: {fileID: 243471500}
+  m_ControlsPanel: {fileID: 375027449}
+  m_SettingsPanel: {fileID: 2098456183}
 --- !u!1001 &1642383128
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -34141,6 +34278,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
+      - m_Target: {fileID: 1066487353}
+        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
       - m_Target: {fileID: 730106280}
         m_TargetAssemblyTypeName: MenuCharacter, Assembly-CSharp
         m_MethodName: OnMenuExit

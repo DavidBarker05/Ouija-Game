@@ -215,7 +215,7 @@ public class TarotManager : MonoBehaviour
 	{
 		CanFlipCard = false;
 		m_bDontUpdate = true;
-		MinigameManager.Instance.OnMinigameBeaten(Minigames.Tarot);
+		MinigameManager.Instance.OnMinigameBeaten(Minigame.Tarot);
 		m_MenuCharacter.OnMenuOpen(m_TarotCharacter, m_HUD, m_WinScreen);
 	}
 

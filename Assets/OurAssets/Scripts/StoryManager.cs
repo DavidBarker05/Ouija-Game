@@ -1,11 +1,28 @@
 using UnityEngine;
 
-public enum StoryQuestions
+public enum StoryQuestion
 {
     WifeLeft,
     WifeSad,
     WifeDead,
     WhereWife
+}
+
+public enum ExtraQuestion
+{
+    WhereTasks,
+    HowOpenDoor,
+    SpiritName,
+    FirstTask,
+    SecondTask
+}
+
+public enum ExtraQuestionStatus
+{
+    DoesntKnow,
+    ShouldAsk,
+    Asked,
+    DoesntNeedAsk
 }
 
 public class StoryManager : MonoBehaviour
@@ -29,6 +46,11 @@ public class StoryManager : MonoBehaviour
     bool m_bWifeSad;
     bool m_bWifeDead;
     bool m_bWhereWife;
+    ExtraQuestionStatus m_WhereTasksStatus;
+    ExtraQuestionStatus m_HowOpenDoorStatus;
+    ExtraQuestionStatus m_SpiritNameStatus;
+    ExtraQuestionStatus m_FirstTaskStatus;
+    ExtraQuestionStatus m_SecondTaskStatus;
 
     public bool KnowsAllAnswers => m_bWifeLeft && m_bWifeSad && m_bWifeDead && m_bWhereWife;
 
@@ -48,22 +70,27 @@ public class StoryManager : MonoBehaviour
         m_bWifeSad = false;
         m_bWifeDead = false;
         m_bWhereWife = false;
+        m_WhereTasksStatus = ExtraQuestionStatus.DoesntKnow;
+        m_HowOpenDoorStatus = ExtraQuestionStatus.DoesntKnow;
+        m_SpiritNameStatus = ExtraQuestionStatus.DoesntKnow;
+        m_FirstTaskStatus = ExtraQuestionStatus.DoesntKnow;
+        m_SecondTaskStatus = ExtraQuestionStatus.DoesntKnow;
     }
 
-    public void OnQuestionAnswered(StoryQuestions storyQuestion)
+    public void OnQuestionAnswered(StoryQuestion storyQuestion)
     {
         switch (storyQuestion)
         {
-            case StoryQuestions.WifeLeft:
+            case StoryQuestion.WifeLeft:
                 m_bWifeLeft = true;
                 break;
-            case StoryQuestions.WifeSad:
+            case StoryQuestion.WifeSad:
                 m_bWifeSad = true;
                 break;
-            case StoryQuestions.WifeDead:
+            case StoryQuestion.WifeDead:
                 m_bWifeDead = true;
                 break;
-            case StoryQuestions.WhereWife:
+            case StoryQuestion.WhereWife:
                 m_bWhereWife = true;
                 break;
             default:
@@ -71,12 +98,46 @@ public class StoryManager : MonoBehaviour
         }
     }
 
-    public bool IsQuestionAnswered(StoryQuestions question) => question switch
+    public void SetExtraQuestionStatus(ExtraQuestion extraQuestion, ExtraQuestionStatus newStatus)
     {
-        StoryQuestions.WifeLeft => m_bWifeLeft,
-        StoryQuestions.WifeSad => m_bWifeSad,
-        StoryQuestions.WifeDead => m_bWifeDead,
-        StoryQuestions.WhereWife => m_bWhereWife,
+        switch (extraQuestion)
+        {
+            case ExtraQuestion.WhereTasks:
+                m_WhereTasksStatus = newStatus;
+                break;
+            case ExtraQuestion.HowOpenDoor:
+                m_HowOpenDoorStatus = newStatus;
+                break;
+            case ExtraQuestion.SpiritName:
+                m_SpiritNameStatus = newStatus;
+                break;
+            case ExtraQuestion.FirstTask:
+                m_FirstTaskStatus = newStatus;
+                break;
+            case ExtraQuestion.SecondTask:
+                m_SecondTaskStatus = newStatus;
+                break;
+            default:
+                break;
+        }
+    }
+
+    public bool IsQuestionAnswered(StoryQuestion question) => question switch
+    {
+        StoryQuestion.WifeLeft => m_bWifeLeft,
+        StoryQuestion.WifeSad => m_bWifeSad,
+        StoryQuestion.WifeDead => m_bWifeDead,
+        StoryQuestion.WhereWife => m_bWhereWife,
         _ => false
+    };
+
+    public ExtraQuestionStatus GetExtraQuestionStatus(ExtraQuestion question) => question switch
+    {
+        ExtraQuestion.WhereTasks => m_WhereTasksStatus,
+        ExtraQuestion.HowOpenDoor => m_HowOpenDoorStatus,
+        ExtraQuestion.SpiritName => m_SpiritNameStatus,
+        ExtraQuestion.FirstTask => m_FirstTaskStatus,
+        ExtraQuestion.SecondTask => m_SecondTaskStatus,
+        _ => ExtraQuestionStatus.DoesntKnow
     };
 }
