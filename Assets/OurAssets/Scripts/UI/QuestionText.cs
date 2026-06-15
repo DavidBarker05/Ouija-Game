@@ -25,9 +25,9 @@ public class QuestionText : MonoBehaviour
             ExtraQuestionsToDisplay.Add(ExtraQuestion.HowOpenDoor);
         if (StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.SpiritName) != ExtraQuestionStatus.DoesntKnow)
             ExtraQuestionsToDisplay.Add(ExtraQuestion.SpiritName);
-        if (StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.HowOpenDoor) != ExtraQuestionStatus.DoesntKnow)
+        if (StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.FirstTask) != ExtraQuestionStatus.DoesntKnow)
             ExtraQuestionsToDisplay.Add(ExtraQuestion.FirstTask);
-        if (StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.SpiritName) != ExtraQuestionStatus.DoesntKnow)
+        if (StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.SecondTask) != ExtraQuestionStatus.DoesntKnow)
             ExtraQuestionsToDisplay.Add(ExtraQuestion.SecondTask);
         StringBuilder sb = new StringBuilder("<size=32>I need to know:</size>");
         if (!StoryManager.Instance.IsQuestionAnswered(StoryQuestion.WifeLeft)) sb.Append("\n- Why did she leave?");
