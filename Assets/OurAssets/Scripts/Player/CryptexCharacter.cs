@@ -45,6 +45,10 @@ public class CryptexCharacter : PlayerCharacter
         }
     }
 
+    public override void OnChangeToCharacter() { }
+
+    public override void OnChangeFromCharacter() { }
+
     public override void UpdateCharacter(ref IPlayerCharacterUpdateData playerCharacterUpdateData)
     {
         if (playerCharacterUpdateData is not CryptexCharacterUpdateData updateData)

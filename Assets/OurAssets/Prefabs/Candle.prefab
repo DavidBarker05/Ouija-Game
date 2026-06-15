@@ -31,6 +31,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5468464433619039901}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2287345401207399682
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4550859791827444733}
+  m_Layer: 6
+  m_Name: InteractPromptTransform
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4550859791827444733
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2287345401207399682}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.325, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5468464433619039901}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6836170458574434909
 GameObject:
   m_ObjectHideFlags: 0
@@ -63,6 +94,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4248634120981852929}
+  - {fileID: 4550859791827444733}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &5325962624747476595
@@ -98,6 +130,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f3e68df157fcc940aa0028a3b3bddd8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Candle
+  <InteractPromptTransform>k__BackingField: {fileID: 4550859791827444733}
   m_CandleTransform: {fileID: 4248634120981852929}
   m_LitCandle: {fileID: 3865210728000403678, guid: 92fbb0fdfa599104da1395c71395bfed, type: 3}
   m_UnlitCandle: {fileID: 3983386473134116057, guid: d9707eb674fa952428e5d615436a4d2f, type: 3}

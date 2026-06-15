@@ -49,6 +49,10 @@ public class PauseCharacter : PlayerCharacter
         }
     }
 
+    public override void OnChangeToCharacter() { }
+
+    public override void OnChangeFromCharacter() { }
+
     public override void UpdateCharacter(ref IPlayerCharacterUpdateData playerCharacterUpdateData)
     {
         if (!HasBeenInitialised)

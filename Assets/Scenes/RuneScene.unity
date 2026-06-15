@@ -15919,6 +15919,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: table03
       objectReference: {fileID: 0}
+    - target: {fileID: 1627785330460594, guid: cfba19a91babb4642892417108591af0, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     - target: {fileID: 4639733581330646, guid: cfba19a91babb4642892417108591af0, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

@@ -6,26 +6,11 @@ using UnityEngine;
 [RequireComponent(typeof(TMP_Text))]
 public class QuestionText : MonoBehaviour
 {
+    public static readonly HashSet<ExtraQuestion> ExtraQuestionsToDisplay = new HashSet<ExtraQuestion>(5);
+
     TMP_Text m_Text;
 
-    ExtraQuestionStatus m_WhereTasksStatus;
-    ExtraQuestionStatus m_HowOpenDoorStatus;
-    ExtraQuestionStatus m_SpiritNameStatus;
-    ExtraQuestionStatus m_FirstTaskStatus;
-    ExtraQuestionStatus m_SecondTaskStatus;
-
-    readonly List<ExtraQuestion> m_ExtraQuestionsToDisplay = new List<ExtraQuestion>(5);
-
     void Awake() => m_Text = GetComponent<TMP_Text>();
-
-    void Start()
-    {
-        m_WhereTasksStatus = ExtraQuestionStatus.DoesntKnow;
-        m_HowOpenDoorStatus = ExtraQuestionStatus.DoesntKnow;
-        m_SpiritNameStatus = ExtraQuestionStatus.DoesntKnow;
-        m_FirstTaskStatus = ExtraQuestionStatus.DoesntKnow;
-        m_SecondTaskStatus = ExtraQuestionStatus.DoesntKnow;
-    }
 
     void Update()
     {
@@ -34,16 +19,16 @@ public class QuestionText : MonoBehaviour
             m_Text.text = "<size=32>I need to leave and find HER</size>";
             return;
         }
-        if (m_WhereTasksStatus == ExtraQuestionStatus.DoesntKnow && StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.WhereTasks) != ExtraQuestionStatus.DoesntKnow)
-            m_ExtraQuestionsToDisplay.Add(ExtraQuestion.WhereTasks);
-        if (m_HowOpenDoorStatus == ExtraQuestionStatus.DoesntKnow && StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.HowOpenDoor) != ExtraQuestionStatus.DoesntKnow)
-            m_ExtraQuestionsToDisplay.Add(ExtraQuestion.HowOpenDoor);
-        if (m_SpiritNameStatus == ExtraQuestionStatus.DoesntKnow && StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.SpiritName) != ExtraQuestionStatus.DoesntKnow)
-            m_ExtraQuestionsToDisplay.Add(ExtraQuestion.SpiritName);
-        if (m_FirstTaskStatus == ExtraQuestionStatus.DoesntKnow && StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.HowOpenDoor) != ExtraQuestionStatus.DoesntKnow)
-            m_ExtraQuestionsToDisplay.Add(ExtraQuestion.FirstTask);
-        if (m_SecondTaskStatus == ExtraQuestionStatus.DoesntKnow && StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.SpiritName) != ExtraQuestionStatus.DoesntKnow)
-            m_ExtraQuestionsToDisplay.Add(ExtraQuestion.SecondTask);
+        if (StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.WhereTasks) != ExtraQuestionStatus.DoesntKnow)
+            ExtraQuestionsToDisplay.Add(ExtraQuestion.WhereTasks);
+        if (StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.HowOpenDoor) != ExtraQuestionStatus.DoesntKnow)
+            ExtraQuestionsToDisplay.Add(ExtraQuestion.HowOpenDoor);
+        if (StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.SpiritName) != ExtraQuestionStatus.DoesntKnow)
+            ExtraQuestionsToDisplay.Add(ExtraQuestion.SpiritName);
+        if (StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.HowOpenDoor) != ExtraQuestionStatus.DoesntKnow)
+            ExtraQuestionsToDisplay.Add(ExtraQuestion.FirstTask);
+        if (StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.SpiritName) != ExtraQuestionStatus.DoesntKnow)
+            ExtraQuestionsToDisplay.Add(ExtraQuestion.SecondTask);
         StringBuilder sb = new StringBuilder("<size=32>I need to know:</size>");
         if (!StoryManager.Instance.IsQuestionAnswered(StoryQuestion.WifeLeft)) sb.Append("\n- Why did she leave?");
         else sb.Append("\n- <s>Why did she leave?</s>");
@@ -53,7 +38,7 @@ public class QuestionText : MonoBehaviour
         else sb.Append("\n- <s>What happened to her?</s>");
         if (!StoryManager.Instance.IsQuestionAnswered(StoryQuestion.WhereWife)) sb.Append("\n- Where is she now?");
         else sb.Append("\n- <s>Where is she now?</s>");
-        foreach (ExtraQuestion question in m_ExtraQuestionsToDisplay)
+        foreach (ExtraQuestion question in ExtraQuestionsToDisplay)
         {
             ExtraQuestionStatus status = StoryManager.Instance.GetExtraQuestionStatus(question);
             if (status == ExtraQuestionStatus.ShouldAsk) sb.Append($"\n- {ExtraQuestionString(question)}");
@@ -66,7 +51,7 @@ public class QuestionText : MonoBehaviour
     {
         ExtraQuestion.WhereTasks => "Where are the tasks?",
         ExtraQuestion.HowOpenDoor => "How do I open the door?",
-        ExtraQuestion.SpiritName => "The spirit its name.",
+        ExtraQuestion.SpiritName => "The spirit's name.",
         ExtraQuestion.FirstTask => "What is my first task?",
         ExtraQuestion.SecondTask => "What is my second task?",
         _ => throw new System.NotImplementedException($"{question} hasn't been implemented")

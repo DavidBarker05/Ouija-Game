@@ -21,6 +21,8 @@ public class FirstPersonCharacterUpdateData : IPlayerCharacterUpdateData
 public class FirstPersonCharacter : PlayerCharacter
 {
 	[SerializeField]
+	InteractPrompt m_InteractPrompt;
+	[SerializeField]
 	AudioSource m_FootstepAudioSource;
 	[SerializeField, Min(1f)]
 	float m_FootstepFrequency = 2f;
@@ -82,6 +84,10 @@ public class FirstPersonCharacter : PlayerCharacter
 		if (hadController) m_CharacterController.enabled = true;
 	}
 
+	public override void OnChangeToCharacter() { }
+
+	public override void OnChangeFromCharacter() => m_InteractPrompt.gameObject.SetActive(false);
+
 	public override void UpdateCharacter(ref IPlayerCharacterUpdateData playerCharacterUpdateData)
 	{
 		if (playerCharacterUpdateData is not FirstPersonCharacterUpdateData updateData)
@@ -101,6 +107,7 @@ public class FirstPersonCharacter : PlayerCharacter
 			return;
 		}
 		HandleMovement(ref updateData);
+		HandleInteractionPrompt(ref updateData);
 		HandleInteraction(ref updateData);
 		if (updateData.MovementInput.sqrMagnitude < s_SqrEpsilon)
 		{
@@ -150,6 +157,29 @@ public class FirstPersonCharacter : PlayerCharacter
 	#endregion Movement
 
 	#region Interaction
+	void HandleInteractionPrompt(ref FirstPersonCharacterUpdateData updateData)
+	{
+		Vector3 direction = updateData.CameraRotation * Vector3.forward;
+		if (Physics.Raycast(
+			origin: CameraTarget.position,
+			direction: direction,
+			hitInfo: out RaycastHit hitInfo,
+			maxDistance: m_InteractSettings.InteractionDistance,
+			layerMask: m_InteractSettings.InteractableLayer,
+			queryTriggerInteraction: QueryTriggerInteraction.Collide))
+		{
+			Interactable interactable = hitInfo.collider.gameObject.GetComponent<Interactable>();
+			if (interactable && interactable.CanInteractWith)
+			{
+				m_InteractPrompt.gameObject.transform.SetParent(interactable.InteractPromptTransform);
+				m_InteractPrompt.gameObject.SetActive(true);
+				m_InteractPrompt.gameObject.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+			}
+			else m_InteractPrompt.gameObject.SetActive(false);
+		}
+		else m_InteractPrompt.gameObject.SetActive(false);
+	}
+
 	void HandleInteraction(ref FirstPersonCharacterUpdateData updateData)
 	{
 		if (updateData.PressedInteract)
@@ -158,7 +188,6 @@ public class FirstPersonCharacter : PlayerCharacter
 			Vector3 direction = updateData.CameraRotation * Vector3.forward; // Rotate forward vector by camera rotation to get camera's forward vector
 			DoInteraction(direction);
 		}
-		else updateData.PressedInteract = false;
 	}
 
 	void DoInteraction(Vector3 direction)
@@ -172,7 +201,7 @@ public class FirstPersonCharacter : PlayerCharacter
 			queryTriggerInteraction: QueryTriggerInteraction.Collide))
 		{
 			Interactable interactable = hitInfo.collider.gameObject.GetComponent<Interactable>();
-			if (interactable == null) return;
+			if (interactable == null || !interactable.CanInteractWith) return;
 			interactable.Interact();
 		}
 	}
