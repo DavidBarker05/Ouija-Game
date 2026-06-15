@@ -67,6 +67,7 @@ public class Player : MonoBehaviour
 
 	public void ChangeCharacter(PlayerCharacter character)
 	{
+		if (m_PlayerCharacter) m_PlayerCharacter.OnChangeFromCharacter();
 		m_PlayerCharacter = character;
 		if (!m_PlayerCharacter.HasBeenInitialised) m_PlayerCharacter.Init(PlayerCharacterInitData);
 		if (!string.IsNullOrWhiteSpace(m_PlayerCharacter.ActionMap)) m_PlayerInput.SwitchCurrentActionMap(m_PlayerCharacter.ActionMap);
@@ -75,6 +76,7 @@ public class Player : MonoBehaviour
 		// Cursor fixed - sync lock/visibility to the active character (PauseCharacter.MouseVisible was always true and broke FPS mode).
 		if (m_PlayerCharacter.MouseVisible) ShowCursor();
 		else HideCursor();
+		m_PlayerCharacter.OnChangeToCharacter();
 	}
 
 	IPlayerCharacterInitData PlayerCharacterInitData => m_PlayerCharacter switch

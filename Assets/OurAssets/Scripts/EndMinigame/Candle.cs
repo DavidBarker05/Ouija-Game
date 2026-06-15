@@ -10,7 +10,16 @@ public class Candle : Interactable
     GameObject m_UnlitCandle;
 
     public bool IsLit { get; private set; }
-    public bool CanBeRelit { get; set; }
+    bool m_bCanBeRelit;
+    public bool CanBeRelit
+    {
+        get => m_bCanBeRelit;
+        set
+        {
+            m_bCanBeRelit = value;
+            if (!value) CanInteractWith = false;
+        }
+    }
 
     bool m_bInitted;
     SmallPentagram m_Owner;
@@ -32,6 +41,7 @@ public class Candle : Interactable
         IsLit = false;
         if (m_CandlePlaceholder) Destroy(m_CandlePlaceholder);
         m_CandlePlaceholder = Instantiate(m_UnlitCandle, m_CandleTransform ?? transform);
+        CanInteractWith = true;
     }
 
     public void Ignite()
@@ -41,6 +51,7 @@ public class Candle : Interactable
         if (m_CandlePlaceholder) Destroy(m_CandlePlaceholder);
         m_CandlePlaceholder = Instantiate(m_LitCandle, m_CandleTransform ?? transform);
         m_Owner.ReigniteCandle(this);
+        CanInteractWith = false;
     }
 
     public override object[] Interact(params object[] args)

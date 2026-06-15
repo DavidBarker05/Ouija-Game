@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider))]
@@ -7,6 +8,8 @@ public class EndInteraction : Interactable
     LoadingScreen m_LoadingScreen;
     [SerializeField, Min(0)]
     int m_EndSceneIndex = 5;
+
+    void Awake() => StartCoroutine(ChechCanInteract());
 
     public override object[] Interact(params object[] args)
     {
@@ -22,5 +25,15 @@ public class EndInteraction : Interactable
             m_LoadingScreen.gameObject.SetActive(true);
         }
         return null;
+    }
+
+    IEnumerator ChechCanInteract()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(0.2f);
+            CanInteractWith = GameManager.Instance.CanMoveToFinalLevel;
+            if (CanInteractWith) break;
+        }
     }
 }

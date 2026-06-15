@@ -17,6 +17,8 @@ public class OuijaInteraction : Interactable
 
     void OnEnable() => GetComponent<BoxCollider>().isTrigger = true; // Make sure player can't just walk into the collider
 
+    void Awake() => CanInteractWith = true;
+
     public override object[] Interact(params object[] args)
     {
         if (args != null && args.Length != 0)

@@ -75,6 +75,7 @@ public class StoryManager : MonoBehaviour
         m_SpiritNameStatus = ExtraQuestionStatus.DoesntKnow;
         m_FirstTaskStatus = ExtraQuestionStatus.DoesntKnow;
         m_SecondTaskStatus = ExtraQuestionStatus.DoesntKnow;
+        QuestionText.ExtraQuestionsToDisplay.Clear();
     }
 
     public void OnQuestionAnswered(StoryQuestion storyQuestion)

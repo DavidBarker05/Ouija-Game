@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider))]
@@ -9,6 +10,12 @@ public class RuneInteraction : Interactable
     LoadingScreen m_LoadingScreen;
     [SerializeField, Min(0)]
     int m_RuneSceneIndex = 4;
+
+    void Awake()
+    {
+        if (MinigameManager.Instance.IsMinigameBeaten(Minigame.Rune)) CanInteractWith = false;
+        else StartCoroutine(ChechCanInteract());
+    }
 
     public override object[] Interact(params object[] args)
     {
@@ -25,5 +32,15 @@ public class RuneInteraction : Interactable
             m_LoadingScreen.gameObject.SetActive(true);
         }
         return null;
+    }
+
+    IEnumerator ChechCanInteract()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(0.2f);
+            CanInteractWith = MinigameManager.Instance.CanPlayMinigame(Minigame.Rune);
+            if (CanInteractWith) break;
+        }
     }
 }

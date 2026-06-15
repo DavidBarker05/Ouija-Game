@@ -14,6 +14,8 @@ public class CryptexInteraction : Interactable
     [SerializeField]
     CryptexRingButton[] m_CryptexRingButtons;
 
+    void Awake() => CanInteractWith = true;
+
     public override object[] Interact(params object[] args)
     {
         if (args != null && args.Length != 0)
