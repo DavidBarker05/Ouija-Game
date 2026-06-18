@@ -2,7 +2,7 @@
 
 **Project:** Don't Forget to Say GOODBYE  
 **Purpose:** Continuous record of scope changes, limitations addressed, and AI-assisted development decisions for moderation and version tracking.  
-**Last updated:** 16 May 2026 (post-build binary copy fix for Ollama setup artifacts)
+**Last updated:** 18 Jun 2026 (session lore JSON parsing + story display sanitization)
 
 ---
 
@@ -38,6 +38,8 @@
 | May 2026 | Cryptex persistence | Cryptex beaten then Tarot/Rune reload reset closed door | `CryptexManager` restores door open + hides puzzle when `MinigameManager.IsMinigameBeaten(Cryptex)` on house `Start` | World matches solved state across scene reload | Cursor AI | Door stays open after rituals |
 | May 2026 | Minigame queue | `RandomiseMinigames` loop started at index 1 — only one of Tarot/Rune appended | Loop `i = 0 .. Length-1`; append full shuffled pair after Cryptex | `WhichMinigame(2)` valid for `second_task`; both rituals reachable via `CanPlayMinigame` | Cursor AI | `first_task` / `second_task` gated lines populate |
 | May 2026 | Windows build extras | `PostBuildCopy` used `ReadAllText` / `WriteAllText` for all files | `File.Copy(..., overwrite: true)` + try/catch for `IOException` | Ship valid `Windows_Ollama_Setup.exe` / Linux binary beside player | Cursor AI | Binaries match repo; clearer copy failures in Console |
+| Jun 2026 | Session lore parsing | Intermittent `InvalidOperationException` when `JsonUtility` rejected model JSON (`Invalid value.`) | `StorySessionLoreParser` sanitizes common model quirks (null, trailing commas, smart quotes, unquoted strings), try/catch around `JsonUtility`, regex field fallback | Lore step must not fail the whole new-game flow on one sloppy JSON blob | Cursor AI | Session lore ingests camelCase/snake_case output more reliably |
+| Jun 2026 | Story display | `StoryGeneratorScreen` showed `run_variant_id` hex instead of narrative prose | Relabel `run_variant_id` as internal-only in `SessionLorePrompt.j2` / `StoryPrompt.j2`; `SanitizeStoryOutput` strips echoed seed lines, standalone hex, and accidental JSON wrappers before cache | Diversity seed is for the model only, not player-facing UI | Cursor AI | Opening story panel shows prose only |
 
 ---
 
@@ -69,8 +71,8 @@ Detailed file history from implementation (chronological). Use with Git commit h
 
 - `Assets/OurAssets/Scripts/Chat/OuijaConversationState.cs` — constants + player/AI transcript  
 - `Assets/OurAssets/Scripts/Chat/OuijaAiOrchestrator.cs` — gates + Ouija send path  
-- `Assets/OurAssets/Scripts/Chat/StoryAiService.cs` — lore + story generation, cache I/O; `run_variant_id` in Jinja; Ollama narrative sampling per lore/story request  
-- `Assets/OurAssets/Scripts/Chat/StorySessionLore.cs` — JSON lore DTO + parser  
+- `Assets/OurAssets/Scripts/Chat/StoryAiService.cs` — lore + story generation, cache I/O; `run_variant_id` in Jinja; Ollama narrative sampling per lore/story request; `SanitizeStoryOutput` before story cache  
+- `Assets/OurAssets/Scripts/Chat/StorySessionLore.cs` — JSON lore DTO + hardened parser (sanitize, regex fallback)  
 - `Assets/OurAssets/Scripts/Chat/OuijaQuestionGateResolver.cs` — fuzzy + classifier  
 - `Assets/OurAssets/Scripts/Chat/OuijaGatedQuestionEntry.cs` — inspector gate definitions  
 - `Assets/OurAssets/Scripts/Chat/OuijaGateResponseResolver.cs` — `spirit_name`, `player_name`, `wife_*`, `first_task` / `second_task` (`WhichMinigame` indices); warns on invalid order  
@@ -168,6 +170,14 @@ Detailed file history from implementation (chronological). Use with Git commit h
 
 - AI assisted: yes (Cursor).  
 - **`Assets/Editor/PostBuildCopy.cs`** — Replaced **`ReadAllText` / `WriteAllText`** with **`File.Copy`** so **`Windows_Ollama_Setup.exe`**, **`Linux_Ollama_Setup`**, and other non-UTF8 payloads are not corrupted beside the player executable; **`IOException`** logged if copy fails (e.g. file locked).
+
+### Jun 2026 — Session lore parser + story display (18 Jun)
+
+- AI assisted: yes (Cursor).  
+- **`Assets/OurAssets/Scripts/Chat/StorySessionLore.cs`** — **`StorySessionLoreParser`** now sanitizes model JSON before **`JsonUtility`** (null → empty string, trailing commas, smart quotes, unquoted string values), wraps **`FromJson`** in try/catch, and falls back to regex field extraction (same pattern as gate classifier parsing). Lore failures include a short raw preview in the exception.  
+- **`Assets/OurAssets/Scripts/Chat/StoryAiService.cs`** — **`SanitizeStoryOutput`** strips echoed **`run_variant_id`** / “This run id” lines, standalone 32-char hex strings, and accidental JSON wrappers before **`WriteStoryContextToCache`**.  
+- **`Assets/Resources/Prompts/SessionLorePrompt.j2`** / **`StoryPrompt.j2`** — **`run_variant_id`** relabeled as an internal diversity seed the model must not print or include in player-facing output.  
+- Brief experiment with Ollama **`format: json`** on lore-only requests was reverted; parser hardening is the supported path so the follow-on story call on the same warm model stays plain prose.
 
 ---
 
