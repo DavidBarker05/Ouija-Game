@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Jinja2.NET;
@@ -211,7 +212,11 @@ namespace OurAssets.Scripts.Chat
 
             if (!StorySessionLoreParser.TryParseFromModelContent(generated, out StorySessionLore lore, out string parseDetail))
             {
-                throw new InvalidOperationException($"Session lore model output was unusable ({parseDetail}). Raw length={generated.Length}.");
+                string preview = generated.Length <= 240
+                    ? generated
+                    : generated.Substring(0, 240) + "…";
+                throw new InvalidOperationException(
+                    $"Session lore model output was unusable ({parseDetail}). Raw length={generated.Length}. Preview: {preview}");
             }
 
             WriteSessionLoreToCache(lore);
@@ -249,7 +254,7 @@ namespace OurAssets.Scripts.Chat
                 warmRequestTimeoutSeconds,
                 coldStartTimeoutSeconds);
             OllamaChatResponse response = await Session.Client.SendChatAsync(request, timeout, cancellationToken);
-            string generated = response?.message?.content?.Trim() ?? string.Empty;
+            string generated = SanitizeStoryOutput(response?.message?.content?.Trim() ?? string.Empty);
 
             if (string.IsNullOrWhiteSpace(generated))
             {
@@ -401,6 +406,59 @@ namespace OurAssets.Scripts.Chat
         private static string ConvertKeepAliveSeconds(int seconds)
         {
             return $"{Math.Max(1, seconds)}s";
+        }
+
+        /// <summary>
+        /// Models sometimes echo the internal diversity seed from the prompt, or emit JSON when the
+        /// previous lore call used structured output on the same warm model.
+        /// </summary>
+        private static string SanitizeStoryOutput(string raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                return string.Empty;
+            }
+
+            string text = StripCodeFence(raw).Trim();
+            text = Regex.Replace(text, @"(?im)^\s*This run id:\s*[a-fA-F0-9]{32}\s*$", string.Empty);
+            text = Regex.Replace(text, @"(?i)This run id:\s*[a-fA-F0-9]{32}\.?\s*", string.Empty);
+            text = Regex.Replace(text, @"(?im)^\s*[a-fA-F0-9]{32}\s*$", string.Empty);
+            text = Regex.Replace(text, @"(?im)^\s*Vary concrete details[^\n]*\n?", string.Empty);
+            text = Regex.Replace(text, @"(?im)^\s*Invent fresh names[^\n]*\n?", string.Empty);
+
+            if (text.StartsWith("{", StringComparison.Ordinal) && text.EndsWith("}", StringComparison.Ordinal))
+            {
+                Match storyField = Regex.Match(text, @"""story""\s*:\s*""((?:\\.|[^""\\])*)""");
+                if (storyField.Success)
+                {
+                    text = storyField.Groups[1].Value;
+                }
+            }
+
+            return text.Trim();
+        }
+
+        private static string StripCodeFence(string raw)
+        {
+            string t = raw.Trim();
+            if (!t.StartsWith("```", StringComparison.Ordinal))
+            {
+                return t;
+            }
+
+            int nl = t.IndexOf('\n');
+            if (nl >= 0)
+            {
+                t = t.Substring(nl + 1);
+            }
+
+            int endFence = t.LastIndexOf("```", StringComparison.Ordinal);
+            if (endFence >= 0)
+            {
+                t = t.Substring(0, endFence);
+            }
+
+            return t.Trim();
         }
     }
 }
