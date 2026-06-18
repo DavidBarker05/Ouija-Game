@@ -33,8 +33,8 @@ public class OuijaBoard : MonoBehaviour
     GameObject m_Planchette; // David added
     [SerializeField]
     BoardResponsePosition[] m_BoardResponsePositionsOnBoard; // David added
-    [SerializeField, Range(0.001f, 1f), Tooltip("The time it takes for the planchette to move between letters")]
-    float m_PlanchetteTravelTime = 0.75f; // David added
+    [SerializeField, Min(0.1f)]
+    float m_PlanchetteTravelSpeed = 1f;
     [SerializeField, Range(0.001f, 1f), Tooltip("The time that the planchette will stay on a letter")]
     float m_PlancehtteWaitTime = 0.375f; // David added
     [SerializeField]
@@ -73,6 +73,7 @@ public class OuijaBoard : MonoBehaviour
     int m_CurrentCharacter = -1; // David added
     BoardResponse m_CurrentResponse; // David added
     bool m_bBlockedSendButton = false; // David added
+    float m_PlanchetteTravelTime;
 
     void Awake() => PopulateDictionaryWithStartingValues();
 
@@ -184,6 +185,7 @@ public class OuijaBoard : MonoBehaviour
         if (!m_ResponseDisplayText) return;
         m_ResponseDisplayText.text = m_CurrentText;
         m_ResponseDisplayText.maxVisibleCharacters = 0;
+        m_PlanchetteTravelTime = Vector3.Distance(m_PlanchetteStartingPosition, m_BoardResponsePositions[m_CurrentResponse].position) / m_PlanchetteTravelSpeed;
     }
 
     // David - Convert a char to a BoardResponse value
