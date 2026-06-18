@@ -12,7 +12,7 @@ public class CryptexInteraction : Interactable
     [SerializeField]
     GameObject m_CryptexUI;
     [SerializeField]
-    CryptexRingButton[] m_CryptexRingButtons;
+    GameObject[] m_CryptexPhysicalUI;
 
     void Awake() => CanInteractWith = true;
 
@@ -28,7 +28,7 @@ public class CryptexInteraction : Interactable
         {
             m_HUD?.SetActive(false);
             m_CryptexUI?.SetActive(true);
-            foreach (CryptexRingButton b in m_CryptexRingButtons) b.gameObject.SetActive(true);
+            foreach (GameObject go in m_CryptexPhysicalUI) go.SetActive(true);
             m_Player.ChangeCharacter(m_CryptexCharacter);
             if (StoryManager.Instance.GetExtraQuestionStatus(ExtraQuestion.HowOpenDoor) != ExtraQuestionStatus.Asked)
                 StoryManager.Instance.SetExtraQuestionStatus(ExtraQuestion.HowOpenDoor, ExtraQuestionStatus.ShouldAsk);
