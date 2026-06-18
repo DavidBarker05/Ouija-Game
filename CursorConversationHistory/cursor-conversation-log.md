@@ -6723,3 +6723,429 @@ I used the **GTX 1060 / RX 580** pair as the safe floor (roughly the same tier; 
 
 Committed and pushed to `main`:
 - **Commit:** `96307d7` — *Raise minimum GPU spec to GTX 1060 / RX 580 tier.*
+
+---
+Below is from the Summative Assignment
+
+Cursor also decided to change how they output conversation history because of course they did
+---
+
+## User
+
+InvalidOperationException: Session lore model output was unusable (JSON parse error: Invalid value.). Raw length=150.
+OurAssets.Scripts.Chat.StoryAiService.GenerateSessionLoreAsync (System.Threading.CancellationToken cancellationToken) (at Assets/OurAssets/Scripts/Chat/StoryAiService.cs:214)
+GameManager.StartNewGame (System.IProgress`1[T] progress) (at Assets/OurAssets/Scripts/GameManager.cs:48)
+StoryGeneratorScreen.OnEnable () (at Assets/OurAssets/Scripts/UI/StoryGeneratorScreen.cs:18)
+System.Runtime.CompilerServices.AsyncMethodBuilderCore+<>c.<ThrowAsync>b__7_0 (System.Object state) (at <f713e1c3c5f545ce9b1df47230f4f853>:0)
+UnityEngine.UnitySynchronizationContext+WorkRequest.Invoke () (at <5ea200363ab142a582463089d51cabd3>:0)
+UnityEngine.UnitySynchronizationContext.Exec () (at <5ea200363ab142a582463089d51cabd3>:0)
+UnityEngine.UnitySynchronizationContext.ExecuteTasks () (at <5ea200363ab142a582463089d51cabd3>:0)
+
+## Assistant
+
+Investigating the session lore generation flow and JSON parsing to find why the model output fails to parse.
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\Chat\\StoryAiService.cs"}
+```
+
+### Tool Ripgrep Raw Search
+
+```
+{"pattern":"GenerateSessionLore|SessionLore|session lore","path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts","caseInsensitive":true,"multiline":false,"toolCallId":"tool_1490e878-efb1-4211-ba67-eeb6632b4c9","offset":0}
+```
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\Chat\\StorySessionLore.cs"}
+```
+
+### Tool Glob File Search
+
+```
+{"targetDirectory":"C:\\Dev\\Unity\\Ouija-Game","globPattern":"**/SessionLorePrompt*"}
+```
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\GameManager.cs","limit":60}
+```
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\Resources\\Prompts\\SessionLorePrompt.j2"}
+```
+
+### Tool Ripgrep Raw Search
+
+```
+{"pattern":"JsonUtility|Invalid value","path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts","caseInsensitive":false,"multiline":false,"toolCallId":"tool_650c8bf3-0880-4acf-b299-17d84d5b6a1","offset":0}
+```
+
+### Tool Glob File Search
+
+```
+{"targetDirectory":"C:\\Dev\\Unity\\Ouija-Game","globPattern":"**/session_lore.json"}
+```
+
+## Assistant
+
+Let me check how similar JSON parsing is handled elsewhere and what the model might be returning.
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\Chat\\OuijaQuestionGateResolver.cs","offset":1220,"limit":80}
+```
+
+### Tool Ripgrep Raw Search
+
+```
+{"pattern":"StorySessionLore|SessionLore","path":"C:\\Dev\\Unity\\Ouija-Game","glob":"*Test*","caseInsensitive":false,"multiline":false,"toolCallId":"tool_b5370f79-d9c0-4647-9a2a-46425d7d2b5","offset":0}
+```
+
+### Tool Ripgrep Raw Search
+
+```
+{"pattern":"Invalid value","path":"C:\\Dev\\Unity\\Ouija-Game","caseInsensitive":false,"multiline":false,"toolCallId":"tool_a3c05ecb-99ee-46ec-bf47-e11518d2546","offset":0}
+```
+
+### Tool Ripgrep Raw Search
+
+```
+{"pattern":"JSON parse error","path":"C:\\Dev\\Unity\\Ouija-Game","caseInsensitive":false,"multiline":false,"toolCallId":"tool_924af2a7-ead5-440a-a5d3-2a63e37fcb1","offset":0}
+```
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\Chat\\StorySessionLore.cs","offset":56,"limit":50}
+```
+
+### Tool Ripgrep Raw Search
+
+```
+{"pattern":"format|json","path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\AI","caseInsensitive":true,"multiline":false,"toolCallId":"tool_db8df2bc-d47a-47f2-9e53-c7bf2223201","offset":0}
+```
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\AI\\OllamaClient.cs","limit":80}
+```
+
+### Tool Ripgrep Raw Search
+
+```
+{"pattern":"ExtractClassifierFieldsWithRegex|regex.*field","path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts","caseInsensitive":false,"multiline":false,"toolCallId":"tool_482a635d-1153-4f25-b7c3-a643b47f5a2","offset":0}
+```
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\AI\\OllamaDtos.cs"}
+```
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\Chat\\OuijaQuestionGateResolver.cs","offset":1355,"limit":80}
+```
+
+### Tool Run Terminal Command V2
+
+### Tool Ripgrep Raw Search
+
+```
+{"pattern":"format","path":"C:\\Dev\\Unity\\Ouija-Game","glob":"*Ollama*","caseInsensitive":false,"multiline":false,"toolCallId":"tool_5f612c0c-9691-436c-979b-e0470c4fdfe","offset":0}
+```
+
+### Tool Ripgrep Raw Search
+
+```
+{"pattern":"StorySessionLoreParser|TryParseFromModelContent","path":"C:\\Dev\\Unity\\Ouija-Game","caseInsensitive":false,"multiline":false,"toolCallId":"tool_38666c06-5d45-4255-b6d4-d8b5cf0d8e6","offset":0}
+```
+
+## Assistant
+
+Identifying the issue: Unity's `JsonUtility.FromJson` throws "Invalid value" on common model output (unquoted strings, `null`, trailing commas). Hardening the parser and requesting JSON format from Ollama.
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\Chat\\StorySessionLore.cs"}
+```
+
+### Tool Edit File V2
+
+### Tool Edit File V2
+
+### Tool Edit File V2
+
+### Tool Edit File V2
+
+## Assistant
+
+Verifying regex patterns in the updated parser — verbatim-string escaping may be wrong.
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\Chat\\StorySessionLore.cs","offset":155,"limit":50}
+```
+
+### Tool Read Lints
+
+```
+{"paths":["C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\Chat\\StorySessionLore.cs","C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\Chat\\StoryAiService.cs","C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\AI\\OllamaDtos.cs"]}
+```
+
+### Tool Edit File V2
+
+## Assistant
+
+The failure came from **Unity `JsonUtility.FromJson` throwing `"Invalid value."`** when the Ollama model returned JSON it couldn't handle — common cases include unquoted names (`"playerName": Marcus`), `null` fields, trailing commas, or smart quotes. At 150 characters, the response was probably close to valid JSON but had one of those quirks.
+
+### What I changed
+
+1. **`StorySessionLoreParser`** — More tolerant parsing, similar to your classifier path in `OuijaQuestionGateResolver`:
+   - Sanitizes JSON before parsing (`null` → `""`, trailing commas, smart quotes, unquoted string values)
+   - Wraps `JsonUtility` calls in try/catch instead of letting exceptions bubble up
+   - Regex fallback to extract the four fields when strict JSON parsing still fails
+
+2. **`StoryAiService.GenerateSessionLoreAsync`** — Sets `format = "json"` on the Ollama request so the model is constrained to JSON output.
+
+3. **Error messages** — On failure, the exception now includes a **preview of the raw model output** so you can see exactly what came back.
+
+Try starting a new game again. If it still fails, the new preview in the error will show the exact model output so we can tune further. You can also test directly from the `StoryAiService` inspector via **Generate Session Lore**.
+
+## User
+
+so it's hard to tell if this fixed anything because this was the first time this happened in dozens of playthroughs, but now this seems to have caused another error in the game where on the screen where the story is displayed, the text is showing the run id when it shouldn't be, it should only be displaying the story
+
+## Assistant
+
+Tracing how the story is generated and displayed, and where `run_variant_id` might leak into the UI.
+
+### Tool Ripgrep Raw Search
+
+```
+{"pattern":"run_variant_id|StoryGenerator|story.*display","path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts","caseInsensitive":true,"multiline":false,"toolCallId":"tool_3373c707-4697-4382-99bc-607aee2ba76","offset":0}
+```
+
+### Tool Glob File Search
+
+```
+{"targetDirectory":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts","globPattern":"**/*Story*"}
+```
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\UI\\StoryGeneratorScreen.cs"}
+```
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\StoryManager.cs"}
+```
+
+### Tool Glob File Search
+
+```
+{"targetDirectory":"C:\\Dev\\Unity\\Ouija-Game","globPattern":"**/StoryPrompt*"}
+```
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\Resources\\Prompts\\StoryPrompt.j2"}
+```
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\Chat\\StoryAiService.cs","offset":174,"limit":100}
+```
+
+### Tool Ripgrep Raw Search
+
+```
+{"pattern":"StoryContext|story_context|session_lore","path":"C:\\Dev\\Unity\\Ouija-Game","caseInsensitive":false,"multiline":false,"toolCallId":"tool_559ad0ad-ee9c-4776-97b8-81d4c140c43","offset":0}
+```
+
+### Tool Ripgrep Raw Search
+
+```
+{"pattern":"run_variant|run id","path":"C:\\Dev\\Unity\\Ouija-Game","caseInsensitive":false,"multiline":false,"toolCallId":"tool_77aa8581-4655-40dd-b2ee-e5867c87c7b","offset":0}
+```
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\AI\\OllamaClient.cs","offset":70,"limit":50}
+```
+
+## Assistant
+
+Investigating: `format = "json"` on the session-lore call may affect the next story request on the same warm model, and the story prompt includes `run_variant_id` which the model can echo. Fixing both.
+
+### Tool Edit File V2
+
+### Tool Edit File V2
+
+### Tool Edit File V2
+
+### Tool Edit File V2
+
+### Tool Edit File V2
+
+### Tool Edit File V2
+
+### Tool Edit File V2
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\Chat\\StoryAiService.cs","offset":395,"limit":30}
+```
+
+### Tool Read Lints
+
+```
+{"paths":["C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\Chat\\StoryAiService.cs","C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\AI\\OllamaDtos.cs"]}
+```
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\Chat\\StoryAiService.cs","offset":425,"limit":30}
+```
+
+## Assistant
+
+You're right to be skeptical — the original lore parse failure was probably a one-off, but the run-id-on-story issue is plausibly tied to the last change.
+
+### Likely cause
+
+Two things were working against you:
+
+1. **`format = "json"` on the session-lore call** — Lore and story both hit the same warm Ollama model back-to-back. JSON mode on the first call may have influenced the second, so the story step could come back as JSON or echo prompt metadata instead of prose.
+
+2. **The story prompt literally says `This run id: …`** — Even without JSON mode, models sometimes repeat that line. You may not have seen it before because lore generation was failing earlier and blocking the flow.
+
+### What I changed
+
+- **Removed `format = "json"`** — The hardened `StorySessionLoreParser` from the first fix stays; that's the right place to handle messy lore JSON.
+- **Updated both prompts** — `run_variant_id` is now labeled as an internal diversity seed the model must not print.
+- **Added `SanitizeStoryOutput`** — Strips echoed run-id lines, standalone 32-char hex strings, and accidental JSON wrappers before the story is cached and shown on `StoryGeneratorScreen`.
+
+Try another new game. You should see normal story prose again. If anything still looks wrong, the error preview from the lore step should make it easier to diagnose.
+
+## User
+
+okay that seems to have worked, let's hope no bugs will happen again now, update refinements-changes.md and then commit and push. Follow the style you see in refinements-changes.md
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\refinements-changes.md","limit":80}
+```
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\refinements-changes.md","offset":120,"limit":80}
+```
+
+### Tool Edit File V2
+
+### Tool Edit File V2
+
+### Tool Edit File V2
+
+### Tool Edit File V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+## Assistant
+
+Done. Here's what was recorded and shipped:
+
+### `refinements-changes.md`
+- Updated **Last updated** to 18 Jun 2026
+- Added two summary-table rows: session lore parsing hardening and story display / run-id sanitization
+- Updated the file-level index for `StoryAiService.cs` and `StorySessionLore.cs`
+- Added a detailed **Jun 2026 — Session lore parser + story display (18 Jun)** section
+
+### Git
+- **Commit:** `9031721` — *Harden session lore parsing and keep run id off story screen.*
+- **Pushed** to `origin/main` (`1cce5c1..9031721`)
+
+Files in the commit:
+- `StorySessionLore.cs`
+- `StoryAiService.cs`
+- `SessionLorePrompt.j2`
+- `StoryPrompt.j2`
+- `refinements-changes.md`
+
+## User
+
+oh also update prompts-used.md then commit and push again
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\prompts-used.md"}
+```
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\Resources\\Prompts\\SessionLorePrompt.j2"}
+```
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\Resources\\Prompts\\StoryPrompt.j2"}
+```
+
+## Assistant
+
+Updating `prompts-used.md` to match the document's versioned style, then committing and pushing.
+
+### Tool Edit File V2
+
+### Tool Edit File V2
+
+### Tool Run Terminal Command V2
+
+## Assistant
+
+Updated `prompts-used.md` with **Fourth Prompt (18 Jun 2026 — current)** sections for both:
+
+- **Story AI** — internal diversity seed wording + `SanitizeStoryOutput` note  
+- **Story Constants AI** — seed must not appear in JSON + `StorySessionLoreParser` hardening note  
+
+Committed and pushed as `13cd466` on `main`.
