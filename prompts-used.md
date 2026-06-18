@@ -82,6 +82,29 @@ Vary concrete details (mood, how he found the house, what unsettles him) for thi
 
 This is the same as the second prompt, with one addition: Cursor introduced the `run_variant_id` variable so that concrete details (mood, how the player found the house, what unsettles him) vary between playthroughs while the core narrative rules remain fixed.
 
+### Fourth Prompt (18 Jun 2026 — current)
+
+```Jinja
+Canon for this session (do not contradict; do not rename these people):
+- The player character is named {{ player_name }}.
+- Their estranged wife is named {{ wife_name }}.
+
+Write a short story about {{ player_name }} and how he is looking for his wife, {{ wife_name }} who he lost contact with after she left him.
+Explain how he tracked her down to a small house where she seemed to be practicing the occult.
+Explain how she doesn't seem to be found anywhere but there is an Ouija board nearby that might be able to answer some questions.
+
+Tone: spooky but suitable for teens (16+).
+Length: about 70-100 words.
+
+Rules:
+ - Do not explain why the player's wife left them because they are not supposed to know that at the current point in the session
+
+Internal diversity seed (do not print, quote, or mention this value anywhere in the story): {{ run_variant_id }}
+Use it only to vary concrete details (mood, how he found the house, what unsettles him) while obeying all rules above.
+```
+
+After the third prompt shipped, the model sometimes echoed `This run id: <hex>` on the opening story screen instead of narrative prose. The seed line was relabeled as an internal diversity seed with an explicit “do not print” rule. `StoryAiService.SanitizeStoryOutput` also strips echoed seed lines, standalone 32-character hex strings, and accidental JSON wrappers before the story is cached for `StoryGeneratorScreen`.
+
 ---
 
 ## Ouija Board AI
@@ -336,3 +359,24 @@ Invent fresh names and 7-word answers for this id; avoid reusing the same exampl
 ```
 
 This is the production prompt. Cursor added `run_variant_id` so names and seven-word answers vary between playthroughs while remaining fixed within a single session.
+
+### Fourth Prompt (18 Jun 2026 — current)
+
+```Jinja
+You are generating fixed facts for one haunted-house Ouija game session. These values must stay consistent for the whole playthrough and will be injected into a separate story prompt and into scripted board answers.
+
+Output requirements:
+- Reply with a single JSON object only. No markdown fences, no commentary before or after.
+- Use these keys exactly (camelCase): playerName, wifeName, wifeLeftReason, wifeSadReason.
+- playerName: the human male player character's first name (common English names are fine; avoid joke names).
+- wifeName: their wife's first name (different from playerName).
+- wifeLeftReason: one short sentence of why the wife left the player, no more than 7 words because this will be spoken by the Ouija board (grounded, emotional, not graphic; suitable for teens).
+- wifeSadReason: one short sentence of why the wife was sad, again no more than 7 words because this will be spoken by the Ouija board (may overlap thematically with why she left but must not copy the same wording; still not graphic).
+
+The player will only learn wifeLeftReason and wifeSadReason by asking the board later, so phrase them as clear answers someone could spell out on a Ouija board.
+
+Internal diversity seed (do not include this value in the JSON): {{ run_variant_id }}
+Invent fresh names and 7-word answers for this seed; avoid reusing the same examples you used in other runs.
+```
+
+The third prompt’s `This run id:` wording was relabeled so the model treats `run_variant_id` as an internal seed only (not a JSON field). `StorySessionLoreParser` was also hardened in C# to tolerate sloppy model JSON (null values, trailing commas, smart quotes, unquoted strings, regex field fallback) after an intermittent `JsonUtility` parse failure on lore generation.
