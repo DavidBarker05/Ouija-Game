@@ -33,6 +33,8 @@ Internal Playtest Survey Responses - [Survey_Playtest_Feedback_Responses_Spreads
 
 Project Schedule & Scheduled Feedback Sessions - [ProjectSchedule_Part3_FeedbackSession_Updated.xlsx](https://github.com/user-attachments/files/29133281/ProjectSchedule_Part3_FeedbackSession_Updated.xlsx)
 
+Game Code Reference & Bibliography List - [Code_References_Bibliography_P3.pdf](https://github.com/user-attachments/files/29133490/Code_References_Bibliography_P3.pdf)
+
 ---
 
 ## Contents
