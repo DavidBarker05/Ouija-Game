@@ -13,15 +13,15 @@ public class CryptexExitButton : MonoBehaviour
     [SerializeField]
     GameObject m_CryptexUI;
     [SerializeField]
-    CryptexRingButton[] m_CryptexRingButtons;
+    GameObject[] m_CryptexPhysicalUI;
 
     void Awake()
     {
         GetComponent<Button>().onClick.AddListener(() =>
         {
-            m_HUD?.SetActive(true);
             m_CryptexUI?.SetActive(false);
-            foreach (CryptexRingButton b in m_CryptexRingButtons) b.gameObject.SetActive(false);
+            m_HUD?.SetActive(true);
+            foreach (GameObject go in m_CryptexPhysicalUI) go.SetActive(false);
             m_Player.ChangeCharacter(m_FirstPersonCharacter);
         });
     }
