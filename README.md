@@ -31,6 +31,8 @@ Final Reflection Report - [Final Reflection Report.pdf](https://github.com/user-
 
 Internal Playtest Survey Responses - [Survey_Playtest_Feedback_Responses_Spreadsheet.xlsx](https://github.com/user-attachments/files/29131511/Survey_Playtest_Feedback_Responses_Spreadsheet.xlsx)
 
+Project Schedule & Scheduled Feedback Sessions - [ProjectSchedule_Part3_FeedbackSession_Updated.xlsx](https://github.com/user-attachments/files/29133281/ProjectSchedule_Part3_FeedbackSession_Updated.xlsx)
+
 ---
 
 ## Contents
