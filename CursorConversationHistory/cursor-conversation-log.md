@@ -7149,3 +7149,270 @@ Updated `prompts-used.md` with **Fourth Prompt (18 Jun 2026 — current)** secti
 - **Story Constants AI** — seed must not appear in JSON + `StorySessionLoreParser` hardening note  
 
 Committed and pushed as `13cd466` on `main`.
+
+## User
+
+can you update refinements-changes.md to have the changes I made starting from Saturday the 13th commit c1f795a9bc05523a3874cebdd285ebb9f2fca9ff to Thursday the 18th commit 1cce5c187b562f103b89762a7080cf9207608e9f because those were changes made based on feedback to the game that I forgot to add to refinements-changes.md and if there is a specific way in refinments-changes.md that reflects changes made by humans then follow that because those changes were all made by me DavidBarker05 but if there isn't then just follow whatever style is in that file
+
+## Assistant
+
+I'll read `refinements-changes.md` and gather the git history between those two commits so we can document your changes in the same style.
+
+### Tool Glob File Search
+
+```
+{"globPattern":"**/refinements-changes.md"}
+```
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Ripgrep Raw Search
+
+```
+{"pattern":"refinements-changes","outputMode":"files_with_matches","caseInsensitive":false,"multiline":false,"toolCallId":"tool_d2be0e2d-d76a-4d3a-aa6d-0dd013d7475","offset":0}
+```
+
+### Tool Run Terminal Command V2
+
+### Tool Glob File Search
+
+```
+{"targetDirectory":"C:\\Dev\\Unity\\Ouija-Game","globPattern":"**/refinements-changes.md"}
+```
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\refinements-changes.md"}
+```
+
+### Tool Run Terminal Command V2
+
+## Assistant
+
+I'll pull the per-commit diffs so each change can be documented accurately in the refinements log.
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+## Assistant
+
+Updating `refinements-changes.md` with the playtest feedback changes, using `No (David)` in the summary table per the file's convention.
+
+### Tool Edit File V2
+
+### Tool Edit File V2
+
+### Tool Edit File V2
+
+### Tool Edit File V2
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\refinements-changes.md","offset":170,"limit":60}
+```
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\refinements-changes.md","offset":38,"limit":55}
+```
+
+## Assistant
+
+Updated `refinements-changes.md` with your playtest feedback work from `c1f795a` through `1cce5c1`. I followed the existing convention for your changes: **`No (David)`** in the summary table’s “Tool / AI assistance” column, and **`AI assisted: no (David)`** in the detailed section.
+
+### Summary table — 6 new rows (Jun 2026)
+1. **Interact prompt** — world-space `InteractPrompt` with per-device button sprites (`5f5455e`)
+2. **Interaction gating** — `CanInteractWith`, eligibility polling, candle/prompt cleanup (`5f5455e`)
+3. **Question HUD** — fixed `FirstTask`/`SecondTask` copy-paste bug + static `ExtraQuestionsToDisplay` (`5f5455e`, `b42481e`)
+4. **Ouija board speed** — travel speed instead of fixed travel time (`51093d3`)
+5. **Cryptex readability** — centre alignment line on rings (`facc473`)
+6. **House navigation** — spot light at Ouija room doorway (`1cce5c1`)
+
+### Other updates
+- **Last updated** line reflects this batch
+- **Technical milestones** index — added `InteractPrompt.cs`, `QuestionText.cs`, `Interactable.cs`, updated `OuijaBoard.cs`
+- **Detailed section** — new “Jun 2026 — Playtest feedback polish (15–18 Jun)” with commit range and file-level bullets
+
+The starting commit `c1f795a` (13 Jun, “lots of fixes based on feedback from evening”) is referenced as the baseline but not duplicated, since your range was the commits after it. Say if you want that one documented too.
+
+## User
+
+okay looking good, but let's flesh them out a bit more specifically the extra questions, because people were complaining about not knowing what to do/ask, so those appear as the player goes through the game and learns more things they need to ask, that way it guides the player a bit to keep them on the right track but they still have to discover things for themselves
+
+## Assistant
+
+I'll read the current log entries and the `QuestionText` / extra-question code so we can document the progressive guidance design accurately.
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\refinements-changes.md","offset":40,"limit":15}
+```
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\UI\\QuestionText.cs"}
+```
+
+### Tool Ripgrep Raw Search
+
+```
+{"pattern":"ExtraQuestion","path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts","glob":"*.cs","outputMode":"content","caseInsensitive":false,"headLimit":40,"multiline":false,"toolCallId":"tool_106a0cd4-ca8e-4cec-b713-ffbbabe40f9","offset":0}
+```
+
+### Tool Ripgrep Raw Search
+
+```
+{"pattern":"enum ExtraQuestion|enum ExtraQuestionStatus","path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts","contextAfter":15,"caseInsensitive":false,"multiline":false,"toolCallId":"tool_54164a75-6504-4627-a902-0f8b9c47301","offset":0}
+```
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\StoryManager.cs"}
+```
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\refinements-changes.md","offset":188,"limit":30}
+```
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Dev\\Unity\\Ouija-Game\\Assets\\OurAssets\\Scripts\\Chat\\OuijaGateResponseResolver.cs"}
+```
+
+### Tool Ripgrep Raw Search
+
+```
+{"pattern":"QuestionText|ExtraQuestion","path":"C:\\Dev\\Unity\\Ouija-Game","glob":"*.md","caseInsensitive":false,"multiline":false,"toolCallId":"tool_150d6699-e286-4a47-b203-edbb184a975","offset":0}
+```
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+## Assistant
+
+Expanding the extra-questions documentation to capture the progressive guidance design and the `c1f795a` introduction.
+
+### Tool Edit File V2
+
+### Tool Edit File V2
+
+### Tool Edit File V2
+
+### Tool Edit File V2
+
+## Assistant
+
+Expanded the extra-questions documentation in three places:
+
+**Summary table row** — Reframed around playtest feedback (“didn’t know what to ask/do next”) and the progressive design: hidden → `ShouldAsk` when discovered → struck through when answered or skipped if solved without asking. Includes the unlock triggers and commit refs (`c1f795a`, `5f5455e`, `b42481e`).
+
+**Technical milestones** — Added `StoryManager.cs` for `ExtraQuestion` / `ExtraQuestionStatus` state.
+
+**Detailed section** — New subsection **“Progressive question HUD — extra questions”** with:
+- Two-layer HUD table (core vs extra questions)
+- `ExtraQuestionStatus` lifecycle table
+- Example unlock chain (cryptex → spirit name → ritual hints)
+- Refinements from the later commits (static `HashSet`, copy-paste bug fix)
+
+The playtest polish section now spans `c1f795a` → `1cce5c1` so the extra-questions feature is documented from when it was introduced on the 13th, not only the later fixes.
+
+## User
+
+looks good commit and push
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Read File V2
+
+```
+{"path":"C:\\Users\\david\\.cursor\\projects\\c-Dev-Unity-Ouija-Game-Assets-OurAssets-Scripts\\agent-tools\\c38bab85-9a63-44b2-ae75-e6e6fe044e30.txt","limit":80}
+```
+
+### Tool Ripgrep Raw Search
+
+```
+{"pattern":"refinements-changes|On branch|Changes not staged|Untracked","path":"C:\\Users\\david\\.cursor\\projects\\c-Dev-Unity-Ouija-Game-Assets-OurAssets-Scripts\\agent-tools\\c38bab85-9a63-44b2-ae75-e6e6fe044e30.txt","caseInsensitive":false,"headLimit":30,"multiline":false,"toolCallId":"tool_0a6cdedb-98f1-4b3a-872f-f70a5d970de","offset":0}
+```
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+## Assistant
+
+Committing only `refinements-changes.md` — the font asset change is unrelated.
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+## Assistant
+
+Remote is ahead — pulling with rebase, then pushing.
+
+### Tool Run Terminal Command V2
+
+### Tool Run Terminal Command V2
+
+## Assistant
+
+Committed and pushed to `main`.
+
+**Commit:** `3c81cdb` — *Document Jun playtest feedback changes in refinements-changes.md.*
+
+Only `refinements-changes.md` was included. The unrelated local change to `Cinzel-Bold SDF.asset` was stashed during the rebase and restored afterward — it’s still uncommitted in your working tree.
+
+Remote was ahead, so I rebased onto it before pushing. Branch is up to date with `origin/main`.
