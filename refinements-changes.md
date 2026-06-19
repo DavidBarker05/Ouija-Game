@@ -2,7 +2,7 @@
 
 **Project:** Don't Forget to Say GOODBYE  
 **Purpose:** Continuous record of scope changes, limitations addressed, and AI-assisted development decisions for moderation and version tracking.  
-**Last updated:** 18 Jun 2026 (session lore JSON parsing + story display sanitization)
+**Last updated:** 18 Jun 2026 (playtest feedback: progressive extra-question HUD, interact prompt, board speed, cryptex line, ouija room light)
 
 ---
 
@@ -40,6 +40,12 @@
 | May 2026 | Windows build extras | `PostBuildCopy` used `ReadAllText` / `WriteAllText` for all files | `File.Copy(..., overwrite: true)` + try/catch for `IOException` | Ship valid `Windows_Ollama_Setup.exe` / Linux binary beside player | Cursor AI | Binaries match repo; clearer copy failures in Console |
 | Jun 2026 | Session lore parsing | Intermittent `InvalidOperationException` when `JsonUtility` rejected model JSON (`Invalid value.`) | `StorySessionLoreParser` sanitizes common model quirks (null, trailing commas, smart quotes, unquoted strings), try/catch around `JsonUtility`, regex field fallback | Lore step must not fail the whole new-game flow on one sloppy JSON blob | Cursor AI | Session lore ingests camelCase/snake_case output more reliably |
 | Jun 2026 | Story display | `StoryGeneratorScreen` showed `run_variant_id` hex instead of narrative prose | Relabel `run_variant_id` as internal-only in `SessionLorePrompt.j2` / `StoryPrompt.j2`; `SanitizeStoryOutput` strips echoed seed lines, standalone hex, and accidental JSON wrappers before cache | Diversity seed is for the model only, not player-facing UI | Cursor AI | Opening story panel shows prose only |
+| Jun 2026 | Interact prompt | No in-world affordance for how to interact with objects | `InteractPrompt` world-space UI; `FirstPersonCharacter.HandleInteractionPrompt` raycasts and parents prompt to `InteractPromptTransform`; per-device button sprites (keyboard / Xbox / PS4 / PS5 / Switch) in `Resources/Sprites/ControlsUI/` | Playtesters did not know which button to press | No (David) | Prompt appears on valid interactables only |
+| Jun 2026 | Interaction gating | Prompt and interact fired on locked doors, beaten minigames, and relit candles | `CanInteractWith` on `Interactable`; polled eligibility coroutines on Tarot/Rune/End interactions; candle toggles interact when lit/unlit; `PlayerCharacter.OnChangeToCharacter` / `OnChangeFromCharacter` hide prompt on character swap | Avoid misleading prompts and wasted input | No (David) | Interact only when action is available |
+| Jun 2026 | Question HUD — extra questions | Playtesters did not know what to ask the board or what to do next; only the four core wife questions were listed from the start | Progressive **extra questions** on the Ouija HUD: hidden until the player discovers a beat (`DoesntKnow`), then surfaced as a suggested line to ask (`ShouldAsk`), struck through once asked (`Asked`) or skipped if solved without asking (`DoesntNeedAsk`). Unlocks driven by gameplay — e.g. approaching the cryptex → “How do I open the door?”; answering that gate → “The spirit's name.”; asking where she is too early → ritual/task hints. Core wife questions always visible with strikethrough when answered. Introduced `c1f795a`; refactored to static `ExtraQuestionsToDisplay` + `StartNewGame` clear (`5f5455e`); fixed `FirstTask` / `SecondTask` copy-paste gate checks (`b42481e`) | Light-touch guidance: player still explores and phrases questions themselves, but the HUD grows as they learn what matters | No (David) | Checklist nudges players onto the cryptex → rituals → finale path without spelling out solutions |
+| Jun 2026 | Ouija board speed | Fixed per-letter travel time felt slow on long planchette hops | `m_PlanchetteTravelSpeed` replaces fixed `m_PlanchetteTravelTime`; duration computed as distance / speed each hop | Faster, more responsive board spelling after feedback | No (David) | Snappier letter-by-letter replies |
+| Jun 2026 | Cryptex readability | Hard to see which letter ring is selected | Centre alignment line added to `Cryptex.prefab`; `CryptexInteraction` drives `m_CryptexPhysicalUI` objects | Cryptex puzzle easier to read at a glance | No (David) | Clearer selected-letter feedback |
+| Jun 2026 | House navigation | Ouija room not visually discoverable from the house | Spot light at Ouija room doorway in `HouseScene` (`1cce5c1`) | Draw player toward the board after playtest feedback | No (David) | Light spill guides player to Ouija room |
 
 ---
 
@@ -90,7 +96,11 @@ Detailed file history from implementation (chronological). Use with Git commit h
 
 - `Assets/OurAssets/Scripts/GameManager.cs` — `StartNewGame` pipeline  
 - `Assets/OurAssets/Scripts/StoryManager.cs` — answered-question flags  
-- `Assets/OurAssets/Scripts/OuijaBoard.cs` — planchette spelling  
+- `Assets/OurAssets/Scripts/OuijaBoard.cs` — planchette spelling; travel speed per hop (`m_PlanchetteTravelSpeed`)  
+- `Assets/OurAssets/Scripts/UI/InteractPrompt.cs` — world-space interact prompt with per-device button sprites  
+- `Assets/OurAssets/Scripts/UI/QuestionText.cs` — progressive question HUD; core wife questions + extra questions unlocked by `ExtraQuestionStatus`; static `ExtraQuestionsToDisplay`  
+- `Assets/OurAssets/Scripts/StoryManager.cs` — `ExtraQuestion` / `ExtraQuestionStatus` state; cleared on `StartNewGame`  
+- `Assets/OurAssets/Scripts/Interaction/Interactable.cs` — `InteractPromptTransform`, `CanInteractWith`  
 - `Assets/OurAssets/Scripts/UI/StoryGeneratorScreen.cs` — story scene generation UI  
 - `Assets/OurAssets/Scripts/Cryptex/CryptexManager.cs` — door open pose cached; restore after reload if Cryptex beaten (`MinigameManager`)  
 - `Assets/OurAssets/Scripts/MinigameManager.cs` — Cryptex + **both** shuffled Tarot+Rune in `m_MinigameOrder` (`RandomiseMinigames` append fix)  
@@ -178,6 +188,57 @@ Detailed file history from implementation (chronological). Use with Git commit h
 - **`Assets/OurAssets/Scripts/Chat/StoryAiService.cs`** — **`SanitizeStoryOutput`** strips echoed **`run_variant_id`** / “This run id” lines, standalone 32-char hex strings, and accidental JSON wrappers before **`WriteStoryContextToCache`**.  
 - **`Assets/Resources/Prompts/SessionLorePrompt.j2`** / **`StoryPrompt.j2`** — **`run_variant_id`** relabeled as an internal diversity seed the model must not print or include in player-facing output.  
 - Brief experiment with Ollama **`format: json`** on lore-only requests was reverted; parser hardening is the supported path so the follow-on story call on the same warm model stays plain prose.
+
+### Jun 2026 — Playtest feedback polish (13–18 Jun)
+
+- AI assisted: no (David).  
+- Commits: `c1f795a` → `1cce5c1`.
+
+#### Progressive question HUD — extra questions (`QuestionText`)
+
+Playtest feedback: players were unsure what to ask the Ouija board and what to do next. The HUD already listed the four core story questions; **`c1f795a`** extended it with **extra questions** that appear only after the player learns something new in the world — guiding them without giving away answers or removing the need to explore.
+
+**Two layers on the HUD**
+
+| Layer | When shown | Examples |
+|-------|------------|----------|
+| Core story questions | Always (from first Ouija visit) | Why did she leave? / Why was she so sad? / What happened to her? / Where is she now? |
+| Extra questions | Only after a discovery trigger fires | Where are the tasks? / How do I open the door? / The spirit's name. / What is my first task? / What is my second task? |
+
+Answered lines (core or extra) render with strikethrough (`<s>…</s>`). When all four core answers are known, the HUD switches to **“I need to leave and find HER”**.
+
+**`ExtraQuestionStatus` lifecycle** (`StoryManager`)
+
+| Status | On HUD? | Meaning |
+|--------|---------|---------|
+| `DoesntKnow` | Hidden | Player has not encountered this beat yet — no spoiler. |
+| `ShouldAsk` | Shown as active line | Player discovered they need this; HUD suggests what to ask the board. |
+| `Asked` | Shown, struck through | Player asked on the board and received the gated answer. |
+| `DoesntNeedAsk` | Hidden (or struck through if already on list) | Player reached the outcome without asking (e.g. solved cryptex without asking how to open the door). |
+
+**Example unlock chain** (player still chooses wording; gates/classifier match intent)
+
+1. Player finds the locked door / cryptex → **`CryptexInteraction`** sets **How do I open the door?** → `ShouldAsk`.  
+2. Player asks; **`OuijaGateResponseResolver`** `open_door` → `Asked`; chains **The spirit's name.** → `ShouldAsk`.  
+3. Player asks where she is before rituals done → **`wife_where_blocked`** → **Where are the tasks?**, **first task**, **second task** → `ShouldAsk`.  
+4. Ritual names answered on board → `Asked`; beating a minigame without asking can mark a task **`DoesntNeedAsk`** (`MinigameManager`, `CryptexManager`).
+
+**Refinements (`5f5455e`, `b42481e`)**
+
+- Replaced per-instance tracking with static **`ExtraQuestionsToDisplay`** `HashSet` so once an extra question enters the list it stays for the run; **`StoryManager.StartNewGame`** clears it.  
+- Fixed copy-paste bug: **`FirstTask`** / **`SecondTask`** were gated on **`HowOpenDoor`** / **`SpiritName`** status instead of their own — ritual hints could fail to appear or appear at the wrong time.
+
+#### Other playtest polish (15–18 Jun)
+
+- **`Assets/OurAssets/Scripts/UI/InteractPrompt.cs`** — New world-space prompt; billboards toward camera; **`string.Format`** with TMP sprite tags for the active input device (`Player.CurrentDevice`).  
+- **`Assets/OurAssets/Scripts/Player/FirstPersonCharacter.cs`** — **`HandleInteractionPrompt`** raycasts interactables and parents prompt to **`InteractPromptTransform`**; hides prompt on **`OnChangeFromCharacter`**.  
+- **`Assets/OurAssets/Scripts/Interaction/Interactable.cs`** — **`CanInteractWith`** gate; per-object prompt anchor transform.  
+- **`TarotInteraction`**, **`RuneInteraction`**, **`EndInteraction`** — **`ChechCanInteract`** coroutine polls every 0.2 s until minigame/end eligibility (avoids per-frame manager checks). Beaten Tarot/Rune start with **`CanInteractWith = false`**.  
+- **`Candle`** — **`CanBeRelit`** setter and ignite/extinguish toggle **`CanInteractWith`** so lit candles cannot be re-prompted.  
+- **`Player` / `PlayerCharacter`** — **`OnChangeToCharacter`** / **`OnChangeFromCharacter`** hooks on all character modes for prompt cleanup.  
+- **`Assets/OurAssets/Scripts/OuijaBoard.cs`** — **`m_PlanchetteTravelSpeed`**; **`m_PlanchetteTravelTime`** derived per hop from planchette distance.  
+- **`Cryptex.prefab`** / **`CryptexInteraction`** — Centre alignment line on physical rings; UI array renamed to **`m_CryptexPhysicalUI`**.  
+- **`HouseScene`** — Spot light at Ouija room doorway to spill light and draw the player in.
 
 ---
 
