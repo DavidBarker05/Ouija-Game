@@ -18,6 +18,19 @@ Project Schedule & Scheduled Feedback Sessions -[ProjectSchedule_ScheduledFeedba
 **Platform:** Windows PC (Unity 6 standalone); local AI via Ollama   
 **Unity version:** 6000.4.1f1  
 
+
+Part 3
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+Evidence of Attendance - [Evidence_Of_Attendance.pdf](https://github.com/user-attachments/files/29131464/Evidence_Of_Attendance.pdf)
+
+Feedback Summary.md - [Feedback_Summary.pdf](https://github.com/user-attachments/files/29131480/Feedback_Summary.pdf)
+
+Critical Feedback.md - [Critical_Feedback_Document.pdf](https://github.com/user-attachments/files/29131483/Critical_Feedback_Document.pdf)
+
+Final Reflection Report - [Final Reflection Report.pdf](https://github.com/user-attachments/files/29131499/Final.Reflection.Report.pdf)
+
+Internal Playtest Survey Responses - [Survey_Playtest_Feedback_Responses_Spreadsheet.xlsx](https://github.com/user-attachments/files/29131511/Survey_Playtest_Feedback_Responses_Spreadsheet.xlsx)
+
 ---
 
 ## Contents
