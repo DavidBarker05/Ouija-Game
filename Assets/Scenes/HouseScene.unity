@@ -11823,138 +11823,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4769069329094702111, guid: ef29a9b60affdcb4989480098bb0206c, type: 3}
   m_PrefabInstance: {fileID: 615924646}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &615924648 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3816644445097479371, guid: ef29a9b60affdcb4989480098bb0206c, type: 3}
-  m_PrefabInstance: {fileID: 615924646}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15e792280b0386749998bb4a5ab8efab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CryptexRingButton
---- !u!114 &615924649 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3561948166341429722, guid: ef29a9b60affdcb4989480098bb0206c, type: 3}
-  m_PrefabInstance: {fileID: 615924646}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15e792280b0386749998bb4a5ab8efab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CryptexRingButton
---- !u!114 &615924650 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7061553583634219131, guid: ef29a9b60affdcb4989480098bb0206c, type: 3}
-  m_PrefabInstance: {fileID: 615924646}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15e792280b0386749998bb4a5ab8efab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CryptexRingButton
---- !u!114 &615924651 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4943079023464376961, guid: ef29a9b60affdcb4989480098bb0206c, type: 3}
-  m_PrefabInstance: {fileID: 615924646}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15e792280b0386749998bb4a5ab8efab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CryptexRingButton
---- !u!114 &615924652 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 598336937079923198, guid: ef29a9b60affdcb4989480098bb0206c, type: 3}
-  m_PrefabInstance: {fileID: 615924646}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15e792280b0386749998bb4a5ab8efab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CryptexRingButton
---- !u!114 &615924653 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8439198983546419269, guid: ef29a9b60affdcb4989480098bb0206c, type: 3}
-  m_PrefabInstance: {fileID: 615924646}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15e792280b0386749998bb4a5ab8efab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CryptexRingButton
---- !u!114 &615924654 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2437671909803198186, guid: ef29a9b60affdcb4989480098bb0206c, type: 3}
-  m_PrefabInstance: {fileID: 615924646}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15e792280b0386749998bb4a5ab8efab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CryptexRingButton
---- !u!114 &615924655 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 122283997662948770, guid: ef29a9b60affdcb4989480098bb0206c, type: 3}
-  m_PrefabInstance: {fileID: 615924646}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15e792280b0386749998bb4a5ab8efab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CryptexRingButton
---- !u!114 &615924656 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5165734325605303268, guid: ef29a9b60affdcb4989480098bb0206c, type: 3}
-  m_PrefabInstance: {fileID: 615924646}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15e792280b0386749998bb4a5ab8efab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CryptexRingButton
---- !u!114 &615924657 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3145490911448724120, guid: ef29a9b60affdcb4989480098bb0206c, type: 3}
-  m_PrefabInstance: {fileID: 615924646}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15e792280b0386749998bb4a5ab8efab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CryptexRingButton
---- !u!114 &615924658 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6497824548979634690, guid: ef29a9b60affdcb4989480098bb0206c, type: 3}
-  m_PrefabInstance: {fileID: 615924646}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15e792280b0386749998bb4a5ab8efab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CryptexRingButton
---- !u!114 &615924659 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 177160162050963289, guid: ef29a9b60affdcb4989480098bb0206c, type: 3}
-  m_PrefabInstance: {fileID: 615924646}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15e792280b0386749998bb4a5ab8efab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CryptexRingButton
 --- !u!1 &618129552
 GameObject:
   m_ObjectHideFlags: 0
@@ -15832,19 +15700,10 @@ MonoBehaviour:
   m_FirstPersonCharacter: {fileID: 1532632640}
   m_HUD: {fileID: 1700679623}
   m_CryptexUI: {fileID: 24085181}
-  m_CryptexRingButtons:
-  - {fileID: 615924659}
-  - {fileID: 615924658}
-  - {fileID: 615924657}
-  - {fileID: 615924656}
-  - {fileID: 615924655}
-  - {fileID: 615924654}
-  - {fileID: 615924653}
-  - {fileID: 615924652}
-  - {fileID: 615924651}
-  - {fileID: 615924650}
-  - {fileID: 615924649}
-  - {fileID: 615924648}
+  m_CryptexPhysicalUI:
+  - {fileID: 1895428808}
+  - {fileID: 1455115987}
+  - {fileID: 993780835}
 --- !u!114 &842058732
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21020,7 +20879,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 045b2d29bff51a94abeeade50c89f9f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EndInteraction
-  <InteractPromptTransform>k__BackingField: {fileID: 0}
+  <InteractPromptTransform>k__BackingField: {fileID: 1100108357}
   m_LoadingScreen: {fileID: 1279258532}
   m_EndSceneIndex: 5
 --- !u!1001 &1188639939

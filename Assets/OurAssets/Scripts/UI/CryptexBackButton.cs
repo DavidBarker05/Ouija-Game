@@ -13,7 +13,7 @@ public class CryptexBackButton : MonoBehaviour
     [SerializeField]
     GameObject m_CryptexUI;
     [SerializeField]
-    CryptexRingButton[] m_CryptexRingButtons;
+    GameObject[] m_CryptexPhysicalUI;
 
     void Awake()
     {
@@ -21,7 +21,7 @@ public class CryptexBackButton : MonoBehaviour
         {
             m_CryptexUI?.SetActive(false);
             m_HUD?.SetActive(true);
-            foreach (CryptexRingButton b in m_CryptexRingButtons) b.gameObject.SetActive(false);
+            foreach (GameObject go in m_CryptexPhysicalUI) go.SetActive(false);
             m_Player.ChangeCharacter(m_FirstPersonCharacter);
         });
     }
